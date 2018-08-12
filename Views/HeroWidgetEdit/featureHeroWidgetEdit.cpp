@@ -2,6 +2,7 @@
 
 #include "QDebug"
 
+#include <QFile>
 
 FeatureHeroWidgetEdit::FeatureHeroWidgetEdit(QWidget *parent) : QWidget(parent)
 {

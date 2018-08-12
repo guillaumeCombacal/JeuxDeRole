@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml
+QT       += core gui xml quick qml svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,6 +17,15 @@ TEMPLATE = app
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
+RESOURCES += jeuDeRole.qrc
+
+DISTFILES +=
+
+
+# For icon Appli
+RC_FILE = $$PWD/Ressources/ressource.rc
+
+
 # You can also make your code fail to compile if you use deprecated APIs.
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
@@ -28,6 +37,7 @@ INCLUDEPATH +=  $$PWD/Controllers/MainController\
                 $$PWD/Controllers/QuestController\
                 $$PWD/Controllers/WorldMapController\
                 $$PWD/Controllers/Parser\
+                $$PWD/Controllers/Logger\
                 $$PWD/Views/MainWindowWidget\
                 $$PWD/Views/BattleWidget\
                 $$PWD/Views/HeroWidget\
@@ -69,7 +79,8 @@ SOURCES +=\
     Views/HeroWidgetEdit/skillsWidgetEdit.cpp \
     Views/HeroWidgetEdit/statsWidgetEdit.cpp \
     Views/HeroWidget/loadEditHeroWidget.cpp \
-    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp
+    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp \
+    Controllers/Logger/loggerfile.cpp
 
 
 
@@ -108,12 +119,6 @@ HEADERS  += \
     Views/HeroWidgetEdit/skillsWidgetEdit.h \
     Views/HeroWidgetEdit/statsWidgetEdit.h \
     Views/HeroWidget/loadEditHeroWidget.h \
-    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.h
-
-
-
-
-DISTFILES += \
-    Data/data.xml \
-    Data/Hero.xml \
-    Data/HeroData.xml
+    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.h \
+    Controllers/Logger/ilogger.h \
+    Controllers/Logger/loggerfile.h

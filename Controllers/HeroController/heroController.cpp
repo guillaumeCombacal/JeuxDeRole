@@ -1,6 +1,8 @@
 #include "heroController.h"
 #include<QFileDialog>
 
+#include "loggerfile.h"
+
 HeroController::HeroController()
 {
     m_pHeroWidgetEdit = new HeroWidgetEdit();
@@ -170,6 +172,8 @@ void HeroController::onSaveHero()
 
 void HeroController::onLoadImgFaceHero()
 {
+    //LoggerFile::write(Q_FUNC_INFO, "onLoadImgFaceHero");// logger;
+
     // Save the change values in feature herowidget edit before refresh the view
     m_vectorHero[m_indexCurrentHero].saveHeroValue(m_pHeroWidgetEdit->getStatsWidgetEdit()->getStatsValues(),
                                                    m_pHeroWidgetEdit->getFeatureHeroWidgetEdit()->getFeatureValues(),

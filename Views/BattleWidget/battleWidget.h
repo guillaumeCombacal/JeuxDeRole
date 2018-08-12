@@ -11,6 +11,7 @@ class BattleWidget : public QWidget
 
 private:
 
+    QVBoxLayout* m_pLayoutBattleMapWidget;
 
 public:
     explicit BattleWidget(QWidget *parent = 0);

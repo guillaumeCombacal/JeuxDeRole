@@ -2,6 +2,7 @@
 #define WORLDMAPWIDGET_H
 
 #include <QWidget>
+#include <QVBoxLayout>
 
 class WorldMapWidget : public QWidget
 {
@@ -9,6 +10,7 @@ class WorldMapWidget : public QWidget
 
 private:
 
+    QVBoxLayout *m_pLayoutWorldMapWidget;
 
 public:
     explicit WorldMapWidget(QWidget *parent = 0);

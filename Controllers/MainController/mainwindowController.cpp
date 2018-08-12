@@ -1,9 +1,12 @@
 #include "mainWindowController.h"
+#include "loggerfile.h"
 
 #include<QDebug>
 
 MainWindowController::MainWindowController()
 {
+
+    //LoggerFile::write(Q_FUNC_INFO, "yoloTest");// logger;
 
     m_pWorldMapController = new WorldMapController();
     m_pBattleController = new BattleController();
@@ -30,16 +33,6 @@ MainWindowController::MainWindowController()
 
 MainWindowController::~MainWindowController()
 {
-    if(m_pMainWindow != NULL)
-    {
-        delete m_pMainWindow;
-    }
-
-    if(m_pMainWidget != NULL)
-    {
-        delete m_pMainWidget;
-    }
-
     if(m_pWorldMapController != NULL)
     {
         delete m_pWorldMapController;
@@ -59,6 +52,18 @@ MainWindowController::~MainWindowController()
     {
         delete m_pQuestController;
     }
+
+    if(m_pMainWidget != NULL)
+    {
+        delete m_pMainWidget;
+    }
+
+    if(m_pMainWindow != NULL)
+    {
+        delete m_pMainWindow;
+    }
+
+
 }
 
 void MainWindowController::onSwitchOnglet(int idWidget)
