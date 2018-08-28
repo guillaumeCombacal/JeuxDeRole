@@ -9,7 +9,7 @@
 WorldMapWidget::WorldMapWidget(QWidget *parent) : QWidget(parent),
 m_pLayoutWorldMapWidget(NULL)
 {
-    this->setFixedWidth(1200);
+    this->setFixedWidth(1300);
     this->setFixedHeight(600);
 
     m_pLayoutWorldMapWidget = new QVBoxLayout();

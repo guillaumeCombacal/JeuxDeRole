@@ -13,15 +13,48 @@ Rectangle
 {
     id: markerBoard
     //anchors.right: parent.right
-    height: 150
-    width: 100
+    height: parent.height
+    width: parent.width
 
     color:"white"
-    opacity: 0.8
+    opacity: 1
 
-    function markerSelected(idMarker)
+    property bool isMarkerSelected: false
+
+    signal markerSelected(string idMarker, string urlImage)// Propage vers OptionBoard qu'un marker a été sélectionné
+
+    function onMarkerSelected(idMarker, urlImage)
     {
-        console.log(idMarker + " Pressed");
+        if(!markerBoard.isMarkerSelected)
+        {
+            markerBoard.isMarkerSelected = true;
+        }
+
+        markerSelected(idMarker, urlImage);
+
+        // Change Opacity to see which marker is selected
+        for (var i = 0; i < grid.children.length; ++i)
+        {
+            if(grid.children[i].idMarker === idMarker)
+            {
+                grid.children[i].opacity = 1;
+                grid.children[i].border.width = 3;
+            }
+            else
+            {
+                grid.children[i].opacity = 0.5;
+                grid.children[i].border.width = 0;
+            }
+        }
+    }
+
+    function allMarkerUnselected()
+    {
+        for (var i = 0; i < grid.children.length; ++i)
+        {
+            grid.children[i].opacity = 0.5;
+            grid.children[i].border.width = 0;
+        }
     }
 
     // Layout contenant tous les btn de marker
@@ -35,6 +68,8 @@ Rectangle
 
             MarkerBtn
             {
+                id:markerQuest
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -42,17 +77,19 @@ Rectangle
                 Layout.row: 0
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerQuest.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerQuest.png"
                 idMarker: "MarkerQuest"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 
             MarkerBtn
             {
+                id:markerTown
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -60,17 +97,19 @@ Rectangle
                 Layout.row: 0
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerTown.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerTown.png"
                 idMarker: "MarkerTown"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 
             MarkerBtn
             {
+                id:markerEnnemy
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -78,17 +117,19 @@ Rectangle
                 Layout.row: 1
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerEnnemy.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerEnnemy.png"
                 idMarker: "MarkerEnnemy"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 
             MarkerBtn
             {
+                id:markerDungeon
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -96,17 +137,19 @@ Rectangle
                 Layout.row: 1
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerDungeon.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerDungeon.png"
                 idMarker: "MarkerDungeon"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 
             MarkerBtn
             {
+                id:markerHolyPlace
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -114,17 +157,19 @@ Rectangle
                 Layout.row: 2
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerHolyPlace.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerHolyPlace.png"
                 idMarker: "MarkerHolyPlace"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 
             MarkerBtn
             {
+                id:markerMountain
+
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 Layout.columnSpan: 1
@@ -132,12 +177,12 @@ Rectangle
                 Layout.row: 2
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/Marker/MarkerMountain.png"
+                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerMountain.png"
                 idMarker: "MarkerMountain"
 
                 onMarkerBtnSelected:
                 {
-                    markerBoard.markerSelected(idMarker);
+                    markerBoard.onMarkerSelected(idMarker, urlImage);
                 }
             }
 

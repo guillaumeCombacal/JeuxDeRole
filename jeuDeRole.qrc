@@ -1,10 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>QML/BattleMap/battleMap.qml</file>
         <file>QML/WorldMap/WorldMap.qml</file>
         <file>QML/WorldMap/MarkerBoard.qml</file>
         <file>QML/WorldMap/OptionBoard.qml</file>
         <file>QML/WorldMap/Marker.qml</file>
         <file>QML/WorldMap/MarkerBtn.qml</file>
+        <file>QML/WorldMap/ModelDataWorldMap.js</file>
+        <file>QML/BattleMap/BattleMap.qml</file>
     </qresource>
 </RCC>

@@ -52,7 +52,6 @@ SOURCES +=\
     Views/HeroWidget/statsWidget.cpp \
     Views/MainWindowWidget/mainWidget.cpp \
     Views/MainWindowWidget/mainWindow.cpp \
-    Views/BattleWidget/battleWidget.cpp \
     Views/HeroWidget/heroWidget.cpp \
     Views/QuestWidget/questWidget.cpp \
     Views/WorldMapWidget/worldMapWidget.cpp \
@@ -80,7 +79,8 @@ SOURCES +=\
     Views/HeroWidgetEdit/statsWidgetEdit.cpp \
     Views/HeroWidget/loadEditHeroWidget.cpp \
     Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp \
-    Controllers/Logger/loggerfile.cpp
+    Controllers/Logger/loggerfile.cpp \
+    Views/BattleWidget/battleWidget.cpp
 
 
 

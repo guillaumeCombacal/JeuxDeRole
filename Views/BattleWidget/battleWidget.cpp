@@ -23,7 +23,7 @@ BattleWidget::BattleWidget(QWidget *parent) : QWidget(parent)
 
     //view->rootContext()->setContextProperty("anchor", &anchor);
 
-    view->setSource(QUrl("qrc:/QML/BattleMap/battleMap.qml")); // Fetch this url by right clicking on your resource file.
+    view->setSource(QUrl("qrc:/QML/BattleMap/BattleMap.qml")); // Fetch this url by right clicking on your resource file.
 
     m_pLayoutBattleMapWidget->addWidget(container);
 
