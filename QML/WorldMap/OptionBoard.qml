@@ -51,9 +51,12 @@ Rectangle
             height: parent.height
             width: parent.width
             rotation: 180
-            source: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/arrow.svg"
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrow.svg"
         }
     }
+
+    // ZOOM ///////////////////////////////////////////////////////////////////////////////////////////////
+    //*****************************************************************************************************
 
     // Label Slider - Zoom Level
     Label
@@ -61,7 +64,7 @@ Rectangle
         FontLoader
         {
                 id: labelFont
-                source: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/MORPHEUS.ttf"
+                source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/MORPHEUS.ttf"
         }
 
         id: labelZoomLevel
@@ -90,15 +93,55 @@ Rectangle
 
         orientation : Qt.Horizontal
 
-        onValueChanged: {
+        onValueChanged:
+        {
             if (value >= 0)
             {
                 optionBoard.zoomLevelChange(value);
             }
 
+            // Set the text value
+            var newValue = Math.round(value * 100)/100;
+            labelZoomLevelValue.text = newValue;
+
+            // Label value following the cursor with %
+            var purcentValue = (value - 1) / (zoomSlider.maximumValue - 1);
+            labelZoomLevelValue.x = zoomSlider.width * purcentValue;
+
+
+            //var sliderWidth = zoomSlider.width - (zoomSlider.width / 3);
+            //var offsetX = zoomSlider.width * (value / zoomSlider.maximumValue);
+            //labelZoomLevelValue.x = offsetX - ((zoomSlider.width / 3) * (value / zoomSlider.maximumValue));// because zoom begin at 1
         }
 
+        // Info bulle zoomLevel Label
+        Label
+        {
+            id: labelZoomLevelValue
+            text: ""
+            font.pixelSize: 22
+            font.family: labelZoomLevelValueFont.name
+            color: "white"
+
+            y: zoomSlider.height
+
+            FontLoader
+            {
+                    id: labelZoomLevelValueFont
+                    source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/MORPHEUS.ttf"
+            }
+        }
+
+        // INfo Bulle
+        /*ToolTip
+        {
+            parent: zoomSlider.handle
+            visible: zoomSlider.pressed
+            text: zoomSlider.value.toFixed(1)
+        }*/
+
     }
+    //*****************************************************************************************************
 
     // Btn Load Img Map
     Rectangle
@@ -125,7 +168,7 @@ Rectangle
             FontLoader
             {
                     id: textFont
-                    source: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/MORPHEUS.ttf"
+                    source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/MORPHEUS.ttf"
             }
         }
 

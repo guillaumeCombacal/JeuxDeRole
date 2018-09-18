@@ -8,14 +8,13 @@ import QtPositioning 5.5
 
 //import classAnchor 1.0 // Permet d'importer la déclaration de la classe Anchor pour créer une référence dans le QML
 
-//import "ModelDataWorldMap.js" as MarkerData;
-//Components.utils.import//("resource://C:\Users\Yaku\Documents\DeveloppementCode\PROJECT\jeuxDeRole\JeuDeRole\QML\WorldMap\ModelDataWorldMap.js");
-
+import "ModelDataWorldMap.js" as MarkerData;
 
 Item
 {
 
     id: worldMap
+
     height: parent.height
     width : parent.width
     //color : "green"
@@ -40,6 +39,10 @@ Item
             // Zoom l image
             worldMap.zoomLevel = zoomLevel
 
+            // Init x and y offset
+            var xOffset = imgWorldMap.width;
+            var yOffset = imgWorldMap.height;
+
             // Change la dimension de la flickable area contenant l'image
             flickMapArea.contentHeight = imgWorldMap.height * zoomLevel
             flickMapArea.contentWidth = imgWorldMap.width * zoomLevel
@@ -52,7 +55,7 @@ Item
 
             optionBoard.x = parent.width
 
-            flickMapArea.state = "FOCUS_ON_HERO";
+            flickMapArea.state = "FOCUS_ON_MAP";
         }
 
         onMarkerSelected:
@@ -74,7 +77,6 @@ Item
 // Component containing the image of the map
     Flickable
     {
-
         id: flickMapArea
 
         width: parent.width
@@ -90,9 +92,13 @@ Item
 
         // Tableau d'etat
         // Pour savoir ce que l'on fait sur la map (deplacement perso, ajout de marker, autre...)
-        state: "FOCUS_ON_HERO"
+        state: "FOCUS_ON_MAP"
         states:
             [
+                State
+                {
+                    name: "FOCUS_ON_MAP"
+                },
                 State
                 {
                     name: "FOCUS_ON_HERO"
@@ -106,28 +112,61 @@ Item
         // Add Marker Component on the map
         function createMarkerObjects(xPos, yPos)
         {
+            // Create a new Marker component
             var component;
             var sprite;
             component = Qt.createComponent("Marker.qml");
-            sprite = component.createObject(imgWorldMap, {"width": 50, "height": 50, urlImage: urlImageMarker, idMarker: idMarker});
+            sprite = component.createObject(imgWorldMap, {"width": imgWorldMap.width/50, "height": imgWorldMap.width/50, urlImage: urlImageMarker, idMarker: flickMapArea.idMarker});
 
-            // Set the position of the image
+            // Set the position of the Marker component
             sprite.x = xPos / zoomLevel - sprite.width /2;
             sprite.y = yPos / zoomLevel - sprite.height /2;
 
-            if (sprite === null)
+            // Create a Marker object and add it in a vector
+            var newMarker = new MarkerData.Marker(Math.floor(sprite.x), Math.floor(sprite.y), flickMapArea.idMarker, urlImageMarker);
+            MarkerData.vectMarker.push(newMarker);
+
+            // Connect the destruction of the Marker with the callback
+            sprite.deleteMarker.connect(onDeleteMarker);
+
+        }
+
+        // Destroy the Marker from the vector
+        function onDeleteMarker(idMarker, x, y)
+        {
+            for(var i = 0; i<MarkerData.vectMarker.length; i++)
             {
-                // Error Handling
-                console.log("Error creating object");
+                if(idMarker === MarkerData.vectMarker[i].getIdMarker())
+                {
+                    if(x === Math.floor(MarkerData.vectMarker[i].getMarkerXPosition()))
+                    {
+                        MarkerData.vectMarker.splice(i, 1);// Destroy 1 element from element i
+
+                        console.log("Victory");
+                        console.log("*******");
+                    }
+                };
             }
+
         }
 
         Image
         {
             id: imgWorldMap
 
-            source: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Oriense_World_Map.png"
+            // z = 1 for image allows at all sprites on image to get the focus
+            z:1
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Oriense_World_Map.png"
+
             transform: Scale{xScale: worldMap.zoomLevel; yScale: worldMap.zoomLevel}
+
+            SpriteHero
+            {
+                id: spriteAnimation
+                width : imgWorldMap.width / 25
+                height : imgWorldMap.width / 25 + ((imgWorldMap.width / 25) / 3)
+            }
         }
 
         MouseArea
@@ -140,20 +179,17 @@ Item
             {
                 if(flickMapArea.state === "FOCUS_ON_HERO")
                 {
-                    console.log("Point = " + Qt.point(mouse.x, mouse.y));
+                    // Move the sprite
+                    spriteAnimation.moveHero(mouse.x, mouse.y, worldMap.zoomLevel);
                 }
                 if(flickMapArea.state === "FOCUS_ON_MARKER")
                 {
-                    console.log("Point = " + Qt.point(mouse.x, mouse.y));
                     flickMapArea.createMarkerObjects(mouse.x, mouse.y);
-                    //console.log(MarkerData.currentIdMarker);
                 }
-
             }
         }
 
     }
-
 // Component to launch the marker Menu
     Rectangle
     {
@@ -171,8 +207,7 @@ Item
             height: parent.height
             anchors.fill: parent
             onPressed:
-            {
-              console.log("Open MARKER Menu !!! ")
+            {        
                 //Opacity 0 & disable
                 launcherMarkerBoard.opacity = 0;
                 launcherMarkerBoard.enabled = false;
@@ -190,7 +225,7 @@ Item
             sourceSize.width: parent.width
             sourceSize.height: parent.height
 
-            source: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/ImgTest/arrow.svg"
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrow.png"
 
         }
     }

@@ -7,5 +7,7 @@
         <file>QML/WorldMap/MarkerBtn.qml</file>
         <file>QML/WorldMap/ModelDataWorldMap.js</file>
         <file>QML/BattleMap/BattleMap.qml</file>
+        <file>QML/WorldMap/SpriteHero.qml</file>
+        <file>QML/WorldMap/InfoMarker.qml</file>
     </qresource>
 </RCC>

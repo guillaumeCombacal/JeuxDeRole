@@ -23,7 +23,11 @@ m_pLayoutWorldMapWidget(NULL)
     container->setMinimumSize(this->width(), this->height());
     container->setMaximumSize(this->width(), this->height());
 
-    view->rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
+    #ifdef QT_DEBUG
+        view->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
+    #else// Release Mode
+        view->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath());
+    #endif
 
     view->setSource(QUrl("qrc:/QML/WorldMap/WorldMap.qml")); // Fetch this url by right clicking on your resource file.
 

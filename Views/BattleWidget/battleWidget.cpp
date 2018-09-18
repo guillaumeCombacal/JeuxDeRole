@@ -2,7 +2,8 @@
 
 #include "QDebug"
 
-#include <QQuickView>
+//#include <QQuickView>
+#include "C:\\Qt\\5.8\\msvc2015_64\\include\\QtQuick\\qquickview.h"
 #include <QQmlContext>
 
 BattleWidget::BattleWidget(QWidget *parent) : QWidget(parent)

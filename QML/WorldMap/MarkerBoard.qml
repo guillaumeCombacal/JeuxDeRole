@@ -77,7 +77,7 @@ Rectangle
                 Layout.row: 0
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerQuest.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerQuest.png"
                 idMarker: "MarkerQuest"
 
                 onMarkerBtnSelected:
@@ -97,7 +97,7 @@ Rectangle
                 Layout.row: 0
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerTown.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerTown.png"
                 idMarker: "MarkerTown"
 
                 onMarkerBtnSelected:
@@ -117,7 +117,7 @@ Rectangle
                 Layout.row: 1
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerEnnemy.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerEnnemy.png"
                 idMarker: "MarkerEnnemy"
 
                 onMarkerBtnSelected:
@@ -137,7 +137,7 @@ Rectangle
                 Layout.row: 1
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerDungeon.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerDungeon.png"
                 idMarker: "MarkerDungeon"
 
                 onMarkerBtnSelected:
@@ -157,7 +157,7 @@ Rectangle
                 Layout.row: 2
                 Layout.column: 0
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerHolyPlace.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerHolyPlace.png"
                 idMarker: "MarkerHolyPlace"
 
                 onMarkerBtnSelected:
@@ -177,7 +177,7 @@ Rectangle
                 Layout.row: 2
                 Layout.column: 1
 
-                urlImage: "file:///" + applicationDirPath + "/../../JeuDeRole/Ressources/qmlRessources/Marker/MarkerMountain.png"
+                urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerMountain.png"
                 idMarker: "MarkerMountain"
 
                 onMarkerBtnSelected:
