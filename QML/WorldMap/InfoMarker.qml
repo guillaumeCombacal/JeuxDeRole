@@ -13,6 +13,8 @@ Rectangle
     color:"white"
     opacity: 0.5
 
+    property string title: ""
+
     Rectangle
     {
         id: infoMarkerTitle
@@ -22,20 +24,6 @@ Rectangle
 
         color: "white"
 
-        state: "DISPLAYING"
-        states:
-            [
-                State
-
-                {
-                    name: "DISPLAYING"
-                },
-                State
-                {
-                    name: "EDITING"
-                }
-            ]
-
         TextEdit
         {
             id: textEditTitle
@@ -43,8 +31,6 @@ Rectangle
             anchors.fill:parent
             width:parent.width;
             height:parent.height
-
-            //enabled: false
 
             FontLoader
             {
@@ -54,54 +40,65 @@ Rectangle
 
             font.family: textEditTitleFont.name
 
+            // Save the title text
+            onTextChanged:
+            {
+                infoMarker.title = textEditTitle.text;
+            }
+
             wrapMode: TextEdit.Wrap
         }
-
-        /*MouseArea
-        {
-            id: mouseAreaInfoTitle
-
-            anchors.fill:parent
-            width:parent.width
-            height:parent.height
-
-            onPressed:
-            {
-                console.log("mouseAreaInfoTitle Pressed");
-
-                //if
-            }
-        }*/
     }
 
     // Description Marker
-    Rectangle
-    {
-        id: infoMarkerResume
-
-        width: parent.width
-        height: (parent.height / 5) * 4
-
-        y: infoMarkerTitle.height
-
-        color: "orange"
-
-        TextEdit
+        Rectangle
         {
-            id: textEditResume
+            id: infoMarkerResume
 
-            anchors.fill:parent
-            width:parent.width;
-            height:parent.height
+            width: parent.width
+            height: (parent.height / 5) * 4
 
-            //color:"white"
-            //focus: true
+            y: infoMarkerTitle.height
 
-            //wrapMode: TextEdit.Wrap
+            color: "orange"
 
-            //onCursorRectangleChanged: flickArea.ensureVisible(cursorRectangle)
+            /*Flickable
+            {
+                 id: flick
+
+                 width: parent.width
+                 height: (parent.height / 5) * 4
+
+                 y: infoMarkerTitle.height
+
+                 contentWidth: textEditResume.paintedWidth
+                 contentHeight: textEditResume.paintedHeight
+
+                 clip: true
+
+                 function ensureVisible(r)
+                 {
+                     if (contentX >= r.x)
+                         contentX = r.x;
+                     else if (contentX+width <= r.x+r.width)
+                         contentX = r.x+r.width-width;
+                     if (contentY >= r.y)
+                         contentY = r.y;
+                     else if (contentY+height <= r.y+r.height)
+                         contentY = r.y+r.height-height;
+                 }*/
+
+                TextEdit
+                {
+                    id: textEditResume
+
+                    anchors.fill:parent
+                    width:parent.width;
+                    height:parent.height
+
+                    wrapMode: TextEdit.Wrap
+                    //onCursorRectangleChanged: flick.ensureVisible(cursorRectangle)
+                }
+            //}
         }
-    }
-
-
 }

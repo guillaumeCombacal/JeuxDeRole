@@ -52,10 +52,28 @@ Rectangle
         onPressed:
         {
 
-            if (mouseAreaMarker.pressedButtons & Qt.RightButton)
+            if (mouseAreaMarker.pressedButtons & Qt.RightButton)// ClickDroit
             {
-                        console.log("right-button pressed")
-            } else if (mouseAreaMarker.pressedButtons === Qt.LeftButton)
+                // Destroy the Marker Component
+                marker.destroy();
+
+                // Destroy the Marker Obj
+                var markerXPos = marker.x;
+                var markerYPos = marker.y;
+
+                // Calcule the offset
+                if(marker.state === "HOVERED")
+                {
+                    var offsetX = (marker.width - (marker.width / 1.5)) / 2;
+                    var offsetY = (marker.width - (marker.width / 1.5)) / 2;
+
+                    markerXPos = markerXPos + offsetX;
+                    markerYPos = markerYPos + offsetY;
+                }
+
+                deleteMarker(marker.idMarker, markerXPos, markerYPos);
+            }
+            else if (mouseAreaMarker.pressedButtons === Qt.LeftButton)
             {
                         console.log("left-button pressed")
             }
@@ -65,22 +83,8 @@ Rectangle
 
         onDoubleClicked:
         {
-            marker.destroy();
-
-            var markerXPos = marker.x;
-            var markerYPos = marker.y;
-
-            // Calcule the offset
-            if(marker.state === "HOVERED")
-            {
-                var offsetX = (marker.width - (marker.width / 1.5)) / 2;
-                var offsetY = (marker.width - (marker.width / 1.5)) / 2;
-
-                markerXPos = markerXPos + offsetX;
-                markerYPos = markerYPos + offsetY;
-            }
-
-            deleteMarker(marker.idMarker, markerXPos, markerYPos);
+            infoMarkerTitle.visible = false
+            infoMarker.visible = true;
         }
 
         onEntered:
@@ -99,8 +103,8 @@ Rectangle
             marker.x = marker.x - offsetX;
             marker.y = marker.y - offsetY;
 
-            // Infos are visible
-            infoMarker.visible = true;
+            // Title is visible
+            infoMarkerTitle.visible = true;
 
             marker.state = "HOVERED";
         }
@@ -121,7 +125,13 @@ Rectangle
             marker.y = marker.y + offsetY;
 
             // Infos are not visible anymore
-            infoMarker.visible = false;
+            infoMarkerTitle.visible = false;
+
+            // Disable Edit Info
+            if(infoMarker.visible === true)
+            {
+                infoMarker.visible = false;
+            }
 
             marker.state = "DEFAULT";
         }
@@ -136,6 +146,34 @@ Rectangle
             visible: false
 
             z: 1
+        }
+
+        Rectangle
+        {
+            id: infoMarkerTitle
+
+            width:100
+            height: 20
+
+            x: parent.x - infoMarkerTitle.width / 4
+            y: parent.y - infoMarkerTitle.height
+
+            color:"white"
+            opacity: 0.7
+
+            Text
+            {
+                FontLoader
+                {
+                        id: textTitle
+                        source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/MORPHEUS.ttf"
+                }
+
+                font.family: textTitle.name
+
+                text: infoMarker.title
+            }
+
         }
     }
 

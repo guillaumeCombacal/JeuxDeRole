@@ -5,12 +5,26 @@
 #include <QQuickView>
 #include <QQmlContext>
 #include <QGuiApplication>
+#include <QDesktopWidget>
+#include <QApplication>
 
 WorldMapWidget::WorldMapWidget(QWidget *parent) : QWidget(parent),
 m_pLayoutWorldMapWidget(NULL)
 {
-    this->setFixedWidth(1300);
-    this->setFixedHeight(600);
+
+    // Get the size of the user's screen
+    QDesktopWidget *desktopWidget = QApplication::desktop();
+    int width  = desktopWidget->screenGeometry().width();
+    int height = desktopWidget->screenGeometry().height();
+
+    qDebug()<<"widthDesktop = "<<width;
+    qDebug()<<"heightDesktop = "<<height;
+
+    //this->setFixedWidth(1300);
+    //this->setFixedHeight(600);
+
+    this->setFixedWidth(width - 18);
+    this->setFixedHeight(height - 140);
 
     m_pLayoutWorldMapWidget = new QVBoxLayout();
 

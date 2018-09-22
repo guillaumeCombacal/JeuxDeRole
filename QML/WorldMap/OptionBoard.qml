@@ -38,20 +38,33 @@ Rectangle
             height: parent.height
             anchors.fill: parent
 
+            hoverEnabled: true // Allow to cath event callback onEntered & onExited
+
             onPressed:
             {
               optionBoard.closeOptionBoard();
               markerBoard.allMarkerUnselected();
               markerBoard.isMarkerSelected = false;
             }
+
+            onEntered:
+            {
+                imgArrowOptionMenu.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrowMenuOptionHovered.png"
+            }
+            onExited:
+            {
+                imgArrowOptionMenu.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrowMenuOption.png"
+            }
         }
 
         Image
         {
+            id: imgArrowOptionMenu
+
             height: parent.height
             width: parent.width
             rotation: 180
-            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrow.svg"
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrowMenuOption.png"
         }
     }
 

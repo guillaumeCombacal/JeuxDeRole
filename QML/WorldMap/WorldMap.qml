@@ -201,11 +201,15 @@ Item
         anchors.right: parent.right
         y:parent.height /2 - launcherMarkerBoard.height / 2
 
+
         MouseArea
         {
             width: parent.width
             height: parent.height
             anchors.fill: parent
+
+            hoverEnabled: true // Allow to cath event callback onEntered & onExited
+
             onPressed:
             {        
                 //Opacity 0 & disable
@@ -216,10 +220,21 @@ Item
                 optionBoard.x = worldMap.width - optionBoard.width;
                 optionBoard.z = 1;
             }
+
+            onEntered:
+            {
+                imgArrowBoardMenu.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrowHovered.png"
+            }
+            onExited:
+            {
+                imgArrowBoardMenu.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/arrow.png"
+            }
         }
 
         Image
         {
+            id: imgArrowBoardMenu
+
             height: parent.height
             width: parent.width
             sourceSize.width: parent.width
