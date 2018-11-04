@@ -145,7 +145,6 @@ Rectangle
 
             visible: false
 
-            z: 1
         }
 
         Rectangle

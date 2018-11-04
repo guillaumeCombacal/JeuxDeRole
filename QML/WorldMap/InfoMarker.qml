@@ -15,6 +15,19 @@ Rectangle
 
     property string title: ""
 
+    MouseArea
+    {
+        width: parent.width
+        height: parent.height
+        anchors.fill: parent
+        hoverEnabled: true // Allow to cath event callback onEntered & onExited
+
+        onEntered:
+        {
+            infoMarker.visible = true;
+        }
+    }
+
     Rectangle
     {
         id: infoMarkerTitle
@@ -62,31 +75,39 @@ Rectangle
 
             color: "orange"
 
-            /*Flickable
+            Flickable
             {
                  id: flick
 
                  width: parent.width
-                 height: (parent.height / 5) * 4
+                 height: parent.height
+                 anchors.fill:parent
 
-                 y: infoMarkerTitle.height
-
-                 contentWidth: textEditResume.paintedWidth
-                 contentHeight: textEditResume.paintedHeight
-
+                 // Avoid to see the text out of the infoMarkerResume area
                  clip: true
 
+                 // Allow to follow the cursor and set the area visible
                  function ensureVisible(r)
                  {
                      if (contentX >= r.x)
+                     {
                          contentX = r.x;
+                     }
                      else if (contentX+width <= r.x+r.width)
-                         contentX = r.x+r.width-width;
+                     {
+                        contentX = r.x+r.width-width;
+                     }
+
                      if (contentY >= r.y)
-                         contentY = r.y;
+                     {
+                        contentY = r.y;
+                     }
                      else if (contentY+height <= r.y+r.height)
-                         contentY = r.y+r.height-height;
-                 }*/
+                     {
+                        contentY = r.y+r.height-height;
+                     }
+
+                 }
 
                 TextEdit
                 {
@@ -96,9 +117,11 @@ Rectangle
                     width:parent.width;
                     height:parent.height
 
+                    focus: true
+
                     wrapMode: TextEdit.Wrap
-                    //onCursorRectangleChanged: flick.ensureVisible(cursorRectangle)
+                    onCursorRectangleChanged: flick.ensureVisible(cursorRectangle)
                 }
-            //}
+            }
         }
 }

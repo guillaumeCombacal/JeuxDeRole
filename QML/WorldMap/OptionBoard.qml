@@ -14,6 +14,12 @@ Rectangle
     color: "black"
     opacity: 0.5
 
+    width:parent.width / 4
+    height: 8 * (parent.height / 10)
+
+    y:parent.height / 10
+    x:parent.width
+
     signal zoomLevelChange(double zoomLevel)// Zoom the worldMap
     signal closeOptionBoard()// Close the option board
     signal markerSelected(string idMarker, string urlImage)// Propage vers WorldMap qu'un marker a été sélectionné
@@ -214,7 +220,7 @@ Rectangle
     FileDialog
     {
         id: fileDialog
-        title: "Please choose a file"
+        title: "Choose your image"
         folder: shortcuts.home
         nameFilters: [ "Image files (*.jpg *.png)", "All files (*)" ]
 
@@ -222,12 +228,11 @@ Rectangle
         {
             console.log("You chose: " + fileDialog.fileUrls)
             optionBoard.loadImgWorldMap(fileDialog.fileUrls);
-            Qt.quit()
+            Qt.exit(1)
         }
         onRejected:
         {
-            console.log("Canceled")
-            Qt.quit()
+            Qt.exit(1)
         }
         Component.onCompleted: visible = false
     }

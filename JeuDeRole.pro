@@ -80,7 +80,8 @@ SOURCES +=\
     Views/HeroWidget/loadEditHeroWidget.cpp \
     Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp \
     Controllers/Logger/loggerfile.cpp \
-    Views/BattleWidget/battleWidget.cpp
+    Views/BattleWidget/battleWidget.cpp \
+    Controllers/Communication/interfaceQML.cpp
 
 
 
@@ -121,4 +122,5 @@ HEADERS  += \
     Views/HeroWidget/loadEditHeroWidget.h \
     Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.h \
     Controllers/Logger/ilogger.h \
-    Controllers/Logger/loggerfile.h
+    Controllers/Logger/loggerfile.h \
+    Controllers/Communication/interfaceQML.h

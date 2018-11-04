@@ -8,6 +8,12 @@ Rectangle
     height: parent.width / 25 + ((parent.width / 25) / 3)
     color: "transparent"
 
+    function spriteRestart()
+    {
+        sprite.restart();
+        console.log("sprite restart");
+    }
+
     Behavior on x
     {
         NumberAnimation

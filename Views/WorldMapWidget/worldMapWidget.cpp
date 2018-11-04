@@ -17,9 +17,7 @@ m_pLayoutWorldMapWidget(NULL)
     int width  = desktopWidget->screenGeometry().width();
     int height = desktopWidget->screenGeometry().height();
 
-    qDebug()<<"widthDesktop = "<<width;
-    qDebug()<<"heightDesktop = "<<height;
-
+    // Old Way !
     //this->setFixedWidth(1300);
     //this->setFixedHeight(600);
 

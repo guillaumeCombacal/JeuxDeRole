@@ -23,16 +23,15 @@ Item
     //zoomLevel: 1
     property double zoomLevel: 1
 
+    function restartHeroSprite()
+    {
+        spriteAnimation.spriteRestart();
+    }
+
     // The Option Board
     OptionBoard
     {
         id: optionBoard
-
-        width:parent.width / 4
-        height: parent.height
-
-        y:parent.height /2 - optionBoard.height / 2
-        x:parent.width
 
         onZoomLevelChange:
         {
@@ -141,9 +140,6 @@ Item
                     if(x === Math.floor(MarkerData.vectMarker[i].getMarkerXPosition()))
                     {
                         MarkerData.vectMarker.splice(i, 1);// Destroy 1 element from element i
-
-                        console.log("Victory");
-                        console.log("*******");
                     }
                 };
             }

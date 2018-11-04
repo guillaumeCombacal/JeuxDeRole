@@ -11,6 +11,12 @@
 
 #include<QObject>
 
+// Forward Declaration
+class QDesktopWidget;
+class QWidget;
+class QQuickView;
+class QApplication;
+
 class MainWindowController : public QObject
 {
     Q_OBJECT
@@ -25,14 +31,24 @@ private:
     HeroController *m_pHeroController;
     QuestController *m_pQuestController;
 
+    // ************ QML ***********
+    QDesktopWidget* m_desktopWidget;
+    QWidget*        m_mainWindow;
+    QQuickView*     m_viewQML;
+
+    QApplication* m_pApp;
+
 public:
-    MainWindowController();
+    MainWindowController(QApplication* app);
     ~MainWindowController();
 
 public slots:
     void onSwitchOnglet(int idWidget);
     void onSwitchHeroEditView();
     void onSwitchHeroView();
+
+    // QML
+    void onQuitQMLApplication();
 };
 
 #endif // MAINWINDOWCONTROLLER_H

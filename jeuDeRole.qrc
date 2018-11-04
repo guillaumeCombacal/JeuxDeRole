@@ -9,5 +9,18 @@
         <file>QML/BattleMap/BattleMap.qml</file>
         <file>QML/WorldMap/SpriteHero.qml</file>
         <file>QML/WorldMap/InfoMarker.qml</file>
+        <file>QML/MainWindow.qml</file>
+        <file>QML/CommonMenu/SettingMenu/SettingMenu.qml</file>
+        <file>QML/CommonMenu/MusicPlayer/MusicPlayer.qml</file>
+        <file>QML/CommonMenu/NavMenu/NavMenu.qml</file>
+        <file>QML/HeroMenu/HeroMenu.qml</file>
+        <file>QML/HeroMenu/EquipmentHero.qml</file>
+        <file>QML/HeroMenu/StatsHero.qml</file>
+        <file>QML/HeroMenu/BagHero.qml</file>
+        <file>QML/HeroMenu/FeatureHero.qml</file>
+        <file>QML/CommonMenu/MusicPlayer/PlaylistMenu.qml</file>
+        <file>QML/CommonMenu/MusicPlayer/MusicMenu.qml</file>
+        <file>QML/CommonMenu/MusicPlayer/PlayerMenu.qml</file>
+        <file>QML/CommonMenu/MusicPlayer/ModelMusicPlayer.js</file>
     </qresource>
 </RCC>
