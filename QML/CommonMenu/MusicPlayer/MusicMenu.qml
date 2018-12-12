@@ -19,6 +19,7 @@ Rectangle
     color: "silver"
 
     //signal displayMusicPlayer()
+
     signal addNewMusic(string filenameMusic, string currentPlaylistName)
 
     signal changeSelectedMusic(string musicName)
