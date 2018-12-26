@@ -12,9 +12,12 @@ Rectangle
     width: parent.width / 3
     height: parent.height
 
+    property int indexSelectedPlaylist: 0
+
     signal changePlaylistName(string oldPlaylistName, string newPlaylistName)// Change the playlist Name
     signal createPlaylist(string playlistName)// Create a new playlist
     signal changeSelectedPlaylist(string selectedPlaylistName);
+    signal signalRemoveCurrentPlaylist();
 
     // Create a Playlist and add it to the listModel
     function addPlaylistInListModel(playlistName)
@@ -80,6 +83,9 @@ Rectangle
         listModelPlaylist.get(posPlaylist).selectedPlaylist = true;
         listModelPlaylist.get(posPlaylist).currentColor = "turquoise";
         changeSelectedPlaylist(listModelPlaylist.get(posPlaylist).playlistNameData);
+
+        // Stock the index of the current selected playlist in the listModel
+        playlistMenu.indexSelectedPlaylist = posPlaylist;
     }
 
 
@@ -141,15 +147,15 @@ Rectangle
                width: parent.width
                height: listPlaylist.height / 4
 
-               //Keys.onPressed:
-               //{
-               //    console.log("-- Key EVENT --");
+               /*Keys.onPressed:
+               {
+                   console.log("-- Key EVENT --");
 
-                //if(event.key === Qt.Key_Enter)
-                //{
-                //    console.log("-- Key Enter --");
-                //}
-               //}
+                    if(event.key === Qt.Key_Enter)
+                    {
+                        console.log("-- Key Enter --");
+                    }
+               }*/
 
                //id: playlistName
 
@@ -266,7 +272,7 @@ Rectangle
     {
         id: btnCreatePlaylist
 
-        width: parent.width
+        width: parent.width / 2
         height: parent.height / 6
 
         y: 5 * (parent.height / 6)
@@ -282,7 +288,7 @@ Rectangle
             }*/
 
             id: labelBtnCreatePlaylist
-            text: "+ Create Playlists"
+            text: "+ Playlist"
             font.pixelSize: 22
             //font.family: labelFont.name
             color: "black"
@@ -314,6 +320,62 @@ Rectangle
             onExited:
             {
                 btnCreatePlaylist.color = "white"
+            }
+        }
+    }
+
+    // BUTTON TO REMOVE A PLAYLIST
+    Rectangle
+    {
+        id: btnRemovePlaylist
+
+        width: parent.width / 2
+        height: parent.height / 6
+
+        y: 5 * (parent.height / 6)
+        x: parent.width / 2
+
+        z: 1
+
+        Label
+        {
+            /*FontLoader
+            {
+                    id: labelFont
+                    source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/MORPHEUS.ttf"
+            }*/
+
+            id: labelBtnRemovePlaylist
+            text: "- Playlist"
+            font.pixelSize: 22
+            //font.family: labelFont.name
+            color: "black"
+
+            x: parent.width / 2 - labelBtnRemovePlaylist.width / 2
+        }
+
+        MouseArea
+        {
+            width: parent.width
+            height: parent.height
+            anchors.fill: parent
+            hoverEnabled: true // Allow to cath event callback onEntered & onExited
+
+            // Remove a playlist
+            onPressed:
+            {
+                // Signal to remove the current playlist
+                signalRemoveCurrentPlaylist();
+                listModelPlaylist.remove(playlistMenu.indexSelectedPlaylist);
+            }
+
+            onEntered:
+            {
+                btnRemovePlaylist.color = "turquoise"
+            }
+            onExited:
+            {
+                btnRemovePlaylist.color = "white"
             }
         }
     }

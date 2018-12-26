@@ -80,7 +80,6 @@ Rectangle
         }
 
 
-
         onDoubleClicked:
         {
             infoMarkerTitle.visible = false

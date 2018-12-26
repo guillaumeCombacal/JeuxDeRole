@@ -13,9 +13,19 @@ Rectangle
     property int parentWidth
     property int parentHeight
 
-    color: "green"
+    color: "white"
 
     x: parent.width - launcherMusicPlayer.width
+
+    Image
+    {
+        id: launcherMusicPlayerImg
+
+        width: parent.width
+        height: parent.height
+
+        source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/MusicPlayer.png"
+    }
 
     MouseArea
     {
@@ -50,8 +60,7 @@ Rectangle
         property string currentMusicUrl: ""
 
         property int indexSelectedPlaylist: 0
-
-
+        property int indexSelectedMusic: 0
 
         MouseArea
         {
@@ -204,8 +213,35 @@ Rectangle
                             }
                         }
                     }
+                }
+
+                onSignalRemoveCurrentPlaylist:
+                {
+
+                    // Remove all music inside the playlist
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+
+                    console.log("BEFORE");
+                    for(var j = 0; j < vecMusic.length; j++)
+                    {
+                        console.log(vecMusic[j].getKeyMusic());
+                    }
+
+                    for(var i = 0; i < vecMusic.length; i++)
+                    {
+                        MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].removeMusicInPlaylist(i);
+                    }
+
+                    var vecMusic2 = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+                    console.log("AFTER");
+                    console.log(vecMusic.length)
+                    /*for(var k = 0; k < vecMusic2.length; k++)
+                    {
+                        console.log(vecMusic2[k].getKeyMusic())
+                    }*/
 
                 }
+
             }
 
             // COMPONENT MUSIC MENU
@@ -227,73 +263,63 @@ Rectangle
                     // Create the new music
                     var newMusic = new MusicPlayerData.Music(filenameMusic);
 
-                    //var posPlaylist = -1;
-
                     // Add the music in the right playlist Model and add it in the list view
-                    /*for(var i = 0; i < MusicPlayerData.vecPlaylist.length; i++)
-                    {
-                        if(MusicPlayerData.vecPlaylist[i].getNamePlaylist() === currentPlaylistName)
-                        {*/
-                            MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].addMusic(newMusic);
-                            musicMenu.addMusicInListView(filenameMusic);
-                            playerMenu.addMusicInPlaylist(filenameMusic);
-                            //posPlaylist = i;
-                            //break;
-                        //}
-                    //}
+                    MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].addMusic(newMusic);
+                    musicMenu.addMusicInListView(filenameMusic);
+                    playerMenu.addMusicInPlaylist(filenameMusic);
                 }
 
                 // When the user select a music in MusicMenu's list
                 // Arg: musicName -> the label display in the MusicMenu view
                 onChangeSelectedMusic:
                 {
-
                     // Find the filename
-                    /*for(var i = 0; i < MusicPlayerData.vecPlaylist.length; i++)
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist()
+                    for(var j = 0; j < vecMusic.length; j++)
                     {
-                        if(MusicPlayerData.vecPlaylist[i].getNamePlaylist() === musicPlayer.currentPlaylist)
-                        {*/
-                            var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist()
-                            for(var j = 0; j < vecMusic.length; j++)
-                            {
-                                // If the music is found
-                                if(vecMusic[j].getKeyMusic() === musicName)
-                                {
-                                    //console.log("FOUND IT !!!");
-                                    musicPlayer.currentMusicUrl = vecMusic[j].getUrlMusic();
-                                    playerMenu.changeSelectedMusic(musicName, j);
-                                    break;
-                                }
-                                else
-                                {
-                                    //console.log("not found !");
-                                }
-                            }
-                            //break;
-                        /*}
-                    }*/
+                        // If the music is found
+                        if(vecMusic[j].getKeyMusic() === musicName)
+                        {
+                            musicPlayer.indexSelectedMusic = j;
+                            musicPlayer.currentMusicUrl = vecMusic[j].getUrlMusic();
+                            playerMenu.changeSelectedMusic(musicName, j);
+                            break;
+                        }
+                        else
+                        {
+                            //console.log("not found !");
+                        }
+                    }
                 }
 
                 // When loading the music name in the listview it can be too long, so it's cut, and a key is saved to find it later
                 onSetKeyMusic:
                 {
-                    /*for(var i = 0; i < MusicPlayerData.vecPlaylist.length; i++)
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist()
+                    for(var j = 0; j < vecMusic.length; j++)
                     {
-                        if(MusicPlayerData.vecPlaylist[i].getNamePlaylist() === musicPlayer.currentPlaylist)
-                        {*/
-                            var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist()
-                            for(var j = 0; j < vecMusic.length; j++)
-                            {
-                                // At beginning url and key are the same (see constructor), so we can compare
-                                if(vecMusic[j].getKeyMusic() === urlMusic)
-                                {
-                                    vecMusic[j].setKeyMusic(keyMusic);
-                                    break;
-                                }
-                            }
-                            //break;
-                       /* }
-                    }*/
+                        // At beginning url and key are the same (see constructor), so we can compare
+                        if(vecMusic[j].getKeyMusic() === urlMusic)
+                        {
+                            vecMusic[j].setKeyMusic(keyMusic);
+                            break;
+                        }
+                    }
+                }
+
+                // Remove music from the Model
+                onSignalRemoveCurrentMusic:
+                {
+                    console.log("Remove Music !!!! ");
+                    MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].removeMusicInPlaylist(musicPlayer.indexSelectedMusic);
+
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+
+                    for(var j = 0; j < vecMusic.length; j++)
+                    {
+                        // At beginning url and key are the same (see constructor), so we can compare
+                        console.log(vecMusic[j].getKeyMusic());
+                    }
                 }
             }
 
@@ -303,85 +329,81 @@ Rectangle
             {
                 id: playerMenu
 
-                onPushPlayMusicBtn:
+                onSignalPushPlayMusicBtn:
                 {
-                    console.log("Play currentMusic" + musicPlayer.currentMusicUrl);
-
-                    //playerMenu.setUrlMusic(musicPlayer.currentMusicUrl);
-                    playerMenu.playMusic();
+                    playerMenu.playMusic(musicPlayer.indexSelectedMusic);
                 }
 
                 onSignalBtnPreviousMusic:
                 {
-                    console.log("Previous Music");
-
                     // Find the Playlist
-                    /*for(var i = 0; i < MusicPlayerData.vecPlaylist.length; i++)
+                    // Get Musics and find the previous one
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+
+                    // Get the size of the music array
+                    var vecLength = Object.keys(vecMusic).length;
+
+                    // If the current music is the first one we go to the last one
+                    var newIndex = -1;
+                    if(musicPlayer.indexSelectedMusic === 0)
                     {
-                        if(MusicPlayerData.vecPlaylist[i].getNamePlaylist() === musicPlayer.currentPlaylist)
-                        {*/
-                            // Get Musics and find the previous one
-                            var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+                        newIndex = vecLength - 1
+                    }
+                    else
+                    {
+                        newIndex = musicPlayer.indexSelectedMusic - 1;
+                    }
 
-                            // Get the size of the music array
-                            var vecLength = Object.keys(vecMusic).length;
+                    if(newIndex !== -1)
+                    {
+                        musicPlayer.indexSelectedMusic = newIndex;
+                        musicPlayer.currentMusicUrl = vecMusic[newIndex].getUrlMusic();
+                        musicMenu.changeCurrentSelectedMusic(vecMusic[newIndex].getKeyMusic());
 
-                            // If the current music is the first one we go to the last one
-                            var newIndex = -1;
-                            if(currentIndex === 0)
-                            {
-                                newIndex = vecLength - 1
-                            }
-                            else
-                            {
-                                newIndex = currentIndex - 1;
-                            }
-
-                            if(newIndex !== -1)
-                            {
-                                musicPlayer.currentMusicUrl = vecMusic[newIndex].getUrlMusic();
-                                musicMenu.changeCurrentSelectedMusic(vecMusic[newIndex].getKeyMusic());
-                                //break;
-                            }
-                       /* }
-                    }*/
+                        playerMenu.playMusic(musicPlayer.indexSelectedMusic);
+                    }
                 }
 
-                // TODO
                 onSignalBtnNextMusic:
                 {
-                    console.log("Next Music");
-
                     // Find the Playlist
-                    /*for(var i = 0; i < MusicPlayerData.vecPlaylist.length; i++)
+                    // Get Musics and find the next one
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+
+                    // Get the size of the music array
+                    var vecLength = Object.keys(vecMusic).length;
+
+                    // If the current music is the last one we go to the first one
+                    var newIndex = -1;
+                    if(musicPlayer.indexSelectedMusic === vecLength-1)
                     {
-                        if(MusicPlayerData.vecPlaylist[i].getNamePlaylist() === musicPlayer.currentPlaylist)
-                        {*/
-                            // Get Musics and find the next one
-                            var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+                        newIndex = 0
+                    }
+                    else
+                    {
+                        newIndex = musicPlayer.indexSelectedMusic + 1;
+                    }
 
-                            // Get the size of the music array
-                            var vecLength = Object.keys(vecMusic).length;
+                    if(newIndex !== -1)
+                    {
+                        musicPlayer.indexSelectedMusic = newIndex;
+                        musicPlayer.currentMusicUrl = vecMusic[newIndex].getUrlMusic();
+                        musicMenu.changeCurrentSelectedMusic(vecMusic[newIndex].getKeyMusic());
 
-                            // If the current music is the last one we go to the first one
-                            var newIndex = -1;
-                            if(currentIndex === vecLength-1)
-                            {
-                                newIndex = 0
-                            }
-                            else
-                            {
-                                newIndex = currentIndex + 1;
-                            }
+                        playerMenu.playMusic(musicPlayer.indexSelectedMusic);
+                    }
+                }
 
-                            if(newIndex !== -1)
-                            {
-                                musicPlayer.currentMusicUrl = vecMusic[newIndex].getUrlMusic();
-                                musicMenu.changeCurrentSelectedMusic(vecMusic[newIndex].getKeyMusic());
-                                //break;
-                            }
-                       /* }
-                    }*/
+                onSignalBtnNextRandomMusic:
+                {
+                    // Get Musics and find the next one
+                    var vecMusic = MusicPlayerData.vecPlaylist[musicPlayer.indexSelectedPlaylist].getAllMusicInPlaylist();
+
+                    musicPlayer.indexSelectedMusic = randomIndex;
+                    musicPlayer.currentMusicUrl = vecMusic[randomIndex].getUrlMusic();
+                    musicMenu.changeCurrentSelectedMusic(vecMusic[randomIndex].getKeyMusic());
+
+                    playerMenu.playMusic(musicPlayer.indexSelectedMusic);
                 }
 
             }

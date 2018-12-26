@@ -18,25 +18,31 @@ Rectangle
 
     x: 2 * (parent.width / 3)
 
-    color: "black"
+    color: "white"
 
-    signal pushPlayMusicBtn(string musicName)
-    signal signalBtnNextMusic(int currentIndex)
-    signal signalBtnPreviousMusic(int currentIndex)
+    signal signalPushPlayMusicBtn()
+    signal signalBtnNextMusic()
+    signal signalBtnNextRandomMusic(int randomIndex)
+    signal signalBtnPreviousMusic()
 
     // Change the label for the current music played
     // Set the index of the music played for the playlist
     function changeSelectedMusic(musicName, index)
     {
         labelCurrentMusicName.text = musicName;
-        currentPlaylist.currentIndex = index;
+        //currentPlaylist.currentIndex = index;
+
+        // If a music was playing, it's stopped to play the new selected music
+        if(mediaPlayer.isMusicPlaying)
+        {
+            mediaPlayer.stop();
+        }
     }
 
     // Add a music in the media player's playlist
     function addMusicInPlaylist(musicName)
     {
         currentPlaylist.addItem(musicName);
-        console.log(currentPlaylist.itemCount);
     }
 
     // Remove all music from the playlist, used when we change the playlist to reset the media player's playlist
@@ -55,21 +61,15 @@ Rectangle
     }
 
     // Play the source frome url currentPlaylistIndex
-    function playMusic()
+    function playMusic(indexMusicSelected)
     {
-        // Calcul index of the music selected
-        // By default all musics inside the playlist will be play from this one
+        currentPlaylist.currentIndexMusicPlayed = indexMusicSelected;
 
         mediaPlayer.source = currentPlaylist.itemSource(currentPlaylist.currentIndexMusicPlayed)
-
-        console.log(mediaPlayer.source);
-        console.log(currentPlaylist.itemCount);
 
         if(mediaPlayer.source !== "")
         {
             mediaPlayer.play();
-        console.log("PlayMusic");
-            console.log(mediaPlayer.source);
         }
     }
 
@@ -87,12 +87,67 @@ Rectangle
     {
         id: mediaPlayer
 
+        property bool isMusicPlaying: false
+        property bool isLoopReadingActivated: false
+        property bool isRandomReadingActivated: false
+
         playlist: Playlist
                   {
                       id: currentPlaylist
 
                       property int currentIndexMusicPlayed: 0
                   }
+
+        // Event received when the music is playing
+        onPlaying:
+        {
+            mediaPlayer.isMusicPlaying = true;
+        }
+
+        // Event received when the music is finished or the user push the stop btn
+        onStopped:
+        {
+            mediaPlayer.isMusicPlaying = false;
+
+            // Means it's the end of the music
+            if(mediaPlayer.position === mediaPlayer.duration)
+            {
+                // Set the cursor position to 0
+                sliderProgressionMusic.value = 0;
+
+                // Read the next music randomly
+                if(mediaPlayer.isRandomReadingActivated)
+                {
+                    var randomIndex = Math.floor(Math.random() * Math.floor(currentPlaylist.itemCount))
+
+                    // Loading the next music by default
+                    signalBtnNextRandomMusic(randomIndex);
+                    mediaPlayer.play();
+
+                }
+                else
+                {
+                    // Loading the next music by default
+                    signalBtnNextMusic();
+                    mediaPlayer.play();
+                }
+            }
+            // Means the user stopped the current music
+            else
+            {
+                // Set the cursor position to 0
+                sliderProgressionMusic.value = 0;
+
+                if(btnPlayPause.state === "PAUSE_VISIBLE")
+                {
+                    btnPlayPause.state = "PLAY_VISIBLE";
+                    btnPlayPause.color = "green";
+
+                    btnPlayPauseImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnPlayMusic.png"
+                }
+            }
+        }
+
     }
 
     // LABEL NAME OF THE CURRENT MUSIC NAME
@@ -125,7 +180,7 @@ Rectangle
         }
     }
 
-    // BTN RANDOM READING
+    // BTN RANDOM / CONTINUE READING
     Rectangle
     {
         id: btnRandomReading
@@ -136,7 +191,17 @@ Rectangle
         x: ((parent.width / 7) / 7)
         y: (parent.height / 2) - (btnPreviousMusic.height / 2)
 
-        property bool isRandomReadingActivated: false
+        color: "grey"
+
+        Image
+        {
+            id: btnRandomReadingImg
+
+            width: parent.width
+            height: parent.height
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnContinueReading.png"
+        }
 
         MouseArea
         {
@@ -146,15 +211,20 @@ Rectangle
             onClicked:
             {
                 // When user push the random reading btn
-                if(isRandomReadingActivated)
+                if(mediaPlayer.isRandomReadingActivated)
                 {
-                    isRandomReadingActivated = false;
+                    mediaPlayer.isRandomReadingActivated = false;
+                    btnRandomReading.color = "grey"
+
+                    btnRandomReadingImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnContinueReading.png"
                 }
                 else
                 {
-                    isRandomReadingActivated = true
+                    mediaPlayer.isRandomReadingActivated = true
+                    btnRandomReading.color = "white"
+
+                    btnRandomReadingImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnRandomReading.png"
                 }
-                console.log("RANDOM READING activated")
             }
         }
     }
@@ -172,6 +242,16 @@ Rectangle
 
         color: "orange"
 
+        Image
+        {
+            id: btnPreviousMusicImg
+
+            width: parent.width
+            height: parent.height
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnNextPreviousMusic.png"
+        }
+
         MouseArea
         {
             height: parent.height
@@ -179,20 +259,7 @@ Rectangle
 
             onClicked:
             {
-                signalBtnPreviousMusic(currentPlaylist.currentIndex);
-                console.log("PREVIOUS Music")
-/*
-                // If the current music is the first one we go to the last one
-                if(currentPlaylist.currentIndexMusicPlayed === 0)
-                {
-                    currentPlaylist.currentIndexMusicPlayed = currentPlaylist.itemCount;
-                }
-                else
-                {
-                    currentPlaylist.currentIndexMusicPlayed -= 1;
-                    playerMenu.playMusic();
-                }
-                */
+                signalBtnPreviousMusic();
             }
         }
     }
@@ -210,6 +277,16 @@ Rectangle
 
         color: "red"
 
+        Image
+        {
+            id: btnStopImg
+
+            width: parent.width
+            height: parent.height
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnStopMusic.png"
+        }
+
         MouseArea
         {
             height: parent.height
@@ -218,7 +295,6 @@ Rectangle
             onClicked:
             {
                 mediaPlayer.stop();
-                console.log("STOP Music")
             }
         }
     }
@@ -249,6 +325,16 @@ Rectangle
                 }
             ]
 
+        Image
+        {
+            id: btnPlayPauseImg
+
+            width: parent.width
+            height: parent.height
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnPlayMusic.png"
+        }
+
         MouseArea
         {
             height: parent.height
@@ -261,9 +347,11 @@ Rectangle
                 {
                     if(labelCurrentMusicName.text !== "")
                     {
-                        pushPlayMusicBtn(labelCurrentMusicName.text);
+                        playerMenu.signalPushPlayMusicBtn();
                         btnPlayPause.state = "PAUSE_VISIBLE";
                         btnPlayPause.color = "blue";
+
+                        btnPlayPauseImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnPauseMusic.png"
                     }
                 }
                 // If the user pushed the pause btn
@@ -274,6 +362,8 @@ Rectangle
                         pauseMusic();
                         btnPlayPause.state = "PLAY_VISIBLE";
                         btnPlayPause.color = "green";
+
+                        btnPlayPauseImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnPlayMusic.png"
                     }
 
                 }
@@ -295,6 +385,17 @@ Rectangle
 
         color: "orange"
 
+        Image
+        {
+            id: btnNextMusicImg
+
+            width: parent.width
+            height: parent.height
+            rotation: 180
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnNextPreviousMusic.png"
+        }
+
         MouseArea
         {
             height: parent.height
@@ -302,8 +403,7 @@ Rectangle
 
             onClicked:
             {
-                signalBtnNextMusic(currentPlaylist.currentIndex);
-                console.log("NEXT Music")
+                signalBtnNextMusic();
             }
         }
     }
@@ -319,9 +419,17 @@ Rectangle
         x: 5 * (parent.width / 7) + 6 * ((parent.width / 7) / 7)
         y: (parent.height / 2) - (btnPreviousMusic.height / 2)
 
-        property bool isLoopReadingActivated: false
-
         color: "grey"
+
+        Image
+        {
+            id: btnLoopingReadingImg
+
+            width: parent.width
+            height: parent.height
+
+            source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnLoopReading.png"
+        }
 
         MouseArea
         {
@@ -331,18 +439,17 @@ Rectangle
             onClicked:
             {
                 // When user push the loops reading btn
-                if(btnLoopingReading.isLoopReadingActivated)
+                if(mediaPlayer.isLoopReadingActivated)
                 {
-                    btnLoopingReading.isLoopReadingActivated = false;
+                    mediaPlayer.isLoopReadingActivated = false;
+                    mediaPlayer.loops = 0;
                     btnLoopingReading.color = "grey"
-                    console.log("LOOPING READING deactivated")
                 }
                 else
                 {
-                    btnLoopingReading.isLoopReadingActivated = true
-                    mediaPlayer.Infinite
-                    btnLoopingReading.color = "black"
-                    console.log("LOOPING READING activated = " + btnLoopingReading.isLoopReadingActivated)
+                    mediaPlayer.isLoopReadingActivated = true
+                    mediaPlayer.loops = MediaPlayer.Infinite
+                    btnLoopingReading.color = "purple"
                 }
             }
         }
@@ -383,15 +490,12 @@ Rectangle
 
         onValueChanged:
         {
-            //console.log("valueChanged !!!")
         }
 
         onPressedChanged:
         {
             if(!sliderProgressionMusic.pressed)
             {
-                console.log("mediaPlayer.position = " + mediaPlayer.position);
-                console.log("sliderProgressionMusic.value = " + sliderProgressionMusic.value);
                 mediaPlayer.seek(sliderProgressionMusic.value);
             }
         }

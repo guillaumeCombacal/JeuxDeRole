@@ -55,3 +55,8 @@ Playlist.prototype.getAllMusicInPlaylist = function()
     return this.m_vecMusic;
 }
 
+Playlist.prototype.removeMusicInPlaylist = function(index)
+{
+    this.m_vecMusic.splice(index, 1);
+}
+

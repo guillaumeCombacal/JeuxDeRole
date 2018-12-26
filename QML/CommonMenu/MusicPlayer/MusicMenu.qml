@@ -18,9 +18,13 @@ Rectangle
 
     color: "silver"
 
+    property int indexSelectedMusic: 0
+
     //signal displayMusicPlayer()
 
     signal addNewMusic(string filenameMusic, string currentPlaylistName)
+
+    signal signalRemoveCurrentMusic();
 
     signal changeSelectedMusic(string musicName)
 
@@ -33,6 +37,11 @@ Rectangle
         if(btnAddMusic.visible === false)
         {
             btnAddMusic.visible = true;
+        }
+
+        if(btnDeleteMusic.visible === false)
+        {
+            btnDeleteMusic.visible = true;
         }
     }
 
@@ -95,6 +104,9 @@ Rectangle
         listModelMusic.get(posMusic).currentColor = "turquoise";
 
         changeSelectedMusic(listModelMusic.get(posMusic).musicNameData);
+
+        // Stock the index value of the current Music
+        musicMenu.indexSelectedMusic = posMusic;
     }
 
     // LABEL NAME OF THE SELECTED PLAYLIST NAME
@@ -235,7 +247,7 @@ Rectangle
     {
         id: btnAddMusic
 
-        width: parent.width
+        width: parent.width / 2
         height: parent.height / 6
 
         y: 5 * (parent.height / 6)
@@ -264,7 +276,7 @@ Rectangle
             }*/
 
             id: labelBtnAddMusic
-            text: "+ Add Music"
+            text: "+ Music"
             font.pixelSize: 22
             //font.family: labelFont.name
             color: "black"
@@ -292,6 +304,69 @@ Rectangle
             onExited:
             {
                 btnAddMusic.color = "white"
+            }
+        }
+    }
+
+    // BUTTON TO DELETE THE SELECTED MUSIC
+    Rectangle
+    {
+        id: btnDeleteMusic
+
+        width: parent.width / 2
+        height: parent.height / 6
+
+        y: 5 * (parent.height / 6)
+        x: parent.width / 2
+
+        z: 1
+
+        Component.onCompleted:
+        {
+            if(labelCurrentPlaylistName.text !== "")
+            {
+                console.log("Some text !!! ");
+            }
+            else
+            {
+                console.log("No text");
+                btnDeleteMusic.visible = false;
+            }
+        }
+
+        Label
+        {
+            id: labelBtnDeleteMusic
+            text: "- Music"
+            font.pixelSize: 22
+            //font.family: labelFont.name
+            color: "black"
+
+            x: parent.width / 2 - labelBtnDeleteMusic.width / 2
+        }
+
+        MouseArea
+        {
+            width: parent.width
+            height: parent.height
+            anchors.fill: parent
+            hoverEnabled: true // Allow to cath event callback onEntered & onExited
+
+            // Delete new musics
+            onPressed:
+            {
+                // Signal to remove the current music
+                signalRemoveCurrentMusic()
+                listModelMusic.remove(musicMenu.indexSelectedMusic);
+            }
+
+            onEntered:
+            {
+                btnDeleteMusic.color = "turquoise"
+            }
+            onExited:
+            {
+                btnDeleteMusic.color = "white"
             }
         }
     }
