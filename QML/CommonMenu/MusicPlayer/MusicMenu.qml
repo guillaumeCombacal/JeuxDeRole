@@ -24,25 +24,43 @@ Rectangle
 
     signal addNewMusic(string filenameMusic, string currentPlaylistName)
 
-    signal signalRemoveCurrentMusic();
+    signal signalRemoveCurrentMusic(int indexNewSelectedMusic, string musicNameNextMusic);
 
     signal changeSelectedMusic(string musicName)
 
     signal setKeyMusic(string urlMusic, string keyMusic)
 
-    function changeCurrentPlaylistName(playlistName)
+    function changeCurrentSelectedPlaylist(playlistName)
     {
         labelCurrentPlaylistName.text = playlistName;
 
-        if(btnAddMusic.visible === false)
+        // Active visibility +/- Music
+        if(playlistName !== "")
         {
-            btnAddMusic.visible = true;
+            if(btnAddMusic.visible === false)
+            {
+                btnAddMusic.visible = true;
+            }
+
+            if(btnDeleteMusic.visible === false)
+            {
+                btnDeleteMusic.visible = true;
+            }
+        }
+        // Deactive visibility +/- Music
+        else
+        {
+            if(btnAddMusic.visible === true)
+            {
+                btnAddMusic.visible = false;
+            }
+
+            if(btnDeleteMusic.visible === true)
+            {
+                btnDeleteMusic.visible = false;
+            }
         }
 
-        if(btnDeleteMusic.visible === false)
-        {
-            btnDeleteMusic.visible = true;
-        }
     }
 
     function removeAllMusicsFromListview()
@@ -75,6 +93,15 @@ Rectangle
 
         // Set the music model with its key
         musicMenu.setKeyMusic(musicName, musicTitle);
+    }
+
+    // Select the current playing music, when switch back on the playing playlist
+    function selectMusic(indexSelectedMusic)
+    {
+        musicMenu.indexSelectedMusic = indexSelectedMusic;
+
+        listModelMusic.get(indexSelectedMusic).selectedMusic = true;
+        listModelMusic.get(indexSelectedMusic).currentColor = "turquoise";
     }
 
     // When the selected music change, at the end the signal changeSelectedMusic() is sent
@@ -356,8 +383,27 @@ Rectangle
             onPressed:
             {
                 // Signal to remove the current music
-                signalRemoveCurrentMusic()
                 listModelMusic.remove(musicMenu.indexSelectedMusic);
+
+                if(musicMenu.indexSelectedMusic >= listModelMusic.count && listModelMusic.count !== 0)
+                {
+                    musicMenu.indexSelectedMusic = musicMenu.indexSelectedMusic - 1;
+                    signalRemoveCurrentMusic(musicMenu.indexSelectedMusic, listModelMusic.get(musicMenu.indexSelectedMusic).musicNameData);
+                    listModelMusic.get(musicMenu.indexSelectedMusic).selectedMusic = true;
+                    listModelMusic.get(musicMenu.indexSelectedMusic).currentColor = "turquoise";
+                }
+                else if (listModelMusic.count === 0)
+                {
+                    musicMenu.indexSelectedMusic = 0;
+                    signalRemoveCurrentMusic(musicMenu.indexSelectedMusic, "");
+                }
+                else
+                {
+                    signalRemoveCurrentMusic(musicMenu.indexSelectedMusic, listModelMusic.get(musicMenu.indexSelectedMusic).musicNameData);
+                    listModelMusic.get(musicMenu.indexSelectedMusic).selectedMusic = true;
+                    listModelMusic.get(musicMenu.indexSelectedMusic).currentColor = "turquoise";
+                }
+
             }
 
             onEntered:

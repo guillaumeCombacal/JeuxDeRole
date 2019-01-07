@@ -1,0 +1,4 @@
+Afin d'éviter l'erreur : 
+"DirectShowPlayerService::doRender: Unresolved error code 0x80040266 (IDispatch error #102)"
+Il faut installer un ensemble de codec audio / video :"K-Lite_Codec_Pack_1460_Basic" 
+à l'aide de "K-Lite_Codec_Pack_1460_Basic.exe".

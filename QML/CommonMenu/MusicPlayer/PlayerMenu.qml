@@ -27,10 +27,9 @@ Rectangle
 
     // Change the label for the current music played
     // Set the index of the music played for the playlist
-    function changeSelectedMusic(musicName, index)
+    function changeSelectedMusic(musicName)
     {
         labelCurrentMusicName.text = musicName;
-        //currentPlaylist.currentIndex = index;
 
         // If a music was playing, it's stopped to play the new selected music
         if(mediaPlayer.isMusicPlaying)
@@ -49,6 +48,12 @@ Rectangle
     function removeAllMusicsInPlaylist()
     {
         currentPlaylist.removeItems(0, currentPlaylist.itemCount)
+    }
+
+    // Remove the selected Music
+    function removeSelectedMusic(indexSelectedMusic)
+    {
+        currentPlaylist.removeItem(indexSelectedMusic)
     }
 
 
@@ -82,6 +87,13 @@ Rectangle
         }
     }
 
+    // When the playlist is removed, PlayerMenu has to be back in the init state
+    function resetPlayerMenu()
+    {
+        labelCurrentMusicName.text = "";
+        mediaPlayer.stop();
+    }
+
     // MEDIA PLAYER
     MediaPlayer
     {
@@ -102,6 +114,18 @@ Rectangle
         onPlaying:
         {
             mediaPlayer.isMusicPlaying = true;
+
+            if(btnPlayPause.state === "PLAY_VISIBLE")
+            {
+                if(labelCurrentMusicName.text !== "")
+                {
+                    playerMenu.signalPushPlayMusicBtn();
+                    btnPlayPause.state = "PAUSE_VISIBLE";
+                    btnPlayPause.color = "blue";
+
+                    btnPlayPauseImg.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/MusicPlayer/btnPauseMusic.png"
+                }
+            }
         }
 
         // Event received when the music is finished or the user push the stop btn
@@ -120,7 +144,7 @@ Rectangle
                 {
                     var randomIndex = Math.floor(Math.random() * Math.floor(currentPlaylist.itemCount))
 
-                    // Loading the next music by default
+                    // Loading the random music
                     signalBtnNextRandomMusic(randomIndex);
                     mediaPlayer.play();
 

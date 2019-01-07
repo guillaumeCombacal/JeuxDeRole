@@ -17,7 +17,7 @@ Rectangle
     signal changePlaylistName(string oldPlaylistName, string newPlaylistName)// Change the playlist Name
     signal createPlaylist(string playlistName)// Create a new playlist
     signal changeSelectedPlaylist(string selectedPlaylistName);
-    signal signalRemoveCurrentPlaylist();
+    signal signalRemoveCurrentPlaylist(string selectedPlaylistName, int indexNewSelectedPlaylist);
 
     // Create a Playlist and add it to the listModel
     function addPlaylistInListModel(playlistName)
@@ -246,7 +246,7 @@ Rectangle
 
                                    playlistMenu.changePlaylistName(playlistNameEdit.playlistName, playlistNameEdit.text);
                                }
-                               labelNamePlaylist.visble = true;// the name label is visble
+                               labelNamePlaylist.visible = true;// the name label is visble
 
                            }
                        }
@@ -364,9 +364,23 @@ Rectangle
             // Remove a playlist
             onPressed:
             {
-                // Signal to remove the current playlist
-                signalRemoveCurrentPlaylist();
                 listModelPlaylist.remove(playlistMenu.indexSelectedPlaylist);
+
+                // Signal to remove the current playlist
+                if(playlistMenu.indexSelectedPlaylist >= listModelPlaylist.count && listModelPlaylist.count !== 0)
+                {
+                    playlistMenu.indexSelectedPlaylist = playlistMenu.indexSelectedPlaylist - 1;
+                    signalRemoveCurrentPlaylist(listModelPlaylist.get(playlistMenu.indexSelectedPlaylist).playlistNameData, playlistMenu.indexSelectedPlaylist);
+                }
+                else if (listModelPlaylist.count === 0)
+                {
+                    signalRemoveCurrentPlaylist("", 0);
+                }
+                else
+                {
+                    signalRemoveCurrentPlaylist(listModelPlaylist.get(playlistMenu.indexSelectedPlaylist).playlistNameData, playlistMenu.indexSelectedPlaylist);
+                }
+
             }
 
             onEntered:
