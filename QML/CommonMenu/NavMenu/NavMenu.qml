@@ -34,7 +34,7 @@ Rectangle
         id: navMenu
 
         height: 50
-        width: 200
+        width: 250
 
         x: - ((navMenu.width - launcherNavMenu.width) / 2)// Center in function of the launcherNavMenu width
 
@@ -60,7 +60,7 @@ Rectangle
         {
             id: launchWorldMap
 
-            width: parent.width / 3
+            width: parent.width / 4
             height: parent.height
 
             color: "yellow"
@@ -82,12 +82,38 @@ Rectangle
 
         Rectangle
         {
-            id: launchMenuHero
+            id: launchMenuBattle
 
-            width: parent.width / 3
+            width: parent.width / 4
             height: parent.height
 
             x: launchWorldMap.width // offset function of launchMenuHero
+
+            color: "red"
+
+            MouseArea
+            {
+                width: parent.width
+                height: parent.height
+                anchors.fill: parent
+
+                // Send the signal to switch on Hero Menu
+                onPressed:
+                {
+                    launcherNavMenu.switchMenu("BattleMenu");
+                }
+            }
+
+        }
+
+        Rectangle
+        {
+            id: launchMenuHero
+
+            width: parent.width / 4
+            height: parent.height
+
+            x: launchWorldMap.width + launchMenuBattle.width // offset function of launchMenuHero
 
             color: "blue"
 
@@ -110,10 +136,10 @@ Rectangle
         {
             id: launchMenuQuest
 
-            width: parent.width / 3
+            width: parent.width / 4
             height: parent.height
 
-            x: launchWorldMap.width + launchMenuHero.width// offset function of launchMenuHero
+            x: launchWorldMap.width + launchMenuBattle.width + launchMenuHero.width// offset function of launchMenuHero
 
             color: "green"
 

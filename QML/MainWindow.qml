@@ -5,8 +5,9 @@ import "CommonMenu/MusicPlayer"
 import "CommonMenu/NavMenu"
 
 import "WorldMap"
-
 import "HeroMenu"
+import "BattleMap"
+
 
 Item
 {
@@ -25,7 +26,6 @@ Item
 
         height: parent.height
         width : parent.width
-        //color : "green"
 
         SettingMenu
         {
@@ -43,14 +43,22 @@ Item
                 if(component === "WorldMap")
                 {
                     heroMenu.visible = false;
+                    battleMap.visible = false;
                     worldMap.visible = true;
                     worldMap.restartHeroSprite();
                 }
                 else if(component === "HeroMenu")
                 {
                     worldMap.visible = false;
+                    battleMap.visible = false;
                     heroMenu.visible = true;
-                    worldMap.restartHeroSprite();
+                    //worldMap.restartHeroSprite();
+                }
+                else if(component === "BattleMenu")
+                {
+                    worldMap.visible = false;
+                    heroMenu.visible = false;
+                    battleMap.visible = true;
                 }
                 else if(component === "QuestMenu")
                 {
@@ -82,6 +90,12 @@ Item
             id: worldMap
 
             visible: true
+        }
+
+        BattleMap
+        {
+            id: battleMap
+            visible: false
         }
 
     }

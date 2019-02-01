@@ -1,7 +1,8 @@
 #include "mainWindowController.h"
 #include "loggerfile.h"
+#include "FrameBufferObject_OpenGL.h"
 
-#include<QDebug>
+#include <QDebug>
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QWidget>
@@ -71,6 +72,9 @@ MainWindowController::MainWindowController(QApplication* app):
     //m_mainWindow->setMinimumSize(width / 2, height / 2);
     //m_mainWindow->setMaximumSize(width, height);
 
+    // TEST integration composant OpenGL
+    //qmlRegisterType("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
+    qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
 
     #ifdef QT_DEBUG
         m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");

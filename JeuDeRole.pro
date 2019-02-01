@@ -45,7 +45,8 @@ INCLUDEPATH +=  $$PWD/Controllers/MainController\
                 $$PWD/Views/QuestWidget\
                 $$PWD/Views/WorldMapWidget\
                 $$PWD/Model\
-                $$PWD/Data
+                $$PWD/Data\
+                $$PWD/OpenGL
 
 SOURCES +=\
     JeuDeRole.cpp \
@@ -81,7 +82,10 @@ SOURCES +=\
     Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp \
     Controllers/Logger/loggerfile.cpp \
     Views/BattleWidget/battleWidget.cpp \
-    Controllers/Communication/interfaceQML.cpp
+    Controllers/Communication/interfaceQML.cpp \
+    OpenGL/FrameBufferRenderer_OpenGL.cpp \
+    OpenGL/FrameBufferObject_OpenGL.cpp \
+    OpenGL/OpenGL_Render.cpp
 
 
 
@@ -123,4 +127,7 @@ HEADERS  += \
     Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.h \
     Controllers/Logger/ilogger.h \
     Controllers/Logger/loggerfile.h \
-    Controllers/Communication/interfaceQML.h
+    Controllers/Communication/interfaceQML.h \
+    OpenGL/FrameBufferRenderer_OpenGL.h \
+    OpenGL/FrameBufferObject_OpenGL.h \
+    OpenGL/OpenGL_Render.h
