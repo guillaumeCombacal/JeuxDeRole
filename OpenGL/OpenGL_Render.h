@@ -7,8 +7,7 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 
-//#include <QTime>
-
+QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 
 
 class OpenGlRender : protected QOpenGLFunctions
@@ -29,7 +28,7 @@ private:
     void extrude(qreal x1, qreal y1, qreal x2, qreal y2);
 
     QVector<QVector3D>   m_vecVertices;
-    QVector<QVector3D>   m_vecNormals;
+    QVector<QVector3D>   m_vecColors;
     QOpenGLShaderProgram m_program;
 
     int m_positionAttrShader;
@@ -37,8 +36,9 @@ private:
     int m_matrixUniformShader;
 
     int m_fScale;
-
     int m_fAngle;
+
+    //QOpenGLTexture *m_pTexture;
 
 };
 

@@ -4,6 +4,8 @@
 #include <QPaintEngine>
 #include <math.h>
 
+#include <QOpenGLTexture>
+
 OpenGlRender::OpenGlRender()
 {
 }
@@ -16,13 +18,17 @@ OpenGlRender::~OpenGlRender()
 // Draw the rendering
 void OpenGlRender::updateVertexBuffer()
 {
-    m_vecVertices << QVector3D(0.0f, 0.707f, 0.0f);
-    m_vecVertices << QVector3D(-0.5f, -0.5f, 0.0f);
-    m_vecVertices << QVector3D(0.5f, -0.5f, 0.0f);
+    // Coordonnées du rectangle
+    m_vecVertices << QVector3D(-1.5f, 0.0f , 0.0f);
+    m_vecVertices << QVector3D(0.0f, 1.5f , 0.0f);
+    m_vecVertices << QVector3D(1.5f, 0.0f , 0.0f);
+    m_vecVertices << QVector3D(0.0f, -1.5f , 0.0f);
 
-    m_vecNormals << QVector3D(1.0f, 0.0f, 0.0f);// R
-    m_vecNormals << QVector3D(0.0f, 1.0f, 0.0f);// G
-    m_vecNormals << QVector3D(0.0f, 0.0f, 1.0f);// B
+    // Coordonnées de texture
+    m_vecColors << QVector3D(0.0f, 1.0f, 0.0f);
+    m_vecColors << QVector3D(1.0f, 1.0f, 0.0f);
+    m_vecColors << QVector3D(1.0f, 0.0f, 0.0f);
+    m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
 }
 
 void OpenGlRender::initialize()
@@ -31,37 +37,62 @@ void OpenGlRender::initialize()
 
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
 
-    // Initialise les shaders
+    // INITIALISE LES SHADERS
+
     QOpenGLShader *vertexShader = new QOpenGLShader(QOpenGLShader::Vertex, &m_program);
+    // Vertex Shader => Positionne les coordonnées de vertex et partage les coordonnées de texture vers le fragment shader
     const char *vertexShaderSource =
-        "attribute highp vec4 posAttr;\n"
-        "attribute lowp vec4 colAttr;\n"
-        "varying lowp vec4 col;\n"
-        "uniform highp mat4 matrix;\n"
-        "void main() {\n"
-        "   col = colAttr;\n"
-        "   gl_Position = matrix * posAttr;\n"
+        "attribute highp vec4 vertex;\n"
+        "attribute mediump vec4 texCoord;\n"
+        "varying mediump vec4 texc;\n"
+        "uniform mediump mat4 matrix;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_Position = matrix * vertex;\n"
+        "    texc = texCoord;\n"
         "}\n";
+    /*const char *vertexShaderSource =
+        "attribute highp vec4 vertex;\n"
+        "uniform mediump mat4 matrix;\n"
+        "void main(void)\n"
+        "{\n"
+        "    gl_Position = matrix * vertex;\n"
+        "}\n";*/
+
     vertexShader->compileSourceCode(vertexShaderSource);
 
     QOpenGLShader *fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment, &m_program);
-    const char *fragmentShaderSource =
-        "varying lowp vec4 col;\n"
-        "void main() {\n"
-        "   gl_FragColor = col;\n"
-        "}\n";
+    // Fragment Shader => récupère les coordonnées de texture depuis le vertex shader,
+    // et calcul la couleur en fonction de cette coordonnées et de la texture chargée en Sampler2D
+   /*const char *fragmentShaderSource =
+            "uniform sampler2D texture;\n"
+            "varying mediump vec4 texc;\n"
+            "void main(void)\n"
+            "{\n"
+            "    gl_FragColor = texture2D(texture, texc.st);\n"
+            "}\n";*/
+   const char *fragmentShaderSource =
+           "varying mediump vec4 texc;\n"
+            "void main(void)\n"
+            "{\n"
+            "    gl_FragColor = texc;\n"
+            "}\n";
     fragmentShader->compileSourceCode(fragmentShaderSource);
+
 
     m_program.addShader(vertexShader);
     m_program.addShader(fragmentShader);
+
     m_program.link();
 
-    // Définit les variables utilisés dans le shader
-    m_positionAttrShader    = m_program.attributeLocation("posAttr");
-    m_colorAttrShader       = m_program.attributeLocation("colAttr");
+    // Identifie les variables shader
+    m_positionAttrShader    = m_program.attributeLocation("vertex");
+    m_colorAttrShader       = m_program.attributeLocation("texCoord");
     m_matrixUniformShader   = m_program.uniformLocation("matrix");
 
-    // Initialise les Vertex Buffer
+    //m_program.setUniformValue("texture", 0);
+
+    // Initialise les Coordonnées
     updateVertexBuffer();
 }
 
@@ -83,11 +114,15 @@ void OpenGlRender::render()
     m_program.enableAttributeArray(m_colorAttrShader);
     m_program.enableAttributeArray(m_positionAttrShader);
 
+    // TODO => Rendu à partir du tableau
     m_program.setAttributeArray(m_positionAttrShader, m_vecVertices.constData());
-    m_program.setAttributeArray(m_colorAttrShader, m_vecNormals.constData());
+    m_program.setAttributeArray(m_colorAttrShader, m_vecColors.constData());
 
-    // Dessine les m_vecVertices en les associants sous forme de triangle
-    glDrawArrays(GL_TRIANGLES, 0, m_vecVertices.size());
+    //m_pTexture->bind();
+
+    // TODO => Rendu à partir du tableau
+    // Dessine les m_vecVertices en les associants sous forme de triangle fermés
+    glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertices.size());
 
     m_program.disableAttributeArray(m_colorAttrShader);
     m_program.disableAttributeArray(m_positionAttrShader);
