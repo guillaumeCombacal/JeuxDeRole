@@ -2,6 +2,8 @@
 #define OPENGL_RENDER_H
 
 #include <QOpenGLFunctions>
+#include <QOpenGLWidget>
+
 #include <QVector>
 #include <QVector3D>
 #include <QOpenGLShaderProgram>
@@ -18,6 +20,7 @@ public:
     OpenGlRender();
     ~OpenGlRender();
     void render();
+    void draw();
     void initialize();
 
 private:
@@ -38,7 +41,9 @@ private:
     int m_fScale;
     int m_fAngle;
 
-    //QOpenGLTexture *m_pTexture;
+    QOpenGLTexture* m_pTexture;
+
+    QVector<QVector3D> m_vecVertexBuffer;
 
 };
 

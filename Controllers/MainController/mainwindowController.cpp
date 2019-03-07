@@ -1,5 +1,6 @@
 #include "mainWindowController.h"
 #include "loggerfile.h"
+#include "OpenGlRenderView_BattleMap.h"
 #include "FrameBufferObject_OpenGL.h"
 
 #include <QDebug>
@@ -69,12 +70,16 @@ MainWindowController::MainWindowController(QApplication* app):
     m_mainWindow = QWidget::createWindowContainer(m_viewQML);
 
 
+
+
     //m_mainWindow->setMinimumSize(width / 2, height / 2);
     //m_mainWindow->setMaximumSize(width, height);
 
     // TEST integration composant OpenGL
     //qmlRegisterType("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
+    //qmlRegisterType<OpenGlRenderView_BattleMap>("OpenGlRenderView_BattleMap", 1, 0, "OpenGLViewBattleMap");
+
 
     #ifdef QT_DEBUG
         m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
@@ -97,6 +102,8 @@ MainWindowController::MainWindowController(QApplication* app):
 
     // Useless
     //this->setLayout(m_pLayoutWorldMapWidget);
+
+
 
     // Show the view on full screen
     m_mainWindow->showFullScreen();

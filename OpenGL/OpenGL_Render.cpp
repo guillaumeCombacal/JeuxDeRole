@@ -8,6 +8,7 @@
 
 OpenGlRender::OpenGlRender()
 {
+    m_pTexture = new QOpenGLTexture(QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png")));
 }
 
 OpenGlRender::~OpenGlRender()
@@ -24,11 +25,27 @@ void OpenGlRender::updateVertexBuffer()
     m_vecVertices << QVector3D(1.5f, 0.0f , 0.0f);
     m_vecVertices << QVector3D(0.0f, -1.5f , 0.0f);
 
-    // Coordonnées de texture
-    m_vecColors << QVector3D(0.0f, 1.0f, 0.0f);
-    m_vecColors << QVector3D(1.0f, 1.0f, 0.0f);
-    m_vecColors << QVector3D(1.0f, 0.0f, 0.0f);
-    m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
+    // Contruction du vecteur de 4 tuiles par 4 vertices
+    for(int i = 0; i<2; i++)
+    {
+        for(int j = 0; j<2; j++)
+        {
+            float offsetX = j * 1.0f;
+            float offsetY = i * 1.0f;
+
+            m_vecVertexBuffer << QVector3D(-1.0f + offsetX, 0.0f + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(0.0f + offsetX, 0.0f + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(0.0f + offsetX, -1.0f + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(-1.0f + offsetX, -1.0f + offsetY, 0.0f);
+
+            // Coordonnées de texture
+            m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
+            m_vecColors << QVector3D(0.0f, 1.0f, 0.0f);
+            m_vecColors << QVector3D(1.0f, 1.0f, 0.0f);
+            m_vecColors << QVector3D(1.0f, 0.0f, 0.0f);
+        }
+
+    }
 }
 
 void OpenGlRender::initialize()
@@ -51,31 +68,17 @@ void OpenGlRender::initialize()
         "    gl_Position = matrix * vertex;\n"
         "    texc = texCoord;\n"
         "}\n";
-    /*const char *vertexShaderSource =
-        "attribute highp vec4 vertex;\n"
-        "uniform mediump mat4 matrix;\n"
-        "void main(void)\n"
-        "{\n"
-        "    gl_Position = matrix * vertex;\n"
-        "}\n";*/
-
     vertexShader->compileSourceCode(vertexShaderSource);
 
     QOpenGLShader *fragmentShader = new QOpenGLShader(QOpenGLShader::Fragment, &m_program);
     // Fragment Shader => récupère les coordonnées de texture depuis le vertex shader,
     // et calcul la couleur en fonction de cette coordonnées et de la texture chargée en Sampler2D
-   /*const char *fragmentShaderSource =
+   const char *fragmentShaderSource =
             "uniform sampler2D texture;\n"
             "varying mediump vec4 texc;\n"
             "void main(void)\n"
             "{\n"
             "    gl_FragColor = texture2D(texture, texc.st);\n"
-            "}\n";*/
-   const char *fragmentShaderSource =
-           "varying mediump vec4 texc;\n"
-            "void main(void)\n"
-            "{\n"
-            "    gl_FragColor = texc;\n"
             "}\n";
     fragmentShader->compileSourceCode(fragmentShaderSource);
 
@@ -90,10 +93,11 @@ void OpenGlRender::initialize()
     m_colorAttrShader       = m_program.attributeLocation("texCoord");
     m_matrixUniformShader   = m_program.uniformLocation("matrix");
 
-    //m_program.setUniformValue("texture", 0);
+    m_program.setUniformValue("texture", 0);
 
     // Initialise les Coordonnées
     updateVertexBuffer();
+
 }
 
 void OpenGlRender::render()
@@ -115,18 +119,19 @@ void OpenGlRender::render()
     m_program.enableAttributeArray(m_positionAttrShader);
 
     // TODO => Rendu à partir du tableau
-    m_program.setAttributeArray(m_positionAttrShader, m_vecVertices.constData());
+    m_program.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer.constData());
     m_program.setAttributeArray(m_colorAttrShader, m_vecColors.constData());
 
-    //m_pTexture->bind();
+    m_pTexture->bind();
 
     // TODO => Rendu à partir du tableau
-    // Dessine les m_vecVertices en les associants sous forme de triangle fermés
-    glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertices.size());
+    // Dessine les m_vecVertices en les associants sous forme de Quad non relié les uns aux autres
+    glDrawArrays(GL_QUADS, 0, m_vecVertexBuffer.size());
 
     m_program.disableAttributeArray(m_colorAttrShader);
     m_program.disableAttributeArray(m_positionAttrShader);
 
 
     m_program.release();
+
 }
