@@ -75,10 +75,9 @@ MainWindowController::MainWindowController(QApplication* app):
     //m_mainWindow->setMinimumSize(width / 2, height / 2);
     //m_mainWindow->setMaximumSize(width, height);
 
-    // TEST integration composant OpenGL
-    //qmlRegisterType("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
+    // Integration composant OpenGL
+    // TODO Implementer une communication avec le QML pour savoir quoi générer dans le rendu
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
-    //qmlRegisterType<OpenGlRenderView_BattleMap>("OpenGlRenderView_BattleMap", 1, 0, "OpenGLViewBattleMap");
 
 
     #ifdef QT_DEBUG

@@ -6,6 +6,9 @@
 
 #include <QOpenGLTexture>
 
+const float g_fLengthMap = 4.0f;
+const float g_fCoeffSubdivision = 15.0f;// nb de tuiles qui divisent la longueur
+
 OpenGlRender::OpenGlRender()
 {
     m_pTexture = new QOpenGLTexture(QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png")));
@@ -19,33 +22,54 @@ OpenGlRender::~OpenGlRender()
 // Draw the rendering
 void OpenGlRender::updateVertexBuffer()
 {
-    // Coordonnées du rectangle
-    m_vecVertices << QVector3D(-1.5f, 0.0f , 0.0f);
-    m_vecVertices << QVector3D(0.0f, 1.5f , 0.0f);
-    m_vecVertices << QVector3D(1.5f, 0.0f , 0.0f);
-    m_vecVertices << QVector3D(0.0f, -1.5f , 0.0f);
 
-    // Contruction du vecteur de 4 tuiles par 4 vertices
-    for(int i = 0; i<2; i++)
+    // Init variable for tile dimension
+    const float tileHorizontalLength = g_fLengthMap / g_fCoeffSubdivision;
+    const float tileVerticalLength = tileHorizontalLength / 2.0f;
+
+    const QVector3D baseVertex1 (0.0f, -(g_fLengthMap / 4.0f), 0.0f);
+    const QVector3D baseVertex2 ((tileHorizontalLength / 2.0f), -((g_fLengthMap / 4.0f))+tileVerticalLength/2.0f, 0.0f);
+    const QVector3D baseVertex3 (0.0f, -(g_fLengthMap / 4.0f)+tileVerticalLength, 0.0f);
+    const QVector3D baseVertex4 (-(tileHorizontalLength / 2.0f), -((g_fLengthMap / 4.0f))+tileVerticalLength/2.0f, 0.0f);
+
+    // Nombre de ligne
+    int nbRow = (g_fCoeffSubdivision * 2) - 1;
+    int nbTilesInRow = 0;
+    float offsetRowX = 0.0f;
+    float offsetX = 0.0f;
+    float offsetY = 0.0f;
+
+    for(int itRow=0; itRow<nbRow; itRow++)
     {
-        for(int j = 0; j<2; j++)
+        itRow < g_fCoeffSubdivision ? nbTilesInRow+=1 : nbTilesInRow-=1;
+
+        offsetY = itRow * (tileVerticalLength/2);
+
+        if(itRow < g_fCoeffSubdivision)
         {
-            float offsetX = j * 1.0f;
-            float offsetY = i * 1.0f;
+            offsetRowX = -itRow * tileHorizontalLength/2;
+        }
+        else
+        {
+            offsetRowX = -(nbRow-itRow-1) * tileHorizontalLength/2;
+        }
 
-            m_vecVertexBuffer << QVector3D(-1.0f + offsetX, 0.0f + offsetY, 0.0f);
-            m_vecVertexBuffer << QVector3D(0.0f + offsetX, 0.0f + offsetY, 0.0f);
-            m_vecVertexBuffer << QVector3D(0.0f + offsetX, -1.0f + offsetY, 0.0f);
-            m_vecVertexBuffer << QVector3D(-1.0f + offsetX, -1.0f + offsetY, 0.0f);
+        for(int itTile=0; itTile<nbTilesInRow; itTile++)
+        {
+            offsetX = offsetRowX + (itTile * tileHorizontalLength);
 
-            // Coordonnées de texture
-            m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
+            m_vecVertexBuffer << QVector3D(baseVertex1.x() + offsetX, baseVertex1.y() + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(baseVertex2.x() + offsetX, baseVertex2.y() + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(baseVertex3.x() + offsetX, baseVertex3.y() + offsetY, 0.0f);
+            m_vecVertexBuffer << QVector3D(baseVertex4.x() + offsetX, baseVertex4.y() + offsetY, 0.0f);
+
             m_vecColors << QVector3D(0.0f, 1.0f, 0.0f);
             m_vecColors << QVector3D(1.0f, 1.0f, 0.0f);
             m_vecColors << QVector3D(1.0f, 0.0f, 0.0f);
+            m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
         }
-
     }
+
 }
 
 void OpenGlRender::initialize()
@@ -114,19 +138,21 @@ void OpenGlRender::render()
     m_program.bind();
     m_program.setUniformValue(m_matrixUniformShader, modelview);
 
-    // Bind Vertices (Vector3D) with the respective Shader attribute
+    // Active the respective Shader attribute
     m_program.enableAttributeArray(m_colorAttrShader);
     m_program.enableAttributeArray(m_positionAttrShader);
 
-    // TODO => Rendu à partir du tableau
+    // Bind vertices with the Vector3D data
     m_program.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer.constData());
     m_program.setAttributeArray(m_colorAttrShader, m_vecColors.constData());
 
     m_pTexture->bind();
 
-    // TODO => Rendu à partir du tableau
-    // Dessine les m_vecVertices en les associants sous forme de Quad non relié les uns aux autres
+    // Dessine les Vertices en les associants sous forme de Quad non relié les uns aux autres
     glDrawArrays(GL_QUADS, 0, m_vecVertexBuffer.size());
+
+    //
+    //glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertexBuffer.size());
 
     m_program.disableAttributeArray(m_colorAttrShader);
     m_program.disableAttributeArray(m_positionAttrShader);
