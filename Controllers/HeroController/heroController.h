@@ -4,7 +4,7 @@
 #include"heroWidgetEdit.h"
 #include"heroWidget.h"
 #include"parserXml.h"
-#include"hero.h"
+#include"Hero.h"
 
 #include "sharedDataHero.h"
 

@@ -1,7 +1,9 @@
 #include "mainWindowController.h"
 #include "loggerfile.h"
-#include "OpenGlRenderView_BattleMap.h"
 #include "FrameBufferObject_OpenGL.h"
+#include "BattleMapRender.h"
+#include "BattleMapData.h"
+#include "OpenGlRenderSingleton.h"
 
 #include <QDebug>
 #include <QDesktopWidget>
@@ -78,6 +80,12 @@ MainWindowController::MainWindowController(QApplication* app):
     // Integration composant OpenGL
     // TODO Implementer une communication avec le QML pour savoir quoi générer dans le rendu
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
+
+    // Initialisation de la classe FrameBufferObject_OpenGL
+    BattleMapData battleMapData;
+    battleMapData.loadDataBattleMap();
+
+    OpenGlRenderSingleton::getInstance()->setBattleMapData(battleMapData);
 
 
     #ifdef QT_DEBUG

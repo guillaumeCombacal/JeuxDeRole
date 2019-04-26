@@ -11,14 +11,7 @@ class FrameBufferObject_OpenGL : public QQuickFramebufferObject
     Q_OBJECT
 
 public:
-
-    // TEST
-    //QQuickFramebufferObject();
-    //
-
     QQuickFramebufferObject::Renderer* createRenderer() const;
-
-
 
 private:
     //FrameBufferRenderer_OpenGL* m_rendererFrameBuffer;

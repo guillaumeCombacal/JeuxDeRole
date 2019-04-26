@@ -69,7 +69,6 @@ SOURCES +=\
     Controllers/QuestController/questController.cpp \
     Controllers/WorldMapController/worldMapController.cpp \
     Controllers/Parser/parserXml.cpp \
-    Model/hero.cpp \
     Views/HeroWidgetEdit/bagPackWidgetEdit.cpp \
     Views/HeroWidgetEdit/effectWidgetEdit.cpp \
     Views/HeroWidgetEdit/equipmentWidgetEdit.cpp \
@@ -85,7 +84,12 @@ SOURCES +=\
     Controllers/Communication/interfaceQML.cpp \
     OpenGL/FrameBufferRenderer_OpenGL.cpp \
     OpenGL/FrameBufferObject_OpenGL.cpp \
-    OpenGL/OpenGL_Render.cpp
+    OpenGL/OpenGL_Render.cpp \
+    OpenGL/TileRender.cpp \
+    Model/Hero.cpp \
+    OpenGL/BattleMapRender.cpp \
+    Model/BattleMapData.cpp \
+    OpenGL/OpenGlRenderSingleton.cpp
 
 
 
@@ -112,7 +116,6 @@ HEADERS  += \
     Controllers/QuestController/questController.h \
     Controllers/WorldMapController/worldMapController.h \
     Controllers/Parser/parserXml.h \
-    Model/hero.h \
     Data/sharedDataXmlField.h \
     Data/sharedDataHero.h \
     Views/HeroWidgetEdit/bagPackWidgetEdit.h \
@@ -130,4 +133,11 @@ HEADERS  += \
     Controllers/Communication/interfaceQML.h \
     OpenGL/FrameBufferRenderer_OpenGL.h \
     OpenGL/FrameBufferObject_OpenGL.h \
-    OpenGL/OpenGL_Render.h
+    OpenGL/OpenGL_Render.h \
+    OpenGL/TileRender.h \
+    OpenGL/ObjectRender.h \
+    Model/Hero.h \
+    OpenGL/BattleMapRender.h \
+    Model/BattleMapData.h \
+    Model/Character.h \
+    OpenGL/OpenGlRenderSingleton.h

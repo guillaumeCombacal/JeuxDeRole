@@ -14,20 +14,20 @@ class FrameBufferRenderer_OpenGL : public QQuickFramebufferObject::Renderer
 
 public:
 
+    //FrameBufferRenderer_OpenGL(BattleMapRender* pBattleRender);
     FrameBufferRenderer_OpenGL();
 
     QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
 
     void render();
 
+    //void initObjectRendered();
+
 private:
     // Obj OpenGL, ex:
-    //LogoRenderer logo;
     OpenGlRender m_openGlRender;
 
-
-
-
+    //BattleMapRender* m_battleMapRender;
 
     // TEST ////////////////////////////////////////////////////////////////
     /*void setViewportSize(const QSize &size) { m_viewportSize = size; }

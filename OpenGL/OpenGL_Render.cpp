@@ -7,11 +7,13 @@
 #include <QOpenGLTexture>
 
 const float g_fLengthMap = 4.0f;
-const float g_fCoeffSubdivision = 15.0f;// nb de tuiles qui divisent la longueur
+const float g_fCoeffSubdivision = 2.0f;// nb de tuiles qui divisent la longueur
+
+const int g_map[4]  = {1,0,0,1};
 
 OpenGlRender::OpenGlRender()
 {
-    m_pTexture = new QOpenGLTexture(QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png")));
+    //m_pTexture = new QOpenGLTexture(QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png")));
 }
 
 OpenGlRender::~OpenGlRender()
@@ -19,6 +21,10 @@ OpenGlRender::~OpenGlRender()
 }
 
 
+// Dans cette fonction les calculs de vertex peuvent être conservés dans une classe BattleMapRender à partir de la boucle for,
+// En revanche, les coord de texture seront calculées dans la classe tile
+// ATTENTION: au niveau de l'algorithme sur la boucle for, opengl dessine en FILO (first déclaré Last dessiné)
+//            il faut donc repenser le parcours en commençant par le premier plan de la map
 // Draw the rendering
 void OpenGlRender::updateVertexBuffer()
 {
@@ -39,6 +45,8 @@ void OpenGlRender::updateVertexBuffer()
     float offsetX = 0.0f;
     float offsetY = 0.0f;
 
+    int itMap = -1;
+
     for(int itRow=0; itRow<nbRow; itRow++)
     {
         itRow < g_fCoeffSubdivision ? nbTilesInRow+=1 : nbTilesInRow-=1;
@@ -56,6 +64,10 @@ void OpenGlRender::updateVertexBuffer()
 
         for(int itTile=0; itTile<nbTilesInRow; itTile++)
         {
+            itMap++;
+
+            //setRenderProperties(itMap);
+
             offsetX = offsetRowX + (itTile * tileHorizontalLength);
 
             m_vecVertexBuffer << QVector3D(baseVertex1.x() + offsetX, baseVertex1.y() + offsetY, 0.0f);
@@ -66,12 +78,30 @@ void OpenGlRender::updateVertexBuffer()
             m_vecColors << QVector3D(0.0f, 1.0f, 0.0f);
             m_vecColors << QVector3D(1.0f, 1.0f, 0.0f);
             m_vecColors << QVector3D(1.0f, 0.0f, 0.0f);
-            m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);
+            m_vecColors << QVector3D(0.0f, 0.0f, 0.0f);            
         }
     }
 
+    // RENDU 2
+    m_vecVertexBuffer2 << QVector3D(0.0f, 0.0f, 0.0f);
+    m_vecVertexBuffer2 << QVector3D(1.0f, 0.0f, 0.0f);
+    m_vecVertexBuffer2 << QVector3D(1.0f, -1.0f, 0.0f);
+    m_vecVertexBuffer2 << QVector3D(0.0f, -1.0f, 0.0f);
+
+    m_vecColors2 << QVector3D(0.0f, 1.0f, 0.0f);
+    m_vecColors2 << QVector3D(1.0f, 1.0f, 0.0f);
+    m_vecColors2 << QVector3D(1.0f, 0.0f, 0.0f);
+    m_vecColors2 << QVector3D(0.0f, 0.0f, 0.0f);
+
 }
 
+/*void OpenGlRender::setRenderProperties(int numTile)
+{
+
+}*/
+
+
+// Tout ce qui se trouve dans cette fonction est identique pour chaqu'un des objets à rendre
 void OpenGlRender::initialize()
 {
     initializeOpenGLFunctions();
@@ -112,6 +142,8 @@ void OpenGlRender::initialize()
 
     m_program.link();
 
+
+
     // Identifie les variables shader
     m_positionAttrShader    = m_program.attributeLocation("vertex");
     m_colorAttrShader       = m_program.attributeLocation("texCoord");
@@ -121,6 +153,8 @@ void OpenGlRender::initialize()
 
     // Initialise les Coordonnées
     updateVertexBuffer();
+
+    //m_tileRender.initialize(&m_program);
 
 }
 
@@ -138,24 +172,57 @@ void OpenGlRender::render()
     m_program.bind();
     m_program.setUniformValue(m_matrixUniformShader, modelview);
 
-    // Active the respective Shader attribute
     m_program.enableAttributeArray(m_colorAttrShader);
     m_program.enableAttributeArray(m_positionAttrShader);
+
+
+
+
+
+    // BINDING RENDU 2
+    // Bind vertices with the Vector3D data
+    m_program.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer2.constData());
+    m_program.setAttributeArray(m_colorAttrShader, m_vecColors2.constData());
+
+    QOpenGLTexture texture (QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png")));
+    //m_pTexture->bind();
+    texture.bind();
+
+    // Dessine les Vertices en les associants sous forme de Quad non relié les uns aux autres
+    glDrawArrays(GL_QUADS, 0, m_vecVertexBuffer2.size());
+
+
+
+    // BINDING RENDU 1
+    // Active the respective Shader attribute
 
     // Bind vertices with the Vector3D data
     m_program.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer.constData());
     m_program.setAttributeArray(m_colorAttrShader, m_vecColors.constData());
 
-    m_pTexture->bind();
+    //m_pTexture->bind();
+    QOpenGLTexture texture2 (QImage(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Marche.png")));
+    texture2.bind();
 
     // Dessine les Vertices en les associants sous forme de Quad non relié les uns aux autres
     glDrawArrays(GL_QUADS, 0, m_vecVertexBuffer.size());
 
-    //
-    //glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertexBuffer.size());
+
+
+
+
+
+
+
+
 
     m_program.disableAttributeArray(m_colorAttrShader);
     m_program.disableAttributeArray(m_positionAttrShader);
+
+
+    //m_tileRender.render();
+
+
 
 
     m_program.release();

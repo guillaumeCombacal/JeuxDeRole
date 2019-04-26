@@ -3,16 +3,19 @@
 QQuickFramebufferObject::Renderer* FrameBufferObject_OpenGL::createRenderer() const
 {
     qDebug()<<"QQuickFramebufferObject::Renderer* createRenderer()";
+
     return new FrameBufferRenderer_OpenGL;
 }
 
-/*
-FrameBufferObject_OpenGL::FrameBufferObject_OpenGL():
-    m_rendererFrameBuffer(NULL)
-{
-    connect(this, &QQuickItem::windowChanged, this, &FrameBufferObject_OpenGL::handleWindowChanged);
-}
 
+/*FrameBufferObject_OpenGL::FrameBufferObject_OpenGL(BattleMapRender* battleRender):
+    //m_rendererFrameBuffer(NULL),
+    m_pBattleRender(battleRender)
+{
+    //connect(this, &QQuickItem::windowChanged, this, &FrameBufferObject_OpenGL::handleWindowChanged);
+}*/
+
+/*
 void FrameBufferObject_OpenGL::handleWindowChanged(QQuickWindow *win)
 {
     if (win) {

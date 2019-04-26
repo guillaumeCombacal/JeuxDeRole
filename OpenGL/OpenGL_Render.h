@@ -9,6 +9,8 @@
 #include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 
+#include "TileRender.h"
+
 QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 
 
@@ -26,12 +28,16 @@ public:
 private:
 
     void updateVertexBuffer();
-    void createGeometry();
+    /*void createGeometry();
     void quad(qreal x1, qreal y1, qreal x2, qreal y2, qreal x3, qreal y3, qreal x4, qreal y4);
-    void extrude(qreal x1, qreal y1, qreal x2, qreal y2);
+    void extrude(qreal x1, qreal y1, qreal x2, qreal y2);*/
 
-    QVector<QVector3D>   m_vecVertices;
+    //void setRenderProperties();
+
+    QVector<QVector3D> m_vecVertexBuffer;
     QVector<QVector3D>   m_vecColors;
+    QVector<QVector3D> m_vecVertexBuffer2;
+    QVector<QVector3D>   m_vecColors2;
     QOpenGLShaderProgram m_program;
 
     int m_positionAttrShader;
@@ -43,7 +49,7 @@ private:
 
     QOpenGLTexture* m_pTexture;
 
-    QVector<QVector3D> m_vecVertexBuffer;
+    TileRender m_tileRender;
 
 };
 
