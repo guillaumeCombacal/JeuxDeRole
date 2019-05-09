@@ -43,7 +43,7 @@ class BattleMapRender : protected QOpenGLFunctions
 
 public:
 
-    BattleMapRender(int i_nbTileSide, BattleMapData i_battleMapData);
+    BattleMapRender(BattleMapData i_battleMapData);
     ~BattleMapRender();
 
     void initBattleMapRender();
@@ -55,7 +55,7 @@ public:
 
 private:
 
-    void calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, int i_iNbTileInRow, float i_fHeightTile);
+    void calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, float i_fHeightTile);
     void initShader();
     //void updateVertexBuffer();
 
@@ -66,10 +66,8 @@ private:
     int m_colorAttrShader;
     int m_matrixUniformShader;
 
-    // Base Vertices
+    // Reference Vertex = Left Base Vertex => all vertex vertices are calculate from this point
     QVector3D m_fLeftBaseVertex;
-    QVector3D m_fMiddleBaseVertex;
-    QVector3D m_fRightBaseVertex;
 
     // Tile base dimension
     /*float m_fWidthBaseTile;
@@ -78,23 +76,15 @@ private:
     // On Opengl 0 is the middle position of the image, so m_iMiddleRowColumn is the reference
     int m_iMiddleRowColumn;
 
-    // Vector of the presence object with the map size
-    std::vector<PresenceOnTile> m_vecPresence;
-    //QVector<PresenceOnTile> m_presenceMatrix;
-
     // TODO : Finir déclaration
     BattleMapData m_battleMapData;
-    // map contenant les différents élément à rendre
-    /*std::map<int position, Tile> m_mapTile;
-    std::map<int position, Personnage> m_mapPersonnage;
-    std::map<int position, Decor> m_mapDecor;
-    */
 
     int m_iNbTileSide;
     int m_iNbTileTotal;
 
     bool m_bIsNbTileSidePair;
 
+    QOpenGLTexture* m_pTextureTiles;
 
     QVector<QVector3D>   m_vecVertexBuffer;
     QVector<QVector3D>   m_vecColors;
@@ -102,9 +92,7 @@ private:
     QVector<QVector3D>   m_vecColors2;
 
     int m_fScale;
-    int m_fAngle;
-
-    QOpenGLTexture* m_pTexture;
+    int m_fAngle;    
 
     TileRender m_tileRender;
     */

@@ -12,7 +12,7 @@ void OpenGlRenderSingleton::init()
 {
     //if(m_battleMapData)
     //{
-        m_pBattleMapRender = new BattleMapRender(3, m_battleMapData);
+        m_pBattleMapRender = new BattleMapRender(m_battleMapData);
         m_pBattleMapRender->initBattleMapRender();
     //}
 }

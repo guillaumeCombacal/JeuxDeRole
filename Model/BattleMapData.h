@@ -27,9 +27,10 @@ private:
     std::map<int, Sprite> m_mapCharacter;
     std::map<int, Sprite> m_mapDecor;
 
-    int m_heightMap;
-    int m_widthMap;
+    //int m_heightMap;
+    //int m_widthMap;
     int m_nbTileTotal;
+    int m_nbTileSide;
 
     // Vecteur de Mask de presence contenant des 1 et des 0 ex:110
     // Position dans le mask 123: 1=tile, 2=personnage, 3=decor
@@ -43,6 +44,7 @@ public:
      void loadDataBattleMap();
 
      inline const int& getNbTileTotal()const{return m_nbTileTotal;}
+     inline const int& getNbTileSide()const{return m_nbTileSide;}
 
      inline const std::map<int, Sprite>& getMapTile()const{return m_mapTile;}
      inline const std::map<int, Sprite>& getMapCharacter()const{return m_mapCharacter;}

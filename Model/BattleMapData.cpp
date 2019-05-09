@@ -15,9 +15,8 @@ BattleMapData::~BattleMapData()
 
 void BattleMapData::loadDataBattleMap()
 {
-    m_heightMap = 3;
-    m_widthMap  = 4;
-    m_nbTileTotal = m_heightMap * m_widthMap;
+    m_nbTileSide = 10;
+    m_nbTileTotal = m_nbTileSide * m_nbTileSide;
 
     Sprite l_tileSprite;
     l_tileSprite.m_orientation = 0.0f;
@@ -29,8 +28,8 @@ void BattleMapData::loadDataBattleMap()
 
     l_tileSprite.m_height = 0.0f;
 
-    // Test map de tile de 3*4
-    for(int i = 0; i<m_heightMap * m_widthMap; i++)
+    // Test map de tile de 1*1
+    for(int i = 0; i<m_nbTileTotal; i++)
     {
         std::pair<int, Sprite> newPair(i, l_tileSprite);
         m_mapTile.insert(newPair);
