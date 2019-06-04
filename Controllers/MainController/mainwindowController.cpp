@@ -2,7 +2,6 @@
 #include "loggerfile.h"
 #include "FrameBufferObject_OpenGL.h"
 #include "BattleMapRender.h"
-#include "BattleMapData.h"
 #include "OpenGlRenderSingleton.h"
 
 #include <QDebug>
@@ -81,11 +80,12 @@ MainWindowController::MainWindowController(QApplication* app):
     // TODO Implementer une communication avec le QML pour savoir quoi générer dans le rendu
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
 
-    // Initialisation de la classe FrameBufferObject_OpenGL
-    BattleMapData battleMapData;
-    battleMapData.loadDataBattleMap();
+    // Initialisation des données - à partir du fichier de sauvegarde
+    //m_battleMapData.loadDataBattleMap();
+    _loadGameData();
 
-    OpenGlRenderSingleton::getInstance()->setBattleMapData(battleMapData);
+    // Initialisation de la classe FrameBufferObject_OpenGL
+    OpenGlRenderSingleton::getInstance()->setBattleMapData(m_battleMapData);
 
 
     #ifdef QT_DEBUG
@@ -98,7 +98,7 @@ MainWindowController::MainWindowController(QApplication* app):
     m_viewQML->setSource(QUrl("qrc:/QML/MainWindow.qml"));
 
     // Signal to quit application
-    QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), m_pApp, SLOT(quit()));
+    QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), this, SLOT(onQuitQMLApplication()));
 
     //m_viewQML->showFullScreen();
 
@@ -170,9 +170,46 @@ MainWindowController::~MainWindowController()
 
 }
 
+
+// Callback when you push the QML close button
+// Saving data in JSON file
 void MainWindowController::onQuitQMLApplication()
 {
     qDebug()<<"close the QML application";
+
+    _saveGameData();
+
+    m_pApp->quit();
+}
+
+
+void MainWindowController::_saveGameData()
+{
+    // Sauvegarde des données
+    QFile saveFile(QStringLiteral("save.json"));
+    if (!saveFile.open(QIODevice::WriteOnly))
+    {
+        qWarning("Couldn't open save file.");
+    }
+    QJsonObject gameObject;
+    m_battleMapData.saveDataBattleMap(gameObject);
+
+    QJsonDocument saveDoc(gameObject);
+    saveFile.write(saveDoc.toJson());
+}
+
+void MainWindowController::_loadGameData()
+{
+    QFile loadFile( QStringLiteral("save.json"));
+
+    if (!loadFile.open(QIODevice::ReadOnly)) {
+        qWarning("Couldn't open save file.");
+        //return false;
+    }
+    QByteArray data = loadFile.readAll();
+    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+
+    m_battleMapData.loadDataBattleMap(loadDoc.object());
 }
 
 void MainWindowController::onSwitchOnglet(int idWidget)

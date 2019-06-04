@@ -8,6 +8,7 @@
 #include "battleController.h"
 #include "heroController.h"
 #include "questController.h"
+#include "BattleMapData.h"
 
 #include<QObject>
 
@@ -37,6 +38,11 @@ private:
     QQuickView*     m_viewQML;
 
     QApplication* m_pApp;
+
+    BattleMapData m_battleMapData;
+
+    void _saveGameData();
+    void _loadGameData();
 
 public:
     MainWindowController(QApplication* app);

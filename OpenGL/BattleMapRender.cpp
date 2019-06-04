@@ -2,13 +2,10 @@
 
 #include <QOpenGLTexture>
 
-// All Tile have the same size
-const float c_fWidthBaseTile = 0.4f;
-const float c_fHeightBaseTile = c_fWidthBaseTile/2.0f;
-
 BattleMapRender::BattleMapRender(BattleMapData i_battleMapData):
     m_battleMapData(i_battleMapData),
     m_fLeftBaseVertex(QVector3D(0.0f, 0.0f, 0.0f)),
+    m_fLeftCornerVertex(QVector3D(0.0f, 0.0f, 0.0f)),
     m_iMiddleRowColumn(0.0f),
     m_bIsNbTileSidePair(false)
 {
@@ -26,24 +23,34 @@ BattleMapRender::BattleMapRender(BattleMapData i_battleMapData):
         m_bIsNbTileSidePair = false;
     }
 
-    float l_fHalfHeightTile = 0.0f;
+    float l_fOddOffset = 0.0f;
     // Add an half of tile --> TODO: vérifier si le cas impair fonctionne bien
     if(!m_bIsNbTileSidePair)
     {
-        l_fHalfHeightTile = c_fHeightBaseTile/2;
+        l_fOddOffset = m_battleMapData.getHeightTile()/2;
     }
-    // Init the base vertices - Base Vertices is the down corner of the map
+
+
+    // Init the base vertices - Base Vertices is down tile of the map and the down left corner of the tile
     // If there is an nb Tile impair, it's necessary to had an half of height map
-    m_fLeftBaseVertex   = QVector3D(-(c_fWidthBaseTile/2),
-                                    ((m_iNbTileSide/2)*c_fHeightBaseTile)-(c_fHeightBaseTile/2) + l_fHalfHeightTile,
+    m_fLeftCornerVertex = QVector3D(-(m_battleMapData.getWidthTile()/2),
+                                    ((m_iNbTileSide/2)*m_battleMapData.getHeightTile())+ l_fOddOffset,
                                     0.0f);
 
-
-    // Test : TEMP
-    QImage l_imgTexture(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/Ritz.png"));
-    //l_imgTexture.convertToFormat(QImage::Format_ARGB32);
+    // TEMP --> Chargement de la texture par défaut
+    // TODO : le chargement des texture dois être effectué en début d'initialisation
+    //        pour éviter les problèmes de chargement dynamique qui ne sont pas exploitable (trop couteux !)
+    //        Aussi, il doit être possible de charger toute les textures essentielles au rendu
+    //        de la map, des perso, etc.. en début de fichier
+    QImage l_imgTexture(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilsetIsometric/testTileSet.png"));
     m_pTextureTiles = new QOpenGLTexture(l_imgTexture);
 
+    // Loading all required textures to render the battleMap
+    m_vecTextureTilset.clear();
+    for(int i=0; i<m_battleMapData.getVecFilenameTileset().size(); i++)
+    {
+        m_vecTextureTilset << new QOpenGLTexture(QImage(m_battleMapData.getVecFilenameTileset()[i]));
+    }
 }
 
 BattleMapRender::~BattleMapRender()
@@ -65,10 +72,6 @@ void BattleMapRender::initBattleMapRender()
 
     // Initialisation des shaders
     initShader();
-
-
-    // Test: Temp
-    //m_openGlRender.initialize();
 }
 
 // Shader initialisation
@@ -96,7 +99,12 @@ void BattleMapRender::initShader()
             "varying mediump vec4 texc;\n"
             "void main(void)\n"
             "{\n"
-            "    gl_FragColor = texture2D(texture, texc.st);\n"
+            "    vec4 texColor = texture2D(texture, texc.st);\n"
+            "    if(texColor.a < 0.1)"
+            "    {"
+            "       discard;"
+            "    }"
+            "    gl_FragColor = texColor;\n"
             "}\n";
     fragmentShader->compileSourceCode(fragmentShaderSource);
 
@@ -119,10 +127,6 @@ void BattleMapRender::initShader()
 // draw all the object inside the battle map
 void BattleMapRender::renderBattleMap()
 {
-    // Test : Temp
-    //m_openGlRender.render();
-
-
     glDepthMask(true);
 
     // init the background color of the battle map
@@ -147,9 +151,6 @@ void BattleMapRender::renderBattleMap()
     m_shaderProgram.enableAttributeArray(m_positionAttrShader);
 
 
-
-    // TODO : Verifier si la map est appropriée... en effet sur les éléments non contenus dedans,
-    // elle va parcourir toute la map à chaque fois ?!
     // Loop for the number of vertical row
     int l_iNbRow = (m_iNbTileSide*2)-1;// TODO : Deporter l'initialisation vers le constructeur
     int l_iNbTileInRow = 0;// TODO : Deporter l'initialisation vers le constructeur
@@ -170,27 +171,17 @@ void BattleMapRender::renderBattleMap()
             // Render Tile if tile is present
             if(m_battleMapData.getVecMaskPresence()[l_iTileCounter] & 100)// Presence Tuile
             {
-                std::map<int, Sprite>::const_iterator itTile;
-                itTile = m_battleMapData.getMapTile().find(l_iTileCounter);
-                if(itTile != m_battleMapData.getMapTile().end())
-                {
-                    // Bind the tilsheet texture which contains the sprite
-                    Sprite l_sprite = itTile->second;
-                    //QOpenGLTexture l_texture (l_sprite.m_imageTilsheet);
-                    //l_texture.bind();
+                // Binding the right tileSet texture to render the tile
+                m_vecTextureTilset[m_battleMapData.getVecTile()[l_iTileCounter].getIndexTexture()]->bind();
 
-                    m_pTextureTiles->bind();
+                // Calcul the new coordinates of each vertices
+                calculVerticesBuffer(itRow, itTileInRow, m_battleMapData.getVecTile()[l_iTileCounter].getTileHeight());
 
-                    // Calcul the new coordinates of each vertices
-                    calculVerticesBuffer(itRow, itTileInRow, l_sprite.m_height);
-
-                    // TODO : changer les vecteur de données avec les données correspondant aux tiles, personnage, element du decor, etc...
-                    //        il faut notamment mettre à jour m_vecVertexBuffer
-                    // Set vertices and color with the respective data for each elements
-                    m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer.constData());
-                    m_shaderProgram.setAttributeArray(m_colorAttrShader, l_sprite.m_coordTexture.constData());
-
-                }
+                // TODO : changer les vecteur de données avec les données correspondant aux tiles, personnage, element du decor, etc...
+                //        il faut notamment mettre à jour m_vecVertexBuffer
+                // Set vertices and color with the respective data for each elements
+                m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecVertexBuffer.constData());
+                m_shaderProgram.setAttributeArray(m_colorAttrShader, m_battleMapData.getVecTile()[l_iTileCounter].getCoordTexture().constData());
             }
 
             // Alpha value activated for transparence
@@ -198,7 +189,8 @@ void BattleMapRender::renderBattleMap()
             glEnable(GL_BLEND);
 
             // Dessine les Vertices en les associants sous forme de Quad non relié les uns aux autres
-            glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertexBuffer.size());
+            //glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertexBuffer.size());
+            glDrawArrays(GL_QUADS, 0, m_vecVertexBuffer.size());
 
             // Increment the tile counter for the next
             l_iTileCounter++;
@@ -222,50 +214,43 @@ void BattleMapRender::calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileIn
     float l_fPositionY = 0.0f;
 
     // Position Y
-    l_fPositionY = m_fLeftBaseVertex.y() - ((c_fHeightBaseTile/2)*i_iIndiceRow);
+    l_fPositionY = m_fLeftCornerVertex.y() - ((m_battleMapData.getHeightTile()/2)*i_iIndiceRow);
 
     // Position X
     // For every row adding +/-WTile/2 from the reference point
     // => Get the position on the beginning of the row
     if(i_iIndiceRow < m_iNbTileSide)
     {
-        l_fPositionX = m_fLeftBaseVertex.x() - (i_iIndiceRow * c_fWidthBaseTile/2);
+        l_fPositionX = m_fLeftCornerVertex.x() - (i_iIndiceRow * m_battleMapData.getWidthTile()/2);
     }
     else
     {
-        l_fPositionX = m_fLeftBaseVertex.x() - ((m_iNbTileSide-1)*c_fWidthBaseTile/2)
-                     + ((i_iIndiceRow-(m_iNbTileSide-1)) * c_fWidthBaseTile/2);
+        l_fPositionX = m_fLeftCornerVertex.x() - ((m_iNbTileSide-1)*m_battleMapData.getWidthTile()/2)
+                     + ((i_iIndiceRow-(m_iNbTileSide-1)) * m_battleMapData.getWidthTile()/2);
     }
     // Adding an offset function of the position of the tile in the row
-    l_fPositionX += (i_iIndiceTileInRow * c_fWidthBaseTile);
+    l_fPositionX += (i_iIndiceTileInRow * m_battleMapData.getWidthTile());
 
     // Calcul the left vertex coord from base vertex
     QVector3D l_vecLeftBaseTileVertex (l_fPositionX, l_fPositionY, 0.0f);
 
     // Calcul the middle and the right vertices from the left vertex position => so the base of 3 vertex is known
-    QVector3D l_vecMiddleBaseTileVertex (l_vecLeftBaseTileVertex.x()+c_fWidthBaseTile/2,
-                                         l_vecLeftBaseTileVertex.y()+c_fHeightBaseTile/2,
-                                         0.0f);
-    QVector3D l_vecRightBaseTileVertex (l_vecLeftBaseTileVertex.x()+c_fWidthBaseTile,
+    QVector3D l_vecRightBaseTileVertex (l_vecLeftBaseTileVertex.x()+m_battleMapData.getWidthTile(),
                                         l_vecLeftBaseTileVertex.y(),
                                         0.0f);
 
+    QVector3D l_vecLeftUpTileVertex (l_vecLeftBaseTileVertex.x(), l_vecLeftBaseTileVertex.y()-m_battleMapData.getWidthTile(), 0.0f);
+
+    // Calcul the middle and the right vertices from the left vertex position => so the base of 3 vertex is known
+    QVector3D l_vecRightUpTileVertex (l_vecRightBaseTileVertex.x(),
+                                      l_vecRightBaseTileVertex.y()-m_battleMapData.getWidthTile(),
+                                      0.0f);
+
+
     // Add Base Vertices in the vertex buffer
     m_vecVertexBuffer << l_vecLeftBaseTileVertex;
-    m_vecVertexBuffer << l_vecMiddleBaseTileVertex;
     m_vecVertexBuffer << l_vecRightBaseTileVertex;
 
-    // TODO : Verifier l'ordre dans lequel doive etre ajouté les vertices suivant la méthode de dessin
-    // Calcul the last vertices depend on the height of the tile
-    if(i_fHeightTile > 0)
-    {
-        m_vecVertexBuffer << QVector3D(l_vecLeftBaseTileVertex.x(), l_vecLeftBaseTileVertex.y()+i_fHeightTile, 0.0f);
-        m_vecVertexBuffer << QVector3D(l_vecMiddleBaseTileVertex.x(), l_vecMiddleBaseTileVertex.y()+i_fHeightTile+c_fHeightBaseTile, 0.0f);
-        m_vecVertexBuffer << QVector3D(l_vecRightBaseTileVertex.x(), l_vecRightBaseTileVertex.y()+i_fHeightTile, 0.0f);
-    }
-    else if(i_fHeightTile == 0)
-    {
-        m_vecVertexBuffer << QVector3D(l_vecMiddleBaseTileVertex.x(), l_vecMiddleBaseTileVertex.y()-c_fHeightBaseTile, 0.0f);
-    }
-
+    m_vecVertexBuffer << l_vecRightUpTileVertex;
+    m_vecVertexBuffer << l_vecLeftUpTileVertex;
 }

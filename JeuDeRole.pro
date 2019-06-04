@@ -89,7 +89,8 @@ SOURCES +=\
     Model/Hero.cpp \
     OpenGL/BattleMapRender.cpp \
     Model/BattleMapData.cpp \
-    OpenGL/OpenGlRenderSingleton.cpp
+    OpenGL/OpenGlRenderSingleton.cpp \
+    Model/Tile.cpp
 
 
 
@@ -140,4 +141,5 @@ HEADERS  += \
     OpenGL/BattleMapRender.h \
     Model/BattleMapData.h \
     Model/Character.h \
-    OpenGL/OpenGlRenderSingleton.h
+    OpenGL/OpenGlRenderSingleton.h \
+    Model/Tile.h

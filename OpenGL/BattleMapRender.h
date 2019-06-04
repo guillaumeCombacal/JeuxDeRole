@@ -16,6 +16,9 @@
 // Test : Temp
 #include "OpenGL_Render.h"
 
+
+#include<map>
+
 //QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 
 // Information to know which object need to be rendered
@@ -69,6 +72,9 @@ private:
     // Reference Vertex = Left Base Vertex => all vertex vertices are calculate from this point
     QVector3D m_fLeftBaseVertex;
 
+    // Test
+    QVector3D m_fLeftCornerVertex;
+
     // Tile base dimension
     /*float m_fWidthBaseTile;
     float m_fHeightBaseTile;*/
@@ -88,14 +94,10 @@ private:
 
     QVector<QVector3D>   m_vecVertexBuffer;
     QVector<QVector3D>   m_vecColors;
-    /*QVector<QVector3D> m_vecVertexBuffer2;
-    QVector<QVector3D>   m_vecColors2;
 
-    int m_fScale;
-    int m_fAngle;    
-
-    TileRender m_tileRender;
-    */
+    // For texture loading
+    QVector<QOpenGLTexture*> m_vecTextureTilset;
+    std::map<QString, int> m_mapFilenameToTextureIndex;
 
     // TEST : TEMP
     OpenGlRender m_openGlRender;
