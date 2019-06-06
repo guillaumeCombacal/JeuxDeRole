@@ -58,7 +58,7 @@ public:
 
 private:
 
-    void calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, float i_fHeightTile);
+    void calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, int i_iNbSquareUp, int i_iNbSquareDown, float i_fHeightTile);
     void initShader();
     //void updateVertexBuffer();
 

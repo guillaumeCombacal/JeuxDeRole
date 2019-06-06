@@ -175,7 +175,12 @@ void BattleMapRender::renderBattleMap()
                 m_vecTextureTilset[m_battleMapData.getVecTile()[l_iTileCounter].getIndexTexture()]->bind();
 
                 // Calcul the new coordinates of each vertices
-                calculVerticesBuffer(itRow, itTileInRow, m_battleMapData.getVecTile()[l_iTileCounter].getTileHeight());
+                calculVerticesBuffer(itRow,
+                                     itTileInRow,
+                                     m_battleMapData.getVecTile()[l_iTileCounter].getNbSquareUp(),
+                                     m_battleMapData.getVecTile()[l_iTileCounter].getNbSquareDown(),
+                                     m_battleMapData.getVecTile()[l_iTileCounter].getTileHeight()
+                                     );
 
                 // TODO : changer les vecteur de données avec les données correspondant aux tiles, personnage, element du decor, etc...
                 //        il faut notamment mettre à jour m_vecVertexBuffer
@@ -206,50 +211,61 @@ void BattleMapRender::renderBattleMap()
 
 }
 
-void BattleMapRender::calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, float i_fHeightTile)
+void BattleMapRender::calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, int i_iNbSquareUp, int i_iNbSquareDown, float i_fHeightTile)
 {
     m_vecVertexBuffer.clear();
 
-    float l_fPositionX = 0.0f;
-    float l_fPositionY = 0.0f;
+    float l_fPositionBaseX = 0.0f;
+    float l_fPositionBaseY = 0.0f;
 
     // Position Y
-    l_fPositionY = m_fLeftCornerVertex.y() - ((m_battleMapData.getHeightTile()/2)*i_iIndiceRow);
+    l_fPositionBaseY = m_fLeftCornerVertex.y() - ((m_battleMapData.getHeightTile()/2)*i_iIndiceRow);
 
     // Position X
     // For every row adding +/-WTile/2 from the reference point
     // => Get the position on the beginning of the row
     if(i_iIndiceRow < m_iNbTileSide)
     {
-        l_fPositionX = m_fLeftCornerVertex.x() - (i_iIndiceRow * m_battleMapData.getWidthTile()/2);
+        l_fPositionBaseX = m_fLeftCornerVertex.x() - (i_iIndiceRow * m_battleMapData.getWidthTile()/2);
     }
     else
     {
-        l_fPositionX = m_fLeftCornerVertex.x() - ((m_iNbTileSide-1)*m_battleMapData.getWidthTile()/2)
+        l_fPositionBaseX = m_fLeftCornerVertex.x() - ((m_iNbTileSide-1)*m_battleMapData.getWidthTile()/2)
                      + ((i_iIndiceRow-(m_iNbTileSide-1)) * m_battleMapData.getWidthTile()/2);
     }
+
     // Adding an offset function of the position of the tile in the row
-    l_fPositionX += (i_iIndiceTileInRow * m_battleMapData.getWidthTile());
+    l_fPositionBaseX += (i_iIndiceTileInRow * m_battleMapData.getWidthTile());
 
-    // Calcul the left vertex coord from base vertex
-    QVector3D l_vecLeftBaseTileVertex (l_fPositionX, l_fPositionY, 0.0f);
+    // CALCUL COORDS FOR THE BOUNDING BOX THAT CONTAINING THE WHOLE TEXTURE.
+    // ALL TEXTURES HAVE THE SAME WIDTH BUT NOT NECESSARY THE SAME HEIGHT.
+    // UNIT FOR THE HEIGHT PAD IS ACCORDING TO THE WIDTH OF THE TILE.
+    // SO THE SIZE SIDE OF 1 SQUARE IN THE TILSET IS EQUAL TO 1 * WIDTH OF THE TILE
+    // FOR EXAMPLE : IF THE TEXTURE IS MAPPED ON 2 SQUARES, COORDS SHOULD BE  2 * WIDTH OF THE TILE
+    // ALSO, IT CAN BE UP AND DOWN, DEPEND ON
 
-    // Calcul the middle and the right vertices from the left vertex position => so the base of 3 vertex is known
-    QVector3D l_vecRightBaseTileVertex (l_vecLeftBaseTileVertex.x()+m_battleMapData.getWidthTile(),
-                                        l_vecLeftBaseTileVertex.y(),
+    // Calcul the down right and left vertices coords
+    QVector3D l_vecLeftDownTileVertex (l_fPositionBaseX,
+                                       l_fPositionBaseY + i_iNbSquareDown * 0.3f,
+                                       0.0f);
+
+    QVector3D l_vecRightDownTileVertex (l_vecLeftDownTileVertex.x()+m_battleMapData.getWidthTile(),
+                                        l_vecLeftDownTileVertex.y(),
                                         0.0f);
 
-    QVector3D l_vecLeftUpTileVertex (l_vecLeftBaseTileVertex.x(), l_vecLeftBaseTileVertex.y()-m_battleMapData.getWidthTile(), 0.0f);
-
-    // Calcul the middle and the right vertices from the left vertex position => so the base of 3 vertex is known
-    QVector3D l_vecRightUpTileVertex (l_vecRightBaseTileVertex.x(),
-                                      l_vecRightBaseTileVertex.y()-m_battleMapData.getWidthTile(),
+    // Calcul the up right and left vertices coords from the down vertices
+    QVector3D l_vecRightUpTileVertex (l_vecRightDownTileVertex.x(),
+                                      l_fPositionBaseY-m_battleMapData.getWidthTile() - i_iNbSquareUp*m_battleMapData.getWidthTile(),
                                       0.0f);
+
+    QVector3D l_vecLeftUpTileVertex (l_vecLeftDownTileVertex.x(),
+                                     l_fPositionBaseY-m_battleMapData.getWidthTile() - i_iNbSquareUp*m_battleMapData.getWidthTile(),
+                                     0.0f);
 
 
     // Add Base Vertices in the vertex buffer
-    m_vecVertexBuffer << l_vecLeftBaseTileVertex;
-    m_vecVertexBuffer << l_vecRightBaseTileVertex;
+    m_vecVertexBuffer << l_vecLeftDownTileVertex;
+    m_vecVertexBuffer << l_vecRightDownTileVertex;
 
     m_vecVertexBuffer << l_vecRightUpTileVertex;
     m_vecVertexBuffer << l_vecLeftUpTileVertex;

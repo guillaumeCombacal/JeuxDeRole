@@ -59,12 +59,10 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
     }
 
 
-
-
-
+/*
 // ------------------- Ancien Générateur de tuile sans lecture de fichier ---------------------------------
 
-/*
+
     // Dans un premier temps, cette fonction est une simulation du chargement de fichier
 
     m_nbTileSide = 10;
@@ -96,8 +94,8 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
 
     //TODO : il faudra une seul loop qui parcours tous les objets potentiellement présent sur la tuile,
     // dans le but de metre à jour le vecMaskPresence d'un seul cout
-/*
-    int indexTile = 0;
+
+/*    int indexTile = 0;
     // Test map de tile de 1*1
     for(int i = 0; i<m_nbTileTotal; i++)
     {
@@ -147,7 +145,8 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         // Add the tile in the container
         m_vecTile << l_tile;
         m_vecMaskPresence << 100;
-    }*/
+    }
+    */
 
 }
 

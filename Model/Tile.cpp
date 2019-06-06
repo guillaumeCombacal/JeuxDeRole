@@ -6,7 +6,9 @@
 #include <QVector2D>
 
 Tile::Tile():
-    m_iIndexTexture(0)
+    m_iIndexTexture(0),
+    m_iNbSquareUp(0),
+    m_iNbSquareDown(0)
 {
 }
 
@@ -19,6 +21,8 @@ void Tile::saveTileData(QJsonObject &json)const
     json["orientation"] = m_orientation;
     json["height"] = m_height;
     json["imgTilesheetFilePath"] = m_strImgTilesheetFilePath;
+    json["nbSquareUp"] = m_iNbSquareUp;
+    json["nbSquareDown"] = m_iNbSquareDown;
 
 
     QJsonArray l_arrayJsonCoordText;
@@ -38,6 +42,8 @@ void Tile::loadTileData(const QJsonObject &json)
     m_orientation = json["orientation"].toDouble();
     m_height = json["height"].toDouble();
     m_strImgTilesheetFilePath = json["imgTilesheetFilePath"].toString();
+    m_iNbSquareUp = json["nbSquareUp"].toInt();
+    m_iNbSquareDown = json["nbSquareDown"].toInt();
 
     m_coordTexture.clear();
     QJsonArray coordArray = json["textureCoords"].toArray();

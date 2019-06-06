@@ -19,6 +19,13 @@ private:
     // that way the index is use to switch from one tilsheet to another, depend on the texture
     int m_iIndexTexture;
 
+    // To render a tile, a square bounding box is defined by m_coordTexture.
+    // This square contains the texture's sprite for the mapping
+    // If the texture exceeds the base square by the top or the bottom
+    // m_iNbSquareUp and m_iNbSquareDown allow to know how many square up or down are necessary to cover the whole texture
+    int m_iNbSquareUp;
+    int m_iNbSquareDown;
+
 
 public:
      Tile();
@@ -28,6 +35,9 @@ public:
 
      // Fonction temporaire avant chargement du fichier
      inline void addCoord(QVector2D i_vec){m_coordTexture<<i_vec;}
+
+     inline const int& getNbSquareUp()const{return m_iNbSquareUp;}
+     inline const int& getNbSquareDown()const{return m_iNbSquareDown;}
 
      inline const int& getIndexTexture()const{return m_iIndexTexture;}
      inline void setIndexTexture(int i_iIndex){m_iIndexTexture = i_iIndex;}
