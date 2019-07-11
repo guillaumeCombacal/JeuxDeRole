@@ -12,7 +12,6 @@ private:
     float m_orientation;// rad ?
     QString m_strImgTilesheetFilePath;
     QVector<QVector2D> m_coordTexture;
-    float m_height;// height of the tile
 
     // At the begining it's 0 then after loading all the required texture (tilsheet) to draw the map in BattleRender,
     // it takes the value of its own texture value.
@@ -40,16 +39,13 @@ public:
      inline const int& getNbSquareDown()const{return m_iNbSquareDown;}
 
      inline const int& getIndexTexture()const{return m_iIndexTexture;}
-     inline void setIndexTexture(int i_iIndex){m_iIndexTexture = i_iIndex;}
+     inline void setIndexTexture(int i_iIndex){m_iIndexTexture = i_iIndex;}// Generate data from code
 
      inline const float& getTileOrientation()const{return m_orientation;}
-     inline void setTileOrientation(float i_fOrientation){m_orientation = i_fOrientation;}
-
-     inline const float& getTileHeight()const{return m_height;}
-     inline void setTileHeight(float i_fHeight){m_height = i_fHeight;}
+     inline void setTileOrientation(float i_fOrientation){m_orientation = i_fOrientation;}// Generate data from code
 
      inline const QString& getImgTilesheetFilePath()const{return m_strImgTilesheetFilePath;}
-     inline void setImgTilesheetFilePath(QString i_strFilePath){m_strImgTilesheetFilePath = i_strFilePath;}
+     inline void setImgTilesheetFilePath(QString i_strFilePath){m_strImgTilesheetFilePath = i_strFilePath;}// Generate data from code
 
      inline const QVector<QVector2D>& getCoordTexture()const{return m_coordTexture;}
 

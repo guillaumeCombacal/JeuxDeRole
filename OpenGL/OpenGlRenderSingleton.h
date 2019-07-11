@@ -22,8 +22,7 @@ public:
 
     void init();
     void render();
-    inline void setBattleMapData(BattleMapData battleMapData){m_battleMapData=battleMapData;}
-    //inline void setBattleMapRender(BattleMapRender* pBattleMapRender){m_pBattleMapRender=pBattleMapRender;}
+    inline void setBattleMapData(BattleMapData* i_pBattleMapData){m_pBattleMapData = i_pBattleMapData;}
 
 private:
 
@@ -31,7 +30,7 @@ private:
     static OpenGlRenderSingleton* m_pInstance;
 
     BattleMapRender* m_pBattleMapRender;
-    BattleMapData m_battleMapData;
+    BattleMapData* m_pBattleMapData;
 
 };
 

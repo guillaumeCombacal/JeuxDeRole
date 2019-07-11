@@ -85,8 +85,7 @@ MainWindowController::MainWindowController(QApplication* app):
     _loadGameData();
 
     // Initialisation de la classe FrameBufferObject_OpenGL
-    OpenGlRenderSingleton::getInstance()->setBattleMapData(m_battleMapData);
-
+    OpenGlRenderSingleton::getInstance()->setBattleMapData(&m_battleMapData);
 
     #ifdef QT_DEBUG
         m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
@@ -200,16 +199,21 @@ void MainWindowController::_saveGameData()
 
 void MainWindowController::_loadGameData()
 {
-    QFile loadFile( QStringLiteral("save.json"));
+    // Load data by reading the file
+//    QFile loadFile( QStringLiteral("save.json"));
 
-    if (!loadFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open save file.");
-        //return false;
-    }
-    QByteArray data = loadFile.readAll();
-    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+//    if (!loadFile.open(QIODevice::ReadOnly)) {
+//        qWarning("Couldn't open save file.");
+//        //return false;
+//    }
+//    QByteArray data = loadFile.readAll();
+//    QJsonDocument loadDoc(QJsonDocument::fromJson(data));
 
-    m_battleMapData.loadDataBattleMap(loadDoc.object());
+//    m_battleMapData.loadDataBattleMap(loadDoc.object());
+
+
+    // Load data by generation
+    m_battleMapData.generateMapData();
 }
 
 void MainWindowController::onSwitchOnglet(int idWidget)

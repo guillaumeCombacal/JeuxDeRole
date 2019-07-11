@@ -8,7 +8,8 @@
 Tile::Tile():
     m_iIndexTexture(0),
     m_iNbSquareUp(0),
-    m_iNbSquareDown(0)
+    m_iNbSquareDown(0),
+    m_orientation(0.0f)
 {
 }
 
@@ -19,7 +20,6 @@ Tile::~Tile()
 void Tile::saveTileData(QJsonObject &json)const
 {
     json["orientation"] = m_orientation;
-    json["height"] = m_height;
     json["imgTilesheetFilePath"] = m_strImgTilesheetFilePath;
     json["nbSquareUp"] = m_iNbSquareUp;
     json["nbSquareDown"] = m_iNbSquareDown;
@@ -40,7 +40,6 @@ void Tile::saveTileData(QJsonObject &json)const
 void Tile::loadTileData(const QJsonObject &json)
 {
     m_orientation = json["orientation"].toDouble();
-    m_height = json["height"].toDouble();
     m_strImgTilesheetFilePath = json["imgTilesheetFilePath"].toString();
     m_iNbSquareUp = json["nbSquareUp"].toInt();
     m_iNbSquareDown = json["nbSquareDown"].toInt();

@@ -4,17 +4,18 @@ OpenGlRenderSingleton* OpenGlRenderSingleton::m_pInstance = NULL;
 
 
 OpenGlRenderSingleton::OpenGlRenderSingleton():
-    m_pBattleMapRender(NULL)
+    m_pBattleMapRender(NULL),
+    m_pBattleMapData(NULL)
 {
 }
 
 void OpenGlRenderSingleton::init()
 {
-    //if(m_battleMapData)
-    //{
-        m_pBattleMapRender = new BattleMapRender(m_battleMapData);
+    if(m_pBattleMapData != NULL)
+    {
+        m_pBattleMapRender = new BattleMapRender(m_pBattleMapData);
         m_pBattleMapRender->initBattleMapRender();
-    //}
+    }
 }
 
 void OpenGlRenderSingleton::render()

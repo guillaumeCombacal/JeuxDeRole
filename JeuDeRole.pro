@@ -90,7 +90,8 @@ SOURCES +=\
     OpenGL/BattleMapRender.cpp \
     Model/BattleMapData.cpp \
     OpenGL/OpenGlRenderSingleton.cpp \
-    Model/Tile.cpp
+    Model/Tile.cpp \
+    Model/Character.cpp
 
 
 

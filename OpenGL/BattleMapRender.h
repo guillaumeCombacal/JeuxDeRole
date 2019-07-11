@@ -3,6 +3,8 @@
 
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
+#include <QTimer>
+#include <QObject>
 
 /*
 #include <QOpenGLWidget>
@@ -39,14 +41,12 @@ struct PresenceOnTile
 };
 
 
-// Faire un singleton !!!!!
-
-class BattleMapRender : protected QOpenGLFunctions
+class BattleMapRender : protected QOpenGLFunctions, public QObject
 {
 
 public:
 
-    BattleMapRender(BattleMapData i_battleMapData);
+    BattleMapRender(BattleMapData* i_pBattleMapData);
     ~BattleMapRender();
 
     void initBattleMapRender();
@@ -58,9 +58,11 @@ public:
 
 private:
 
-    void calculVerticesBuffer(int i_iIndiceRow, int i_iIndiceTileInRow, int i_iNbSquareUp, int i_iNbSquareDown, float i_fHeightTile);
+    void calculTileVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iNbSquareUp, int i_iNbSquareDown);
+    void calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide);
     void initShader();
     //void updateVertexBuffer();
+    void _processSpriteAnimation();
 
     QOpenGLShaderProgram m_shaderProgram;
 
@@ -82,8 +84,8 @@ private:
     // On Opengl 0 is the middle position of the image, so m_iMiddleRowColumn is the reference
     int m_iMiddleRowColumn;
 
-    // TODO : Finir déclaration
-    BattleMapData m_battleMapData;
+    // Contains data to display
+    BattleMapData* m_pBattleMapData;
 
     int m_iNbTileSide;
     int m_iNbTileTotal;
@@ -92,12 +94,16 @@ private:
 
     QOpenGLTexture* m_pTextureTiles;
 
-    QVector<QVector3D>   m_vecVertexBuffer;
+    QVector<QVector3D>   m_vecTileVertexBuffer;
+    QVector<QVector3D>   m_vecCharacterVertexBuffer;
     QVector<QVector3D>   m_vecColors;
 
     // For texture loading
     QVector<QOpenGLTexture*> m_vecTextureTilset;
     std::map<QString, int> m_mapFilenameToTextureIndex;
+
+    // Timer for sprite animation
+    QTimer* m_timerSpriteAnimation;
 
     // TEST : TEMP
     OpenGlRender m_openGlRender;
