@@ -1,13 +1,11 @@
 #include "BattleMapRender.h"
+#include "AnimationSprite.h"
 
 #include <QOpenGLTexture>
 
-#define FREQUENCE_TIMER_SPRITE_ANIMATION 50
-
 BattleMapRender::BattleMapRender(BattleMapData* i_pBattleMapData):
     m_pBattleMapData(i_pBattleMapData),
-    m_fLeftBaseVertex(QVector3D(0.0f, 0.0f, 0.0f)),
-    m_fLeftCornerVertex(QVector3D(0.0f, 0.0f, 0.0f)),
+    m_fLeftBaseCornerVertex(QVector3D(0.0f, 0.0f, 0.0f)),
     m_iMiddleRowColumn(0.0f),
     m_bIsNbTileSidePair(false)
 {
@@ -35,12 +33,12 @@ BattleMapRender::BattleMapRender(BattleMapData* i_pBattleMapData):
 
     // Init the base vertices - Base Vertices is down tile of the map and the down left corner of the tile
     // If there is an nb Tile impair, it's necessary to had an half of height map
-    m_fLeftCornerVertex = QVector3D(-(m_pBattleMapData->getWidthTile()/2),
+    m_fLeftBaseCornerVertex = QVector3D(-(m_pBattleMapData->getWidthTile()/2),
                                     ((m_iNbTileSide/2)*m_pBattleMapData->getHeightTile())+ l_fOddOffset,
                                     0.0f);
 
     // TEMP --> Chargement de la texture par défaut
-    // TODO : le chargement des texture dois être effectué en début d'initialisation
+    // Note : Le chargement des texture dois être effectué en début d'initialisation
     //        pour éviter les problèmes de chargement dynamique qui ne sont pas exploitable (trop couteux !)
     //        Aussi, il doit être possible de charger toute les textures essentielles au rendu
     //        de la map, des perso, etc.. en début de fichier
@@ -116,6 +114,16 @@ void BattleMapRender::initShader()
             "}\n";
     fragmentShader->compileSourceCode(fragmentShaderSource);
 
+    // Debug Color Shader
+//    QOpenGLShader *debugColorShader = new QOpenGLShader(QOpenGLShader::Fragment, &m_shaderProgram);
+//    const char *debugColorShaderSource =
+//    "uniform sampler2D texture;\n"
+//    "varying mediump vec4 texc;\n"
+//    "void main(void)\n"
+//    "{\n"
+//    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
+//    "}\n";
+//    debugColorShader->compileSourceCode(debugColorShaderSource);
 
     m_shaderProgram.addShader(vertexShader);
     m_shaderProgram.addShader(fragmentShader);
@@ -133,6 +141,7 @@ void BattleMapRender::initShader()
 
 // TODO : enlever tous les appel de fonction inutiles (glDepthMask)
 // draw all the object inside the battle map
+// NOTE : OPENGL RENDER is like a FILO (FirstInLastOut), so the first element declare in the render will be draw after all the others
 void BattleMapRender::renderBattleMap()
 {
     glDepthMask(true);
@@ -173,8 +182,8 @@ void BattleMapRender::renderBattleMap()
     int l_iNbRow = (m_iNbTileSide*2)-1;// TODO : Deporter l'initialisation vers le constructeur
     int l_iNbTileInRow = 0;// TODO : Deporter l'initialisation vers le constructeur
     int l_iTileCounter = 0;
-    float l_fPositionBaseX = 0.0f;
-    float l_fPositionBaseY = 0.0f;
+    float l_fLeftCornerTileX = 0.0f;
+    float l_fLeftCornerTileY = 0.0f;
     // Alpha value activated for transparence
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -199,24 +208,25 @@ void BattleMapRender::renderBattleMap()
             // Indeed, Opengl draw in FILO (first in last out)
 
             // Position Y
-            l_fPositionBaseY = m_fLeftCornerVertex.y() - ((m_pBattleMapData->getHeightTile()/2)*itRow);
+            l_fLeftCornerTileY = m_fLeftBaseCornerVertex.y() - ((m_pBattleMapData->getHeightTile()/2)*itRow);
 
             // Position X
             // For every row adding +/-WTile/2 from the reference point
             // => Get the position on the beginning of the row
             if(itRow < m_iNbTileSide)
             {
-                l_fPositionBaseX = m_fLeftCornerVertex.x() - (itRow * m_pBattleMapData->getWidthTile()/2);
+                l_fLeftCornerTileX = m_fLeftBaseCornerVertex.x() - (itRow * m_pBattleMapData->getWidthTile()/2);
             }
             else
             {
-                l_fPositionBaseX = m_fLeftCornerVertex.x() - ((m_iNbTileSide-1)*m_pBattleMapData->getWidthTile()/2)
+                l_fLeftCornerTileX = m_fLeftBaseCornerVertex.x() - ((m_iNbTileSide-1)*m_pBattleMapData->getWidthTile()/2)
                              + ((itRow-(m_iNbTileSide-1)) * m_pBattleMapData->getWidthTile()/2);
             }
             // Adding an offset function of the position of the tile in the row
-            l_fPositionBaseX += (itTileInRow * m_pBattleMapData->getWidthTile());
+            l_fLeftCornerTileX += (itTileInRow * m_pBattleMapData->getWidthTile());
 
-            // Render/Draw Character if someone is present
+
+            // RENDER / DRAW CHARACTER IF SOMEONE IS PRESENT
             if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_maskPresence & 010)// Presence Character
             {
                 // if the character take several tile on side, it's necessary to count how many tile are met.
@@ -224,44 +234,40 @@ void BattleMapRender::renderBattleMap()
                 // ex: if the character is 2 tiles side (one tile here == *) it have to be drawn when
                 //     the tile on the extrem right side or extrem left side is the current tile (depend on the render direction)
                 //           *
-                //    -->*       *<--
-                //           *
-//                if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getSizeSide() > 1)
-//                {
-                    // Check if the extrem tile is met and so if it's necessary to render the character
-                    if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->isReadyToRender())
-                    {
-                        // Binding the right tileSet texture to render the tile
-                        m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getIndexTexture()]->bind();
+                //       *       *
+                //        -->*
+                // Check if the extrem tile is met and so if it's necessary to render the character
+                if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->isReadyToRender())
+                {
+                    // Binding the right tileSet texture to render the tile
+                    m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getIndexTexture()]->bind();
 
-                        // Calcul the new coordinates of each vertices
-                        calculCharacterVerticesBuffer(l_fPositionBaseX,
-                                                      l_fPositionBaseY,
-                                                      m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getSizeSide()
-                                                      );
+                    // Calcul the new coordinates of each vertices
+                    calculCharacterVerticesBuffer(l_fLeftCornerTileX,
+                                                  l_fLeftCornerTileY,
+                                                  m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getSizeSide(),
+                                                  0
+                                                  );
 
-                        // Set vertices and color with the respective data for each elements
-                        m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecCharacterVertexBuffer.constData());
-                        m_shaderProgram.setAttributeArray(m_colorAttrShader, m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getCoordTexture().constData());
+                    // Set vertices and color with the respective data for each elements
+                    m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecCharacterVertexBuffer.constData());
+                    int l_iNbCoordTexture = 0;
+                    m_shaderProgram.setAttributeArray(m_colorAttrShader, m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getCoordTexture(l_iNbCoordTexture)/*.constData()*/);
 
-                        glDrawArrays(GL_QUADS, 0, m_vecTileVertexBuffer.size());
-                    }
-               // }
+                    glDrawArrays(GL_QUADS, 0, m_vecCharacterVertexBuffer.size());
+                }
             }
 
 
-            // Render/Draw Tile if tile is present
+            // RENDER / DRAW TILE IF TILE IS PRESENT
             if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_maskPresence & 100)// Presence Tuile
             {
-                // test temp
-                int indexTest = m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getIndexTexture();
-
                 // Binding the right tileSet texture to render the tile
                 m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getIndexTexture()]->bind();
 
                 // Calcul the new coordinates of each vertices
-                calculTileVerticesBuffer(l_fPositionBaseX,
-                                         l_fPositionBaseY,
+                calculTileVerticesBuffer(l_fLeftCornerTileX,
+                                         l_fLeftCornerTileY,
                                          m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getNbSquareUp(),
                                          m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getNbSquareDown()
                                          );
@@ -312,6 +318,7 @@ void BattleMapRender::calculTileVerticesBuffer(float i_fPositionBaseX, float i_f
                                         0.0f);
 
     // Calcul the up right and left vertices coords from the down vertices
+    // Note : it s "*m_pBattleMapData->getWidthTile()" because the tile is a square and so, has the same size width and length
     QVector3D l_vecRightUpTileVertex (l_vecRightDownTileVertex.x(),
                                       i_fPositionBaseY-m_pBattleMapData->getWidthTile() - i_iNbSquareUp*m_pBattleMapData->getWidthTile(),
                                       0.0f);
@@ -328,12 +335,16 @@ void BattleMapRender::calculTileVerticesBuffer(float i_fPositionBaseX, float i_f
     m_vecTileVertexBuffer << l_vecLeftUpTileVertex;
 }
 
-void BattleMapRender::calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide)
+//TODO : Le personnage est rendu derriere les tuiles sur lesquelles il devraient être...
+// donc dès que la première tuile est rencontrée on fait le rendu !
+void BattleMapRender::calculCharacterVerticesBuffer(float i_fLeftCornerTileX, float i_fLeftCornerTileY,
+                                                    int i_iCharacterSizeSide, float i_fHeightTile)
 {
     m_vecCharacterVertexBuffer.clear();
 
-    QVector3D l_vecLeftDownCharacterVertex (i_fPositionBaseX,
-                                            i_fPositionBaseY - (i_iCharacterSizeSide*(m_pBattleMapData->getHeightTile()/2)),
+    //pb : les y et les x a revoir !!!
+    QVector3D l_vecLeftDownCharacterVertex (i_fLeftCornerTileX - ((i_iCharacterSizeSide-1)*m_pBattleMapData->getWidthTile()/2),
+                                            i_fLeftCornerTileY - i_fHeightTile,
                                             0.0f);
 
     QVector3D l_vecRightDownCharacterVertex (l_vecLeftDownCharacterVertex.x() + (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
@@ -341,7 +352,7 @@ void BattleMapRender::calculCharacterVerticesBuffer(float i_fPositionBaseX, floa
                                              0.0f);
 
     QVector3D l_vecRightUpCharacterVertex (l_vecRightDownCharacterVertex.x(),
-                                           i_fPositionBaseY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
+                                           i_fLeftCornerTileY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
                                            0.0f);
 
     QVector3D l_vecLeftUpCharacterVertex (l_vecLeftDownCharacterVertex.x(),
@@ -355,15 +366,12 @@ void BattleMapRender::calculCharacterVerticesBuffer(float i_fPositionBaseX, floa
 
 }
 
-//- Creation d une classe AnimationSprite
-//- Attribut vector de AnimationSprite*
-//- Classe fille de AnimationSprite -> fonction changement coord texture (fonction virtuel de AnimationSprite)
-//  Mutex des coord textures sur changement et sur lecture
+
 void BattleMapRender::_processSpriteAnimation()
 {
-    // Parcours de tous les objets animation => création d'un conteneur avec tous les ptr sur les obj animation
-//    for(int i=0; i<; i++)
-//    {
-
-//    }
+    // Parcours de tous les objets animation
+    for(int i=0; i<m_pBattleMapData->getVecAnimationSprite().size(); i++)
+    {
+        m_pBattleMapData->getVecAnimationSprite()[i]->updateAnimationSprite();
+    }
 }

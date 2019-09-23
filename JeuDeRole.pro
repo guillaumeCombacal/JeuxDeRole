@@ -91,7 +91,8 @@ SOURCES +=\
     Model/BattleMapData.cpp \
     OpenGL/OpenGlRenderSingleton.cpp \
     Model/Tile.cpp \
-    Model/Character.cpp
+    Model/Character.cpp \
+    Model/AnimationSprite.cpp
 
 
 
@@ -143,4 +144,5 @@ HEADERS  += \
     Model/BattleMapData.h \
     Model/Character.h \
     OpenGL/OpenGlRenderSingleton.h \
-    Model/Tile.h
+    Model/Tile.h \
+    Model/AnimationSprite.h

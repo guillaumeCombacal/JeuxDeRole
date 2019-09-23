@@ -5,13 +5,24 @@
 #include <QVector2D>
 #include <QVector>
 
-class Character
+#include"AnimationSprite.h"
+
+#define NB_COORD_TEXTURE 4
+
+enum StatesCharacter
+{
+    STATE_WALK_1 = 0,
+    STATE_WALK_2,
+    END_STATE
+};
+
+class Character : public AnimationSprite
 {
 
 private:
     float m_orientation;// rad ?
     QString m_strImgTilesheetFilePath;
-    QVector<QVector2D> m_coordTexture;
+    QVector2D m_tabCoordTexture[NB_COORD_TEXTURE];
 
     // A character can be bigger than one unit square texture
     // The size of the character in number of tiles
@@ -31,6 +42,9 @@ private:
     int m_iCountRender;
     bool m_bIsReadyToRender;
 
+    // State
+    int m_states[END_STATE];
+
     void _initTotalCountRender();
 
 public:
@@ -39,8 +53,9 @@ public:
 
      inline const bool& getIsReadyToRender(){return m_bIsReadyToRender;}
 
-     inline void setCoordTexture(QVector<QVector2D> i_vecCoordTexture){m_coordTexture = i_vecCoordTexture;}// Generate data from code
-     inline const QVector<QVector2D>& getCoordTexture()const{return m_coordTexture;}
+     // Generate data from code
+     inline void setCoordTexture(QVector2D* i_pCoordTexture){std::memcpy(m_tabCoordTexture, i_pCoordTexture, NB_COORD_TEXTURE*sizeof(QVector2D));}
+     inline const QVector2D* getCoordTexture(int& o_iNbElement)const{o_iNbElement = NB_COORD_TEXTURE;return m_tabCoordTexture;}
 
      inline const int& getIndexTexture()const{return m_iIndexTexture;}
      inline void setIndexTexture(int i_iIndex){m_iIndexTexture = i_iIndex;}// Generate data from code
@@ -57,6 +72,9 @@ public:
      void saveCharacterData(QJsonObject &json)const;
      void loadCharacterData(const QJsonObject &json);
      bool isReadyToRender();
+
+     void updateCoordSprite(int i_stateFrame);
+     void nextState();
 
 
 };

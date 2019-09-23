@@ -5,12 +5,17 @@
 #include <QJsonArray>
 #include <QVector2D>
 
+#define TIMEOUT_ANIMATION_CHARACTER 300// timeout in ms between changing state
+
 Character::Character():
     m_bIsReadyToRender(false),
     m_iCountRender(0),
     m_iTotalCountRender(0),
     m_orientation(0.0f)
 {
+    // Init inherited members
+    m_currentStateFrame = STATE_WALK_1;
+    m_timeoutSignal_ms = TIMEOUT_ANIMATION_CHARACTER;
 }
 
 Character::~Character()
@@ -34,11 +39,11 @@ void Character::saveCharacterData(QJsonObject &json)const
     json["indexTileArea"] = l_arrayJsonIndexTileArea;
 
     QJsonArray l_arrayJsonCoordText;
-    for(int i=0; i<m_coordTexture.size(); i++)
+    for(int i=0; i<NB_COORD_TEXTURE; i++)
     {
         QJsonObject coordObject;
-        coordObject["coordX"] = m_coordTexture[i].x();
-        coordObject["coordY"] = m_coordTexture[i].y();
+        coordObject["coordX"] = m_tabCoordTexture[i].x();
+        coordObject["coordY"] = m_tabCoordTexture[i].y();
         l_arrayJsonCoordText.append(coordObject);
     }
     json["textureCoords"] = l_arrayJsonCoordText;
@@ -63,7 +68,6 @@ void Character::loadCharacterData(const QJsonObject &json)
         m_vecIndexTileArea.append(indexObject["index"].toInt());
     }
 
-    m_coordTexture.clear();
     QJsonArray coordArray = json["textureCoords"].toArray();
     for (int itCoord = 0; itCoord < coordArray.size(); itCoord++)
     {
@@ -71,29 +75,32 @@ void Character::loadCharacterData(const QJsonObject &json)
         QVector2D l_vecCoord;
         l_vecCoord.setX(coordObject["coordX"].toDouble());
         l_vecCoord.setY(coordObject["coordY"].toDouble());
-        m_coordTexture.append(l_vecCoord);
+        m_tabCoordTexture[itCoord] = l_vecCoord;
     }
 
 }
 
 bool Character::isReadyToRender()
-{
-    m_iCountRender++;
-
-    if(m_iCountRender == m_iTotalCountRender)
+{   
+    // Handle the case with m_iSizeSide = 1
+    if(m_iCountRender >= (m_iSizeSide*m_iSizeSide))
     {
-        m_bIsReadyToRender = true;
+       m_iCountRender = 0;
+    }
+
+    if(m_iCountRender == 0)
+    {
+        m_iCountRender++;
         return true;
     }
-    else if(m_iCountRender == m_iSizeSide*m_iSizeSide)
+    else if(m_iCountRender == (m_iSizeSide*m_iSizeSide)-1)
     {
-        m_bIsReadyToRender = false;
         m_iCountRender = 0;
         return false;
     }
     else
     {
-        m_bIsReadyToRender = false;
+        m_iCountRender++;
         return false;
     }
 }
@@ -111,5 +118,42 @@ void Character::_initTotalCountRender()
         {
             m_iTotalCountRender = (((m_iSizeSide+1)/2)*m_iSizeSide) - (m_iSizeSide-1);
         }
+    }
+}
+
+//TODO : changement des coords
+void Character::updateCoordSprite(int i_stateFrame)
+{
+    switch(i_stateFrame)
+    {
+        case STATE_WALK_1 :
+        m_tabCoordTexture[0] = QVector2D(0.0f,1.0f);
+        m_tabCoordTexture[1] = QVector2D(0.5f,1.0f);
+        m_tabCoordTexture[2] = QVector2D(0.5f,0.0f);
+        m_tabCoordTexture[3] = QVector2D(0.0f,0.0f);
+            break;
+        case STATE_WALK_2 :
+        m_tabCoordTexture[0] = QVector2D(0.5f,1.0f);
+        m_tabCoordTexture[1] = QVector2D(1.0f,1.0f);
+        m_tabCoordTexture[2] = QVector2D(1.0f,0.0f);
+        m_tabCoordTexture[3] = QVector2D(0.5f,0.0f);
+            break;
+        default:
+            break;
+    }
+}
+
+void Character::nextState()
+{
+    switch(m_currentStateFrame)
+    {
+        case STATE_WALK_1 :
+            m_currentStateFrame = STATE_WALK_2;
+            break;
+        case STATE_WALK_2 :
+            m_currentStateFrame = STATE_WALK_1;
+            break;
+        default:
+            break;
     }
 }

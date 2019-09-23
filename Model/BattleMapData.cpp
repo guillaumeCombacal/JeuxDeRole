@@ -11,16 +11,22 @@ BattleMapData::BattleMapData():
     m_vecFilenameTileset.clear();
     m_vecTileArea.clear();
     m_vecCharacter.clear();
+    m_vecAnimationSprite.clear();
 }
 
 BattleMapData::~BattleMapData()
 {
     for(int i=0; i<m_vecCharacter.size(); i++)
     {
-        delete m_vecCharacter[i];
-        m_vecCharacter[i] = NULL;
+        if(m_vecCharacter[i] != NULL)
+        {
+            delete m_vecCharacter[i];
+            m_vecCharacter[i] = NULL;
+        }
     }
     m_vecCharacter.clear();
+
+    m_vecAnimationSprite.clear();
 }
 
 void BattleMapData::generateMapData()
@@ -36,9 +42,7 @@ void BattleMapData::generateMapData()
 
         int l_iIndexTexture = -1;
 
-        // Generation des personnages
-
-        // Génération de 6 personnages
+        // --- GENERATION DE 6 PERSONNAGES ---
 //        for(int i=0; i<6; i++)
 //        {
 //            Character* l_pCharacter = new Character();
@@ -46,13 +50,13 @@ void BattleMapData::generateMapData()
 //            l_pCharacter->setSizeSide(1);
 //            l_pCharacter->setIndexTileArea(QVector<int>{i});
 
-//            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation50x66Left.png"));
-//            QVector<QVector2D> l_vecCoordCharacter;
-//            l_vecCoordCharacter << QVector2D(0.0f,1.0f);
-//            l_vecCoordCharacter << QVector2D(0.5f,1.0f);
-//            l_vecCoordCharacter << QVector2D(0.5f,0.0f);
-//            l_vecCoordCharacter << QVector2D(0.0f,0.0f);
-//            l_pCharacter->setCoordTexture(l_vecCoordCharacter);
+//            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+//            QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+//            l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+//            l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+//            l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+//            l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+//            l_pCharacter->setCoordTexture(l_tabCoordCharacter);
 
 //            l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
 //            if( l_iIndexTexture != -1)
@@ -64,21 +68,23 @@ void BattleMapData::generateMapData()
 
 //            }
 //            m_vecCharacter << l_pCharacter;
+//            m_vecAnimationSprite << l_pCharacter;
 //        }
 
-        // Génération d'un personnage sur plusieur case
+        // --- GENERATION D'1 PERSONNAGE SUR PLUSIEURS CASE DE LARGE ---
         Character* l_pCharacter = new Character();
 
         l_pCharacter->setSizeSide(2);
         l_pCharacter->setIndexTileArea(QVector<int>{0,1,2,4});
 
-        l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation50x66Left.png"));
-        QVector<QVector2D> l_vecCoordCharacter;
-        l_vecCoordCharacter << QVector2D(0.0f,1.0f);
-        l_vecCoordCharacter << QVector2D(0.5f,1.0f);
-        l_vecCoordCharacter << QVector2D(0.5f,0.0f);
-        l_vecCoordCharacter << QVector2D(0.0f,0.0f);
-        l_pCharacter->setCoordTexture(l_vecCoordCharacter);
+        l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+        //l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/DebugTileset.png"));
+        QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+        l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+        l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+        l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+        l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+        l_pCharacter->setCoordTexture(l_tabCoordCharacter);
 
         l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
         if( l_iIndexTexture != -1)
@@ -90,12 +96,69 @@ void BattleMapData::generateMapData()
 
         }
         m_vecCharacter << l_pCharacter;
+        m_vecAnimationSprite << l_pCharacter;
 
-        // Generation des tuiles
-        int indexTile = 0;
+        // GENERATION de plusieurs personnages grands
+
+//        Character* l_pCharacter1 = new Character();
+//        Character* l_pCharacter2 = new Character();
+//        Character* l_pCharacter3 = new Character();
+
+//        l_pCharacter1->setSizeSide(2);
+//        l_pCharacter2->setSizeSide(2);
+//        l_pCharacter3->setSizeSide(2);
+
+//        l_pCharacter1->setIndexTileArea(QVector<int>{0,1,2,4});
+//        l_pCharacter2->setIndexTileArea(QVector<int>{3,6,7,10});
+//        l_pCharacter3->setIndexTileArea(QVector<int>{5,8,9,14});
+
+//        l_pCharacter1->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+//        l_pCharacter2->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+//        l_pCharacter3->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+
+
+//        QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+//        l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+//        l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+//        l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+//        l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+//        l_pCharacter1->setCoordTexture(l_tabCoordCharacter);
+//        l_pCharacter2->setCoordTexture(l_tabCoordCharacter);
+//        l_pCharacter3->setCoordTexture(l_tabCoordCharacter);
+
+//        l_iIndexTexture = _addFilenameTexture(l_pCharacter1->getImgTilesheetFilePath());
+//        if( l_iIndexTexture != -1)
+//        {
+//            l_pCharacter1->setIndexTexture(l_iIndexTexture);
+//        }
+
+//        l_iIndexTexture = _addFilenameTexture(l_pCharacter2->getImgTilesheetFilePath());
+//        if( l_iIndexTexture != -1)
+//        {
+//            l_pCharacter2->setIndexTexture(l_iIndexTexture);
+//        }
+
+//        l_iIndexTexture = _addFilenameTexture(l_pCharacter3->getImgTilesheetFilePath());
+//        if( l_iIndexTexture != -1)
+//        {
+//            l_pCharacter3->setIndexTexture(l_iIndexTexture);
+//        }
+
+//        m_vecCharacter << l_pCharacter1;
+//        m_vecAnimationSprite << l_pCharacter1;
+//        m_vecCharacter << l_pCharacter2;
+//        m_vecAnimationSprite << l_pCharacter2;
+//        m_vecCharacter << l_pCharacter3;
+//        m_vecAnimationSprite << l_pCharacter3;
+
+
+
+        // --- GENERATION DES TUILES ---
         for(int i = 0; i<m_nbTileTotal; i++)
         {
             TileArea l_tileArea;
+
+            l_tileArea.m_tile.setHeightTile(0.01f);
 
             l_tileArea.m_tile.setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilsetIsometric/testTileSet.png"));
 
@@ -146,6 +209,9 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
     m_fWidthTile = l_jsonObjBattleMap["widthTile"].toDouble();
     m_fHeightTile = l_jsonObjBattleMap["heightTile"].toDouble();
 
+    // Prepare vector AnimationSprite
+    m_vecAnimationSprite.clear();
+
     // Load Characters
     m_vecCharacter.clear();
     QJsonArray characterArray = l_jsonObjBattleMap["characters"].toArray();
@@ -167,6 +233,7 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         }
 
         m_vecCharacter << l_pCharacter;
+        m_vecAnimationSprite << l_pCharacter;
     }
 
 

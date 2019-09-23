@@ -9,7 +9,8 @@ Tile::Tile():
     m_iIndexTexture(0),
     m_iNbSquareUp(0),
     m_iNbSquareDown(0),
-    m_orientation(0.0f)
+    m_orientation(0.0f),
+    m_fHeight(0.0f)
 {
 }
 

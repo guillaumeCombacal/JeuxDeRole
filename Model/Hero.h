@@ -7,7 +7,6 @@
 #include"sharedDataXmlField.h"
 #include"sharedDataHero.h"
 
-
 class Hero
 {
 

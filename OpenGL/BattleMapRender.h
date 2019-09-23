@@ -18,8 +18,9 @@
 // Test : Temp
 #include "OpenGL_Render.h"
 
-
 #include<map>
+
+class AnimationSprite;
 
 //QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 
@@ -59,7 +60,7 @@ public:
 private:
 
     void calculTileVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iNbSquareUp, int i_iNbSquareDown);
-    void calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide);
+    void calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide, float i_fHeightTile);
     void initShader();
     //void updateVertexBuffer();
     void _processSpriteAnimation();
@@ -72,10 +73,15 @@ private:
     int m_matrixUniformShader;
 
     // Reference Vertex = Left Base Vertex => all vertex vertices are calculate from this point
-    QVector3D m_fLeftBaseVertex;
-
-    // Test
-    QVector3D m_fLeftCornerVertex;
+    // It's the corner of the texture that will be mapped on it
+    // On ne se déplace pas selon un pattern de losange représentant la tile,
+    // mais selon des quad qui contiennent la texture en diamant à l'intérieur d'un quad
+    //      _____
+    //     |     |
+    //     |  *  |
+    //     *     *
+    //  -->|__*__|
+    QVector3D m_fLeftBaseCornerVertex;
 
     // Tile base dimension
     /*float m_fWidthBaseTile;

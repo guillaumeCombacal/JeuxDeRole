@@ -43,9 +43,10 @@ private:
     // RQ: elements have to loading before using this fonction
     void _associateTileAreaObject();
 
-    // Data Container that will be expose with getter
+    // Data Container exposed with getter
     QVector<TileArea> m_vecTileArea;
     QVector<Character*> m_vecCharacter;
+    QVector<AnimationSprite*> m_vecAnimationSprite;
 
 
     // TODO : Futur container
@@ -87,6 +88,8 @@ public:
 
      inline const QVector<TileArea>& getVecTileArea(){return m_vecTileArea;}
      inline const QVector<QString>& getVecFilenameTileset(){return m_vecFilenameTileset;}
+
+     inline const QVector<AnimationSprite*>& getVecAnimationSprite(){return m_vecAnimationSprite;}
 
 };
 
