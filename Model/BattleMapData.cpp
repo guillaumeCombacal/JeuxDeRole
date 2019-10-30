@@ -3,6 +3,7 @@
 #include "QDebug"
 
 #include <QJsonArray>
+#include<QKeyEvent>
 
 BattleMapData::BattleMapData():
     m_nbTileTotal(0)
@@ -42,64 +43,82 @@ void BattleMapData::generateMapData()
 
         int l_iIndexTexture = -1;
 
-        // --- GENERATION DE 6 PERSONNAGES ---
-//        for(int i=0; i<6; i++)
-//        {
-//            Character* l_pCharacter = new Character();
-
-//            l_pCharacter->setSizeSide(1);
-//            l_pCharacter->setIndexTileArea(QVector<int>{i});
-
-//            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
-//            QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
-//            l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
-//            l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
-//            l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
-//            l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
-//            l_pCharacter->setCoordTexture(l_tabCoordCharacter);
-
-//            l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
-//            if( l_iIndexTexture != -1)
-//            {
-//                l_pCharacter->setIndexTexture(l_iIndexTexture);
-//            }
-//            else
-//            {
-
-//            }
-//            m_vecCharacter << l_pCharacter;
-//            m_vecAnimationSprite << l_pCharacter;
-//        }
-
-        // --- GENERATION D'1 PERSONNAGE SUR PLUSIEURS CASE DE LARGE ---
-        Character* l_pCharacter = new Character();
-
-        l_pCharacter->setSizeSide(2);
-        l_pCharacter->setIndexTileArea(QVector<int>{0,1,2,4});
-
-        l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
-        //l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/DebugTileset.png"));
-        QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
-        l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
-        l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
-        l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
-        l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
-        l_pCharacter->setCoordTexture(l_tabCoordCharacter);
-
-        l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
+        // --- CURSEUR INITIALISATION ---
+        m_curseur.setImgFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/curseur.png"));
+        m_curseur.setIsVisible(true);
+        m_curseur.setIndexTileAreaPathFinding(0);
+        QVector2D l_tabCoordCurseur[NB_COORD_TEXTURE];
+        l_tabCoordCurseur[0] = QVector2D(0.0f,1.0f);
+        l_tabCoordCurseur[1] = QVector2D(1.0f,1.0f);
+        l_tabCoordCurseur[2] = QVector2D(1.0f,0.0f);
+        l_tabCoordCurseur[3] = QVector2D(0.0f,0.0f);
+        m_curseur.setCoordTexture(l_tabCoordCurseur);
+        l_iIndexTexture = _addFilenameTexture(m_curseur.getImgFilePath());
         if( l_iIndexTexture != -1)
         {
-            l_pCharacter->setIndexTexture(l_iIndexTexture);
+            m_curseur.setIndexTexture(l_iIndexTexture);
         }
-        else
-        {
+        l_iIndexTexture = -1;
 
+        // --- GENERATION DE 6 PERSONNAGES ---
+        for(int i=0; i<6; i++)
+        {
+            Character* l_pCharacter = new Character();
+
+            l_pCharacter->setSizeSide(1);
+            l_pCharacter->setIndexTileArea(QVector<int>{i});
+
+            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+            QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+            l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+            l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+            l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+            l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+            l_pCharacter->setCoordTexture(l_tabCoordCharacter);
+
+            l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
+            if( l_iIndexTexture != -1)
+            {
+                l_pCharacter->setIndexTexture(l_iIndexTexture);
+            }
+            else
+            {
+
+            }
+            l_iIndexTexture = -1;
+            m_vecCharacter << l_pCharacter;
+            m_vecAnimationSprite << l_pCharacter;
         }
-        m_vecCharacter << l_pCharacter;
-        m_vecAnimationSprite << l_pCharacter;
+
+        // --- GENERATION D'1 PERSONNAGE SUR PLUSIEURS CASE DE LARGE ---
+//        Character* l_pCharacter = new Character();
+
+//        l_pCharacter->setSizeSide(2);
+//        l_pCharacter->setIndexTileArea(QVector<int>{0,1,2,4});
+
+//        l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+//        //l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/DebugTileset.png"));
+//        QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+//        l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+//        l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+//        l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+//        l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+//        l_pCharacter->setCoordTexture(l_tabCoordCharacter);
+
+//        l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
+//        if( l_iIndexTexture != -1)
+//        {
+//            l_pCharacter->setIndexTexture(l_iIndexTexture);
+//        }
+//        else
+//        {
+
+//        }
+//        l_iIndexTexture = -1;
+//        m_vecCharacter << l_pCharacter;
+//        m_vecAnimationSprite << l_pCharacter;
 
         // GENERATION de plusieurs personnages grands
-
 //        Character* l_pCharacter1 = new Character();
 //        Character* l_pCharacter2 = new Character();
 //        Character* l_pCharacter3 = new Character();
@@ -131,18 +150,21 @@ void BattleMapData::generateMapData()
 //        {
 //            l_pCharacter1->setIndexTexture(l_iIndexTexture);
 //        }
+//        l_iIndexTexture = -1;
 
 //        l_iIndexTexture = _addFilenameTexture(l_pCharacter2->getImgTilesheetFilePath());
 //        if( l_iIndexTexture != -1)
 //        {
 //            l_pCharacter2->setIndexTexture(l_iIndexTexture);
 //        }
+//        l_iIndexTexture = -1;
 
 //        l_iIndexTexture = _addFilenameTexture(l_pCharacter3->getImgTilesheetFilePath());
 //        if( l_iIndexTexture != -1)
 //        {
 //            l_pCharacter3->setIndexTexture(l_iIndexTexture);
 //        }
+//        l_iIndexTexture = -1;
 
 //        m_vecCharacter << l_pCharacter1;
 //        m_vecAnimationSprite << l_pCharacter1;
@@ -157,8 +179,13 @@ void BattleMapData::generateMapData()
         for(int i = 0; i<m_nbTileTotal; i++)
         {
             TileArea l_tileArea;
+            l_tileArea.m_maskPresence.tile = 0;
+            l_tileArea.m_maskPresence.character = 0;
+            l_tileArea.m_maskPresence.object= 0;
+            l_tileArea.m_maskPresence.cursor = 0;
 
-            l_tileArea.m_tile.setHeightTile(0.01f);
+            // TODO : clarifier la hauteur tuile et faire une différence entre la hauteur du bord et la hauteur du diamant !!!
+            l_tileArea.m_tile.setHeightTile(0.04f);
 
             l_tileArea.m_tile.setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilsetIsometric/testTileSet.png"));
 
@@ -187,12 +214,16 @@ void BattleMapData::generateMapData()
             {
 
             }
+            l_iIndexTexture = -1;
 
-            l_tileArea.m_maskPresence = 100;
+            //l_tileArea.m_maskPresence = 1000;
+            l_tileArea.m_maskPresence.tile = 1;
 
             // Add the tile in the container
             m_vecTileArea << l_tileArea;
         }
+
+        _initVecTileAreaPathFinding();
 
         _associateTileAreaObject();
 }
@@ -231,6 +262,7 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         {
 
         }
+        l_iIndexTexture = -1;
 
         m_vecCharacter << l_pCharacter;
         m_vecAnimationSprite << l_pCharacter;
@@ -258,6 +290,7 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         {
 
         }
+        l_iIndexTexture = -1;
 
         /*// Check if the texture's tilset filename is already known
         std::map<QString, int>::iterator itTileset;
@@ -278,7 +311,8 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         }
         */
 
-        l_tileArea.m_maskPresence = 100;
+        //l_tileArea.m_maskPresence = 1000;
+        l_tileArea.m_maskPresence.tile = 1;
 
         m_vecTileArea << l_tileArea;
     }
@@ -349,13 +383,101 @@ void BattleMapData::saveDataBattleMap(QJsonObject &json)const
 
 void BattleMapData::_associateTileAreaObject()
 {
+    // Associate TileArea with Curseur
+    //m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_curseur = &m_curseur;
+    m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_maskPresence.cursor = 1;
+
     // Associate TileArea with Character
     for(int i=0; i<m_vecCharacter.size(); i++)
     {
         for(int j=0; j<m_vecCharacter[i]->getVecIndexTileArea().size(); j++)
         {
             m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_character = m_vecCharacter[i];
-            m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_maskPresence = m_vecTileArea[i].m_maskPresence | 010;
+            //m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_maskPresence = m_vecTileArea[i].m_maskPresence | 0100;
+            m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_maskPresence.character = 1;
+        }
+    }
+}
+
+// TODO : il faudra mettre des conditions suivant l'état courant
+void BattleMapData::eventKeyBoard(KeyValue i_eKey)
+{
+    int l_iNewIndex = m_curseur.getVecIndexTileAreaPathFinding();
+
+    switch (i_eKey)
+    {
+        case ENTER :
+            qDebug()<<"InterfaceQML::eventFromQML()--> ENTER";
+            break;
+        case BACK_SPACE :
+            qDebug()<<"InterfaceQML::eventFromQML()--> BACK_SPACE";
+            break;
+        case LEFT :
+        l_iNewIndex++;
+            break;
+        case RIGHT :
+        l_iNewIndex--;
+            break;
+        case UP :
+        l_iNewIndex += m_nbTileSide;
+            break;
+        case DOWN :
+        l_iNewIndex -= m_nbTileSide;
+            break;
+        default:
+        break;
+    }
+
+    if(l_iNewIndex >= 0 && l_iNewIndex < m_nbTileSide*m_nbTileSide )
+    {
+        m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_maskPresence.cursor = 0;
+        m_vecTileAreaPathFinding[l_iNewIndex]->m_maskPresence.cursor = 1;
+        m_curseur.setIndexTileAreaPathFinding(l_iNewIndex);
+    }
+    else
+    {
+    }
+}
+
+//TODO :
+// Generate a container TileArea*, easier to use to do path finding than the vecTileArea
+// This container is organised like a matrix
+void BattleMapData::_initVecTileAreaPathFinding()
+{
+    m_vecTileAreaPathFinding.resize(m_nbTileSide*m_nbTileSide);
+
+    int l_iNbValLine = 1, l_iCountLine = 1, l_iCountVal = 0;
+
+    for(int i =0; i<m_nbTileSide*m_nbTileSide; i++)
+    {
+        l_iCountVal++;
+
+        if(l_iCountLine <= m_nbTileSide)
+        {
+            m_vecTileAreaPathFinding[(l_iCountLine-l_iCountVal)+((l_iCountVal-1)*m_nbTileSide)] = &m_vecTileArea[i];
+            m_vecTileAreaPathFinding[(l_iCountLine-l_iCountVal)+((l_iCountVal-1)*m_nbTileSide)]->m_indexVecPathFinding =
+            (l_iCountLine-l_iCountVal) + (l_iCountVal-1)*m_nbTileSide;
+        }
+        else
+        {
+            m_vecTileAreaPathFinding[((l_iCountLine-m_nbTileSide)*m_nbTileSide) + (l_iCountVal*(m_nbTileSide-1))] = &m_vecTileArea[i];
+            m_vecTileAreaPathFinding[((l_iCountLine-m_nbTileSide)*m_nbTileSide) + (l_iCountVal*(m_nbTileSide-1))]->m_indexVecPathFinding =
+            ((l_iCountLine-m_nbTileSide)*m_nbTileSide) + (l_iCountVal*(m_nbTileSide-1));
+        }
+
+
+        if(l_iCountVal == l_iNbValLine)// Change line
+        {
+            l_iCountLine++;
+            if(l_iCountLine <= m_nbTileSide)
+            {
+                l_iNbValLine++;
+            }
+            else
+            {
+                l_iNbValLine--;
+            }
+            l_iCountVal=0;
         }
     }
 }

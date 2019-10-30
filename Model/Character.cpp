@@ -11,7 +11,8 @@ Character::Character():
     m_bIsReadyToRender(false),
     m_iCountRender(0),
     m_iTotalCountRender(0),
-    m_orientation(0.0f)
+    m_orientation(0.0f),
+    m_iSizeSide(0)
 {
     // Init inherited members
     m_currentStateFrame = STATE_WALK_1;
@@ -82,6 +83,14 @@ void Character::loadCharacterData(const QJsonObject &json)
 
 bool Character::isReadyToRender()
 {   
+    if(m_iSizeSide == 0)
+    {
+        qDebug()<<"Character has no size !!!";
+        return false;
+    }
+    //TODO : correction size side
+
+
     // Handle the case with m_iSizeSide = 1
     if(m_iCountRender >= (m_iSizeSide*m_iSizeSide))
     {

@@ -6,41 +6,14 @@
 #include <QTimer>
 #include <QObject>
 
-/*
-#include <QOpenGLWidget>
-#include <QVector>
-#include <QVector3D>
-#include <QMatrix4x4>
-*/
-
 #include "BattleMapData.h"
-
-// Test : Temp
-#include "OpenGL_Render.h"
 
 #include<map>
 
+#define SIZE_VB 4
+
 class AnimationSprite;
-
-//QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
-
-// Information to know which object need to be rendered
-struct PresenceOnTile
-{
-    bool m_bIsTile;
-    bool m_bIsPerso;
-    bool m_bIsDecorObject;
-
-    // TODO : Verfier init par défaut
-    PresenceOnTile():
-        m_bIsTile(false),
-        m_bIsPerso(false),
-        m_bIsDecorObject(false)
-    {
-
-    }
-};
-
+class QOpenGLTexture;
 
 class BattleMapRender : protected QOpenGLFunctions, public QObject
 {
@@ -53,16 +26,12 @@ public:
     void initBattleMapRender();
     void renderBattleMap();
 
-    /*void render();
-    void draw();
-    void initialize();*/
-
 private:
 
-    void calculTileVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iNbSquareUp, int i_iNbSquareDown);
-    void calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide, float i_fHeightTile);
-    void initShader();
-    //void updateVertexBuffer();
+    void _calculTileVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iNbSquareUp, int i_iNbSquareDown);
+    void _calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide, float i_fHeightTile);
+    void _calculCurseurVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, float i_fHeightTile);
+    void _initShader();
     void _processSpriteAnimation();
 
     QOpenGLShaderProgram m_shaderProgram;
@@ -100,6 +69,8 @@ private:
 
     QOpenGLTexture* m_pTextureTiles;
 
+    // TODO : Enlever les vec et passer par des tab statiques de [4]
+    QVector3D m_tabCurseurVertexBuffer[SIZE_VB];
     QVector<QVector3D>   m_vecTileVertexBuffer;
     QVector<QVector3D>   m_vecCharacterVertexBuffer;
     QVector<QVector3D>   m_vecColors;
@@ -110,9 +81,6 @@ private:
 
     // Timer for sprite animation
     QTimer* m_timerSpriteAnimation;
-
-    // TEST : TEMP
-    OpenGlRender m_openGlRender;
 
 };
 

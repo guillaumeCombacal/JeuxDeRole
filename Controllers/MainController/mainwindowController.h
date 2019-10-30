@@ -17,6 +17,7 @@ class QDesktopWidget;
 class QWidget;
 class QQuickView;
 class QApplication;
+class InterfaceQML;
 
 class MainWindowController : public QObject
 {
@@ -40,6 +41,7 @@ private:
     QApplication* m_pApp;
 
     BattleMapData m_battleMapData;
+    InterfaceQML*  m_pInterfaceComQML;
 
     void _saveGameData();
     void _loadGameData();
@@ -47,6 +49,9 @@ private:
 public:
     MainWindowController(QApplication* app);
     ~MainWindowController();
+
+    void eventKeyBoard(int key);
+    void changeView(ViewType typeView);
 
 public slots:
     void onSwitchOnglet(int idWidget);

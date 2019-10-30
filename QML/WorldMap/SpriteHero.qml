@@ -75,7 +75,7 @@ Rectangle
     function moveHero(xPos, yPos, zoomLevel)
     {
         // Change the sprite direction
-        if(xPos >= spriteAnimation.x)
+        if(xPos / zoomLevel >= spriteAnimation.x)
         {
             sprite.source = "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/SpriteAnimation/SpriteAnimation50x66Right.png";
         }

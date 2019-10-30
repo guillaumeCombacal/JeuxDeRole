@@ -22,6 +22,8 @@ public:
 
     void init();
     void render();
+
+    inline void setBattleMapRendering(bool i_bIsRendering){m_bIsRendering = i_bIsRendering;}
     inline void setBattleMapData(BattleMapData* i_pBattleMapData){m_pBattleMapData = i_pBattleMapData;}
 
 private:
@@ -31,6 +33,8 @@ private:
 
     BattleMapRender* m_pBattleMapRender;
     BattleMapData* m_pBattleMapData;
+
+    bool m_bIsRendering;
 
 };
 

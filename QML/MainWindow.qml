@@ -46,6 +46,7 @@ Item
                     battleMap.visible = false;
                     worldMap.visible = true;
                     worldMap.restartHeroSprite();
+                    interfaceComQML.changeViewType(0);
                 }
                 else if(component === "HeroMenu")
                 {
@@ -53,16 +54,18 @@ Item
                     battleMap.visible = false;
                     heroMenu.visible = true;
                     //worldMap.restartHeroSprite();
+                    interfaceComQML.changeViewType(2);
                 }
                 else if(component === "BattleMenu")
                 {
                     worldMap.visible = false;
                     heroMenu.visible = false;
                     battleMap.visible = true;
+                    interfaceComQML.changeViewType(1);
                 }
                 else if(component === "QuestMenu")
                 {
-
+                    interfaceComQML.changeViewType(3);
                 }
 
             }

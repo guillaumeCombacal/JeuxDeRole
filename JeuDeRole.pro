@@ -38,6 +38,7 @@ INCLUDEPATH +=  $$PWD/Controllers/MainController\
                 $$PWD/Controllers/WorldMapController\
                 $$PWD/Controllers/Parser\
                 $$PWD/Controllers/Logger\
+                $$PWD/Controllers/Communication\
                 $$PWD/Views/MainWindowWidget\
                 $$PWD/Views/BattleWidget\
                 $$PWD/Views/HeroWidget\
@@ -84,15 +85,14 @@ SOURCES +=\
     Controllers/Communication/interfaceQML.cpp \
     OpenGL/FrameBufferRenderer_OpenGL.cpp \
     OpenGL/FrameBufferObject_OpenGL.cpp \
-    OpenGL/OpenGL_Render.cpp \
-    OpenGL/TileRender.cpp \
     Model/Hero.cpp \
     OpenGL/BattleMapRender.cpp \
     Model/BattleMapData.cpp \
     OpenGL/OpenGlRenderSingleton.cpp \
     Model/Tile.cpp \
     Model/Character.cpp \
-    Model/AnimationSprite.cpp
+    Model/AnimationSprite.cpp \
+    Model/Curseur.cpp
 
 
 
@@ -136,13 +136,11 @@ HEADERS  += \
     Controllers/Communication/interfaceQML.h \
     OpenGL/FrameBufferRenderer_OpenGL.h \
     OpenGL/FrameBufferObject_OpenGL.h \
-    OpenGL/OpenGL_Render.h \
-    OpenGL/TileRender.h \
-    OpenGL/ObjectRender.h \
     Model/Hero.h \
     OpenGL/BattleMapRender.h \
     Model/BattleMapData.h \
     Model/Character.h \
     OpenGL/OpenGlRenderSingleton.h \
     Model/Tile.h \
-    Model/AnimationSprite.h
+    Model/AnimationSprite.h \
+    Model/Curseur.h

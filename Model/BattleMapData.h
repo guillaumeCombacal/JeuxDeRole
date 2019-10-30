@@ -13,17 +13,31 @@
 
 #include "Tile.h"
 #include "Character.h"
+#include "Curseur.h"
+#include "interfaceQML.h"
+
+struct MaskPresence
+{
+    unsigned int tile : 1;// 1 bit
+    unsigned int character : 1;
+    unsigned int object : 1;
+    unsigned int cursor : 1;
+};
+
 
 // Struct that contains each elements which could be on a tile area like:
-// Tile, Character, Decor...
+// Tile, Character, Curseur, Decor...
 struct TileArea
 {
     // Vecteur de Mask de presence contenant des 1 et des 0
-    // Position dans le mask 123: 1=tile, 2=personnage, 3=decor
-    // exemple : 110 contient une tile et un personnage
-    int m_maskPresence;
+    // Position dans le mask 123: 1=tile, 2=personnage, 3=decor, 4=curseur
+    // exemple : 1100 contient une tile et un personnage
+    //int m_maskPresence;
+
+    MaskPresence m_maskPresence;
     Tile m_tile;
     Character* m_character;
+    int m_indexVecPathFinding;
 };
 
 class BattleMapData
@@ -43,15 +57,18 @@ private:
     // RQ: elements have to loading before using this fonction
     void _associateTileAreaObject();
 
+    void _initVecTileAreaPathFinding();
+
     // Data Container exposed with getter
     QVector<TileArea> m_vecTileArea;
+    QVector<TileArea*> m_vecTileAreaPathFinding;// easier to use for path finding
     QVector<Character*> m_vecCharacter;
     QVector<AnimationSprite*> m_vecAnimationSprite;
-
-
     // TODO : Futur container
-    /*
-    QVector<Decor> m_vecDecor;*/
+    /*QVector<Decor> m_vecDecor;*/
+    Curseur m_curseur;
+
+
 
     // Vecteur de Mask de presence contenant des 1 et des 0 ex:110
     // Position dans le mask 123: 1=tile, 2=personnage, 3=decor
@@ -75,15 +92,18 @@ public:
      void loadDataBattleMap(const QJsonObject &json);
      void saveDataBattleMap(QJsonObject &json)const;
 
+     void eventKeyBoard(KeyValue i_eKey);
+
      inline const float& getWidthTile()const{return m_fWidthTile;}
      inline const float& getHeightTile()const{return m_fHeightTile;}
 
      inline const int& getNbTileTotal()const{return m_nbTileTotal;}
      inline const int& getNbTileSide()const{return m_nbTileSide;}
 
+     inline const Curseur& getCurseur()const{return m_curseur;}
+
      // TODO : Futur Container
-     /*inline const QVector<Character>& getMapCharacter()const{return m_vecCharacter;}
-     inline const QVector<Decor>& getMapDecor()const{return m_vecDecor;}*/
+     /*inline const QVector<Decor>& getMapDecor()const{return m_vecDecor;}*/
 
 
      inline const QVector<TileArea>& getVecTileArea(){return m_vecTileArea;}

@@ -3,6 +3,7 @@
 #include "FrameBufferObject_OpenGL.h"
 #include "BattleMapRender.h"
 #include "OpenGlRenderSingleton.h"
+#include "interfaceQML.h"
 
 #include <QDebug>
 #include <QDesktopWidget>
@@ -17,6 +18,7 @@ MainWindowController::MainWindowController(QApplication* app):
     m_viewQML(NULL),
     m_pApp(app)
 {
+    m_pInterfaceComQML = new InterfaceQML(this);
 
     // Example Logger
     //LoggerFile::write(Q_FUNC_INFO, "yoloTest");// logger;
@@ -95,6 +97,9 @@ MainWindowController::MainWindowController(QApplication* app):
 
     // Loading the Main Parent QML Component
     m_viewQML->setSource(QUrl("qrc:/QML/MainWindow.qml"));
+
+    // Binding Communication Interface QML<->C++
+    m_viewQML->rootContext()->setContextProperty("interfaceComQML", m_pInterfaceComQML);
 
     // Signal to quit application
     QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), this, SLOT(onQuitQMLApplication()));
@@ -245,5 +250,32 @@ void MainWindowController::onSwitchHeroEditView()
 void MainWindowController::onSwitchHeroView()
 {
     m_pMainWidget->getStackWidget()->setCurrentIndex(2);// World Map View
+}
+
+void MainWindowController::eventKeyBoard(int key)
+{
+    m_battleMapData.eventKeyBoard((KeyValue)key);
+}
+
+void MainWindowController::changeView(ViewType typeView)
+{           
+    bool l_bIsBattleMapRendering = false;
+
+    switch (typeView)
+    {
+        case WORLD_MAP :
+            break;
+        case BATTLE_MAP :
+            l_bIsBattleMapRendering = true;
+            break;
+        case HERO_MENU :
+            break;
+        case QUEST_MENU :
+            break;
+        default:
+        break;
+    }
+
+    OpenGlRenderSingleton::getInstance()->setBattleMapRendering(l_bIsBattleMapRendering);
 }
 

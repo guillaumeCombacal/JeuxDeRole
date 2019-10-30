@@ -6,15 +6,10 @@
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 
-#include "OpenGL_Render.h"
-
 class FrameBufferRenderer_OpenGL : public QQuickFramebufferObject::Renderer
 {
-    //Q_OBJECT
 
 public:
-
-    //FrameBufferRenderer_OpenGL(BattleMapRender* pBattleRender);
     FrameBufferRenderer_OpenGL();
 
     QOpenGLFramebufferObject* createFramebufferObject(const QSize &size);
@@ -25,7 +20,7 @@ public:
 
 private:
     // Obj OpenGL, ex:
-    OpenGlRender m_openGlRender;
+    //OpenGlRender m_openGlRender;
 
     //BattleMapRender* m_battleMapRender;
 

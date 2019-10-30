@@ -38,7 +38,7 @@ public:
      // Fonction temporaire avant chargement du fichier
      inline void addCoord(QVector2D i_vec){m_coordTexture<<i_vec;}
 
-     inline const int& getHeightTile()const{return m_fHeight;}
+     inline const float& getHeightTile()const{return m_fHeight;}
      inline void setHeightTile(float i_fHeight){m_fHeight = i_fHeight;}
 
      inline const int& getNbSquareUp()const{return m_iNbSquareUp;}
