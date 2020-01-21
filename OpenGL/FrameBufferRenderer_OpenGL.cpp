@@ -3,9 +3,7 @@
 
 FrameBufferRenderer_OpenGL::FrameBufferRenderer_OpenGL()
 {
-    // Init Obj OpenGL, ex:
-    //m_openGlRender.initialize();
-
+    // Init Obj OpenGL
     OpenGlRenderSingleton::getInstance()->init();
 
     // !!!! NOTE :
@@ -29,9 +27,6 @@ QOpenGLFramebufferObject* FrameBufferRenderer_OpenGL::createFramebufferObject(co
 
 void FrameBufferRenderer_OpenGL::render()
 {
-    // render de l'objet openGL
-    //m_openGlRender.render();
-
     // Rendu via un singleton (pas besoin de créer l'instance)
     OpenGlRenderSingleton::getInstance()->render();
 

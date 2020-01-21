@@ -5,14 +5,19 @@
 #include <QJsonArray>
 #include<QKeyEvent>
 
+#include "PathFinding.h"
+
 BattleMapData::BattleMapData():
-    m_nbTileTotal(0)
+    m_nbTileTotal(0),
+    m_pCurrentSelectedCharacter(NULL)
 {
     m_mapFilenameTilsetToIndex.clear();
     m_vecFilenameTileset.clear();
     m_vecTileArea.clear();
     m_vecCharacter.clear();
     m_vecAnimationSprite.clear();
+
+    m_pPathFinding = new PathFinding(0, 0, 0);
 }
 
 BattleMapData::~BattleMapData()
@@ -26,7 +31,6 @@ BattleMapData::~BattleMapData()
         }
     }
     m_vecCharacter.clear();
-
     m_vecAnimationSprite.clear();
 }
 
@@ -42,6 +46,15 @@ void BattleMapData::generateMapData()
         m_fHeightTile = m_fWidthTile/2.0f;
 
         int l_iIndexTexture = -1;
+
+        // PathFinding
+        m_pPathFinding->setNbTileSideMap(m_nbTileSide);
+        l_iIndexTexture = _addFilenameTexture(m_pPathFinding->getImgTilesheetFilePath());
+        if( l_iIndexTexture != -1)
+        {
+            m_pPathFinding->setIndexTexture(l_iIndexTexture);
+        }
+        l_iIndexTexture = -1;
 
         // --- CURSEUR INITIALISATION ---
         m_curseur.setImgFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/curseur.png"));
@@ -66,7 +79,8 @@ void BattleMapData::generateMapData()
             Character* l_pCharacter = new Character();
 
             l_pCharacter->setSizeSide(1);
-            l_pCharacter->setIndexTileArea(QVector<int>{i});
+            l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{i});
+            l_pCharacter->setMoveSteps(4);
 
             l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
             QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
@@ -183,6 +197,7 @@ void BattleMapData::generateMapData()
             l_tileArea.m_maskPresence.character = 0;
             l_tileArea.m_maskPresence.object= 0;
             l_tileArea.m_maskPresence.cursor = 0;
+            l_tileArea.m_maskPresence.pathFinding = 0;
 
             // TODO : clarifier la hauteur tuile et faire une différence entre la hauteur du bord et la hauteur du diamant !!!
             l_tileArea.m_tile.setHeightTile(0.04f);
@@ -216,7 +231,6 @@ void BattleMapData::generateMapData()
             }
             l_iIndexTexture = -1;
 
-            //l_tileArea.m_maskPresence = 1000;
             l_tileArea.m_maskPresence.tile = 1;
 
             // Add the tile in the container
@@ -292,26 +306,6 @@ void BattleMapData::loadDataBattleMap(const QJsonObject &json)
         }
         l_iIndexTexture = -1;
 
-        /*// Check if the texture's tilset filename is already known
-        std::map<QString, int>::iterator itTileset;
-        itTileset = m_mapFilenameTilsetToIndex.find(l_tileArea.m_tile.getImgTilesheetFilePath());
-
-        // Known Tilset
-        if(itTileset != m_mapFilenameTilsetToIndex.end())
-        {
-            l_tileArea.m_tile.setIndexTexture(itTileset->second);
-        }
-        // Unknown Tilset - add a new pair and increment indexTileTexture
-        else
-        {
-            std::pair<QString, int> l_pair (l_tileArea.m_tile.getImgTilesheetFilePath(), indexTileTexture);
-            m_mapFilenameTilsetToIndex.insert(l_pair);
-            m_vecFilenameTileset << l_tileArea.m_tile.getImgTilesheetFilePath();
-            indexTileTexture++;
-        }
-        */
-
-        //l_tileArea.m_maskPresence = 1000;
         l_tileArea.m_maskPresence.tile = 1;
 
         m_vecTileArea << l_tileArea;
@@ -384,17 +378,15 @@ void BattleMapData::saveDataBattleMap(QJsonObject &json)const
 void BattleMapData::_associateTileAreaObject()
 {
     // Associate TileArea with Curseur
-    //m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_curseur = &m_curseur;
-    m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_maskPresence.cursor = 1;
+    m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.cursor = 1;
 
     // Associate TileArea with Character
     for(int i=0; i<m_vecCharacter.size(); i++)
     {
-        for(int j=0; j<m_vecCharacter[i]->getVecIndexTileArea().size(); j++)
+        for(int j=0; j<m_vecCharacter[i]->getVecIndexTileAreaPathFinding().size(); j++)
         {
-            m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_character = m_vecCharacter[i];
-            //m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_maskPresence = m_vecTileArea[i].m_maskPresence | 0100;
-            m_vecTileArea[m_vecCharacter[i]->getVecIndexTileArea()[j]].m_maskPresence.character = 1;
+            m_vecTileAreaPathFinding[m_vecCharacter[i]->getVecIndexTileAreaPathFinding()[j]]->m_pCharacter = m_vecCharacter[i];
+            m_vecTileAreaPathFinding[m_vecCharacter[i]->getVecIndexTileAreaPathFinding()[j]]->m_maskPresence.character = 1;
         }
     }
 }
@@ -402,46 +394,120 @@ void BattleMapData::_associateTileAreaObject()
 // TODO : il faudra mettre des conditions suivant l'état courant
 void BattleMapData::eventKeyBoard(KeyValue i_eKey)
 {
-    int l_iNewIndex = m_curseur.getVecIndexTileAreaPathFinding();
+    int l_iNewIndex = m_curseur.getIndexTileAreaPathFinding();
 
     switch (i_eKey)
     {
         case ENTER :
-            qDebug()<<"InterfaceQML::eventFromQML()--> ENTER";
+            if(m_pPathFinding->getIsActivated() &&
+               m_pPathFinding->isIndexInPathFinding(m_curseur.getIndexTileAreaPathFinding()) &&
+               m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 0)
+            {
+                _moveCharacter(m_curseur.getIndexTileAreaPathFinding());
+            }
+            else if(m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1)
+            {
+                _clearPathFinding();
+                m_pCurrentSelectedCharacter = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter;
+                _pathFinding(m_curseur.getIndexTileAreaPathFinding(), 3);
+            }
+            else
+            {
+                _clearPathFinding();
+            }
             break;
         case BACK_SPACE :
             qDebug()<<"InterfaceQML::eventFromQML()--> BACK_SPACE";
             break;
         case LEFT :
         l_iNewIndex++;
+        _changeIndexCursor(l_iNewIndex);
             break;
         case RIGHT :
         l_iNewIndex--;
+        _changeIndexCursor(l_iNewIndex);
             break;
         case UP :
         l_iNewIndex += m_nbTileSide;
+        _changeIndexCursor(l_iNewIndex);
             break;
         case DOWN :
         l_iNewIndex -= m_nbTileSide;
+        _changeIndexCursor(l_iNewIndex);
             break;
         default:
         break;
     }
 
-    if(l_iNewIndex >= 0 && l_iNewIndex < m_nbTileSide*m_nbTileSide )
+}
+
+// Check if index is inside the map's bounds and set the new index
+void BattleMapData::_changeIndexCursor(int i_newIndex)
+{
+    if(i_newIndex >= 0 && i_newIndex < m_nbTileSide*m_nbTileSide )
     {
-        m_vecTileAreaPathFinding[m_curseur.getVecIndexTileAreaPathFinding()]->m_maskPresence.cursor = 0;
-        m_vecTileAreaPathFinding[l_iNewIndex]->m_maskPresence.cursor = 1;
-        m_curseur.setIndexTileAreaPathFinding(l_iNewIndex);
+        m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.cursor = 0;
+        m_vecTileAreaPathFinding[i_newIndex]->m_maskPresence.cursor = 1;
+        m_curseur.setIndexTileAreaPathFinding(i_newIndex);
     }
     else
     {
     }
 }
 
-//TODO :
-// Generate a container TileArea*, easier to use to do path finding than the vecTileArea
-// This container is organised like a matrix
+void BattleMapData::_moveCharacter(int i_tileIndexSelected)
+{
+    // Calcul the new position and handle the case where character is several tile size side
+    // Find the closer tile from the selected tile by cursor among the character tiles
+    int l_iLineIndexSelectedTile = i_tileIndexSelected / m_nbTileSide;
+    int l_iColumnIndexSelectedTile = i_tileIndexSelected % m_nbTileSide;
+    int l_iLineIndexTile = -1;
+    int l_iColumnIndexTile = -1;
+    int l_iMinOffsetBetweenTile = 1000;// 1000 is the default value
+    int l_iIndexClosestTile = -1;
+    int l_iOffsetBetweenTile = -1;
+    int l_iOffsetLine = 0;
+    int l_iOffsetColumn = 0;
+    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
+    {
+        l_iLineIndexTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i] / m_nbTileSide;
+        l_iColumnIndexTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i] % m_nbTileSide;
+        l_iOffsetBetweenTile = abs(l_iLineIndexTile-l_iLineIndexSelectedTile) + abs(l_iColumnIndexTile-l_iColumnIndexSelectedTile);
+        if(l_iMinOffsetBetweenTile > l_iOffsetBetweenTile)
+        {
+           l_iMinOffsetBetweenTile = l_iOffsetBetweenTile;
+           l_iOffsetLine = l_iLineIndexSelectedTile - l_iLineIndexTile;
+           l_iOffsetColumn = l_iColumnIndexSelectedTile - l_iColumnIndexTile;
+           l_iIndexClosestTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i];
+        }
+    }
+
+    // Calcul the new position
+    QVector<int> l_vecNewPositionCharacter;
+    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
+    {
+       l_vecNewPositionCharacter<< m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]
+                                   + (l_iOffsetLine*m_nbTileSide) + l_iOffsetColumn;
+    }
+
+    // Reset the old position
+    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
+    {
+        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = NULL;
+        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_maskPresence.character = 0;
+    }
+
+    // Set the new position
+    m_pCurrentSelectedCharacter->setVecIndexTileAreaPathFinding(l_vecNewPositionCharacter);
+    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
+    {
+        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = m_pCurrentSelectedCharacter;
+        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_maskPresence.character = 1;
+    }
+
+    _clearPathFinding();
+}
+
 void BattleMapData::_initVecTileAreaPathFinding()
 {
     m_vecTileAreaPathFinding.resize(m_nbTileSide*m_nbTileSide);
@@ -479,6 +545,47 @@ void BattleMapData::_initVecTileAreaPathFinding()
             }
             l_iCountVal=0;
         }
+    }
+}
+
+void BattleMapData::_clearPathFinding()
+{
+    for(int i=0; i<m_pPathFinding->getVecIndexPathFinding().size(); i++)
+    {
+        m_vecTileAreaPathFinding[m_pPathFinding->getVecIndexPathFinding()[i]]->m_maskPresence.pathFinding = 0;
+    }
+
+    m_pPathFinding->clearVecPathFinding();
+    m_pPathFinding->setIsActivated(false);
+}
+
+void BattleMapData::_pathFinding(int indexTileCursor, int depthLevel)
+{
+    QVector<int> l_vecTilePathFinding;
+    if(m_pCurrentSelectedCharacter != NULL)
+    {
+        m_pPathFinding->setDepthPathFinding(depthLevel);
+        m_pPathFinding->setIsActivated(true);
+
+        // Handle the case where character has a several tile's size side
+       for(int i=0; i<(m_pCurrentSelectedCharacter->getSizeSide()*m_pCurrentSelectedCharacter->getSizeSide()); i++)
+       {
+          m_pPathFinding->setIndexOrigin(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]);
+
+          for(int j=0; j<m_pPathFinding->getVecIndexPathFinding().size(); j++)
+          {
+              if(!m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().contains(m_pPathFinding->getVecIndexPathFinding()[j])
+                 && !l_vecTilePathFinding.contains(m_pPathFinding->getVecIndexPathFinding()[j]))
+              {
+                 l_vecTilePathFinding << m_pPathFinding->getVecIndexPathFinding()[j];
+              }
+          }
+       }
+
+       for(int i=0; i<l_vecTilePathFinding.size(); i++)
+       {
+          m_vecTileAreaPathFinding[m_pPathFinding->getVecIndexPathFinding()[i]]->m_maskPresence.pathFinding = 1;
+       }
     }
 }
 

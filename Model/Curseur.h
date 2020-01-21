@@ -34,7 +34,7 @@ public:
      inline const int& getIndexTexture()const{return m_iIndexTexture;}
      inline void setIndexTexture(int i_iIndex){m_iIndexTexture = i_iIndex;}// Generate data from code
 
-     inline const int& getVecIndexTileAreaPathFinding()const{return m_iIndexTileAreaPathFinding;}
+     inline const int& getIndexTileAreaPathFinding()const{return m_iIndexTileAreaPathFinding;}
      inline void setIndexTileAreaPathFinding(int i_iIndexTileArea){m_iIndexTileAreaPathFinding = i_iIndexTileArea;}// Generate data from code
 
      inline const QString& getImgFilePath()const{return m_strImgFilePath;}

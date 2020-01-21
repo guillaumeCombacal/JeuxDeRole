@@ -20,6 +20,9 @@ class Character : public AnimationSprite
 {
 
 private:
+
+    int m_moveSteps;
+
     float m_orientation;// rad ?
     QString m_strImgTilesheetFilePath;
     QVector2D m_tabCoordTexture[NB_COORD_TEXTURE];
@@ -35,7 +38,8 @@ private:
     int m_iIndexTexture;
 
     // Contains tile index on which character is present
-    QVector<int> m_vecIndexTileArea;
+    //QVector<int> m_vecIndexTileArea;
+    QVector<int> m_vecIndexTileAreaPathFinding;
 
     // A big character (3*3) have to be draw only
     int m_iTotalCountRender;
@@ -54,6 +58,9 @@ public:
      inline const bool& getIsReadyToRender(){return m_bIsReadyToRender;}
 
      // Generate data from code
+     inline void setMoveSteps(int i_moveSteps){m_moveSteps = i_moveSteps;}
+     inline const int& getMoveSteps(){return m_moveSteps ;}
+
      inline void setCoordTexture(QVector2D* i_pCoordTexture){std::memcpy(m_tabCoordTexture, i_pCoordTexture, NB_COORD_TEXTURE*sizeof(QVector2D));}
      inline const QVector2D* getCoordTexture(int& o_iNbElement)const{o_iNbElement = NB_COORD_TEXTURE;return m_tabCoordTexture;}
 
@@ -63,8 +70,8 @@ public:
      inline const int& getSizeSide()const{return m_iSizeSide;}
      inline void setSizeSide(int i_iSizeSide){m_iSizeSide = i_iSizeSide; _initTotalCountRender();}// Generate data from code
 
-     inline const QVector<int>& getVecIndexTileArea()const{return m_vecIndexTileArea;}
-     inline void setIndexTileArea(QVector<int> i_vecIndexTileArea){m_vecIndexTileArea = i_vecIndexTileArea;}// Generate data from code
+     inline const QVector<int>& getVecIndexTileAreaPathFinding()const{return m_vecIndexTileAreaPathFinding;}
+     inline void setVecIndexTileAreaPathFinding(QVector<int> i_vecIndexTileArea){m_vecIndexTileAreaPathFinding = i_vecIndexTileArea;}// Generate data from code
 
      inline const QString& getImgTilesheetFilePath()const{return m_strImgTilesheetFilePath;}
      inline void setImgTilesheetFilePath(QString i_strFilePath){m_strImgTilesheetFilePath = i_strFilePath;}// Generate data from code

@@ -92,7 +92,8 @@ SOURCES +=\
     Model/Tile.cpp \
     Model/Character.cpp \
     Model/AnimationSprite.cpp \
-    Model/Curseur.cpp
+    Model/Curseur.cpp \
+    Model/PathFinding.cpp
 
 
 
@@ -143,4 +144,5 @@ HEADERS  += \
     OpenGL/OpenGlRenderSingleton.h \
     Model/Tile.h \
     Model/AnimationSprite.h \
-    Model/Curseur.h
+    Model/Curseur.h \
+    Model/PathFinding.h

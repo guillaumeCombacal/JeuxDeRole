@@ -5,16 +5,15 @@
 #include<QVector>
 #include<QVector2D>
 #include<QImage>
-
 #include<vector>
 #include<map>
-
 #include <QJsonObject>
-
 #include "Tile.h"
 #include "Character.h"
 #include "Curseur.h"
 #include "interfaceQML.h"
+
+class PathFinding;
 
 struct MaskPresence
 {
@@ -22,6 +21,7 @@ struct MaskPresence
     unsigned int character : 1;
     unsigned int object : 1;
     unsigned int cursor : 1;
+    unsigned int pathFinding : 1;
 };
 
 
@@ -32,11 +32,9 @@ struct TileArea
     // Vecteur de Mask de presence contenant des 1 et des 0
     // Position dans le mask 123: 1=tile, 2=personnage, 3=decor, 4=curseur
     // exemple : 1100 contient une tile et un personnage
-    //int m_maskPresence;
-
     MaskPresence m_maskPresence;
     Tile m_tile;
-    Character* m_character;
+    Character* m_pCharacter;
     int m_indexVecPathFinding;
 };
 
@@ -59,6 +57,11 @@ private:
 
     void _initVecTileAreaPathFinding();
 
+    void _pathFinding(int indexTileCursor, int depthLevel);
+    void _clearPathFinding();
+    void _changeIndexCursor(int i_newIndex);
+    void _moveCharacter(int i_newTileIndex);
+
     // Data Container exposed with getter
     QVector<TileArea> m_vecTileArea;
     QVector<TileArea*> m_vecTileAreaPathFinding;// easier to use for path finding
@@ -68,18 +71,15 @@ private:
     /*QVector<Decor> m_vecDecor;*/
     Curseur m_curseur;
 
-
-
-    // Vecteur de Mask de presence contenant des 1 et des 0 ex:110
-    // Position dans le mask 123: 1=tile, 2=personnage, 3=decor
-    // Il sera de la taille de la map chargée
-    //QVector<int> m_vecMaskPresence;
-
     int m_nbTileTotal;
     int m_nbTileSide;
 
     float m_fWidthTile;
     float m_fHeightTile;
+
+    PathFinding* m_pPathFinding;
+
+    Character* m_pCurrentSelectedCharacter;
 
 public:
      BattleMapData();
@@ -93,6 +93,8 @@ public:
      void saveDataBattleMap(QJsonObject &json)const;
 
      void eventKeyBoard(KeyValue i_eKey);
+
+     inline const PathFinding* getPathFinding()const{return m_pPathFinding;}
 
      inline const float& getWidthTile()const{return m_fWidthTile;}
      inline const float& getHeightTile()const{return m_fHeightTile;}

@@ -12,7 +12,8 @@ Character::Character():
     m_iCountRender(0),
     m_iTotalCountRender(0),
     m_orientation(0.0f),
-    m_iSizeSide(0)
+    m_iSizeSide(0),
+    m_moveSteps(0)
 {
     // Init inherited members
     m_currentStateFrame = STATE_WALK_1;
@@ -31,10 +32,10 @@ void Character::saveCharacterData(QJsonObject &json)const
     json["sizeSide"] = m_iSizeSide;
 
     QJsonArray l_arrayJsonIndexTileArea;
-    for(int i=0; i<m_vecIndexTileArea.size(); i++)
+    for(int i=0; i<m_vecIndexTileAreaPathFinding.size(); i++)
     {
         QJsonObject indexObject;
-        indexObject["index"] = m_vecIndexTileArea[i];
+        indexObject["index"] = m_vecIndexTileAreaPathFinding[i];
         l_arrayJsonIndexTileArea.append(indexObject);
     }
     json["indexTileArea"] = l_arrayJsonIndexTileArea;
@@ -61,12 +62,12 @@ void Character::loadCharacterData(const QJsonObject &json)
 
     _initTotalCountRender();
 
-    m_vecIndexTileArea.clear();
+    m_vecIndexTileAreaPathFinding.clear();
     QJsonArray indexTileAreaArray = json["indexTileArea"].toArray();
     for (int itIndex = 0; itIndex < indexTileAreaArray.size(); itIndex++)
     {
         QJsonObject indexObject = indexTileAreaArray[itIndex].toObject();
-        m_vecIndexTileArea.append(indexObject["index"].toInt());
+        m_vecIndexTileAreaPathFinding.append(indexObject["index"].toInt());
     }
 
     QJsonArray coordArray = json["textureCoords"].toArray();

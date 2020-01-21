@@ -15,6 +15,13 @@
 class AnimationSprite;
 class QOpenGLTexture;
 
+enum FragmentShaderRenderTypeEnum
+{
+    RENDER_TEXTURE_MAPPING = 0,
+    RENDER_COLOR_BASIC
+};
+
+// On Opengl, 0 is the middle position of the image
 class BattleMapRender : protected QOpenGLFunctions, public QObject
 {
 
@@ -28,9 +35,19 @@ public:
 
 private:
 
+    // Test - POC
+    void _renderTileLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
+    void _renderCharacterLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
+    void _renderCurseurLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
+    void _renderPathFindingLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
+    void _renderObjectLayer();
+    void _renderAnimationLayer();
+    /////////////////////
+
     void _calculTileVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iNbSquareUp, int i_iNbSquareDown);
     void _calculCharacterVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, int i_iCharacterSizeSide, float i_fHeightTile);
     void _calculCurseurVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, float i_fHeightTile);
+    void _calculPathFindingVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, float i_fHeightTile);
     void _initShader();
     void _processSpriteAnimation();
 
@@ -40,6 +57,7 @@ private:
     int m_positionAttrShader;
     int m_colorAttrShader;
     int m_matrixUniformShader;
+    int m_iFragmentShaderRenderType;
 
     // Reference Vertex = Left Base Vertex => all vertex vertices are calculate from this point
     // It's the corner of the texture that will be mapped on it
@@ -56,9 +74,6 @@ private:
     /*float m_fWidthBaseTile;
     float m_fHeightBaseTile;*/
 
-    // On Opengl 0 is the middle position of the image, so m_iMiddleRowColumn is the reference
-    int m_iMiddleRowColumn;
-
     // Contains data to display
     BattleMapData* m_pBattleMapData;
 
@@ -67,10 +82,9 @@ private:
 
     bool m_bIsNbTileSidePair;
 
-    QOpenGLTexture* m_pTextureTiles;
-
     // TODO : Enlever les vec et passer par des tab statiques de [4]
     QVector3D m_tabCurseurVertexBuffer[SIZE_VB];
+    QVector3D m_tabPathFindingVertexBuffer[SIZE_VB];
     QVector<QVector3D>   m_vecTileVertexBuffer;
     QVector<QVector3D>   m_vecCharacterVertexBuffer;
     QVector<QVector3D>   m_vecColors;
