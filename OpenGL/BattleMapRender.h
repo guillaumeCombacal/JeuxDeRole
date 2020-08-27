@@ -35,7 +35,7 @@ public:
 
 private:
 
-    // Test - POC
+    // TODO
     void _renderTileLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
     void _renderCharacterLayer(int numTile, float leftCornerTileX, float leftCornerTileY);
     void _renderCurseurLayer(int numTile, float leftCornerTileX, float leftCornerTileY);

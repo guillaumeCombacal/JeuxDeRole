@@ -32,7 +32,7 @@ BattleMapRender::BattleMapRender(BattleMapData* i_pBattleMapData):
     }
 
 
-    // Init the base vertices - Base Vertices is down tile of the map and the down left corner of the tile
+    // Init the base vertices -> Base Vertices is down tile of the map and the down left corner of the tile
     // If there is an nb Tile impair, it's necessary to had an half of height map
     m_fLeftBaseCornerVertex = QVector3D(-(m_pBattleMapData->getWidthTile()/2),
                                     ((m_iNbTileSide/2)*m_pBattleMapData->getHeightTile())+ l_fOddOffset,
@@ -150,7 +150,7 @@ void BattleMapRender::renderBattleMap()
     // TODO : analyser le comportement de cette matrice
     QMatrix4x4 l_matrixModelView;
     l_matrixModelView.perspective(60.0f, 4.0f/3.0f, 0.1f, 100.0f);
-    l_matrixModelView.translate(0, 0, -2);
+    l_matrixModelView.translate(0, 0, -1);
 
     m_shaderProgram.bind();
 
@@ -230,33 +230,6 @@ void BattleMapRender::renderBattleMap()
             if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_maskPresence.character)// Presence Character
             {
                 _renderCharacterLayer(l_iTileCounter, l_fLeftCornerTileX, l_fLeftCornerTileY);
-//                // if the character take several tile on side, it's necessary to count how many tile are met.
-//                // The character have to be drawn when its extrem side tile are met
-//                // ex: if the character is 2 tiles side (one tile here == *) it have to be drawn when
-//                //     the tile on the extrem right side or extrem left side is the current tile (depend on the render direction)
-//                //           *
-//                //       *       *
-//                //        -->*
-//                // Check if the extrem tile is met and so if it's necessary to render the character
-//                if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->isReadyToRender())
-//                {
-//                    // Binding the right tileSet texture to render the tile
-//                    m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getIndexTexture()]->bind();
-
-//                    // Calcul the new coordinates of each vertices
-//                    _calculCharacterVerticesBuffer(l_fLeftCornerTileX,
-//                                                  l_fLeftCornerTileY,
-//                                                  m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getSizeSide(),
-//                                                  0
-//                                                  );
-
-//                    // Set vertices and color with the respective data for each elements
-//                    m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecCharacterVertexBuffer.constData());
-//                    int l_iNbCoordTexture = 0;// useless in this case, but allow to get the size of the coord texture by output argument
-//                    m_shaderProgram.setAttributeArray(m_colorAttrShader, m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_character->getCoordTexture(l_iNbCoordTexture)/*.constData()*/);
-
-//                    glDrawArrays(GL_QUADS, 0, m_vecCharacterVertexBuffer.size());
-//                }
             }
 
             // RENDER / DRAW CURSEUR
@@ -264,20 +237,6 @@ void BattleMapRender::renderBattleMap()
             if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_maskPresence.cursor)// Presence Curseur
             {
                 _renderCurseurLayer(l_iTileCounter, l_fLeftCornerTileX, l_fLeftCornerTileY);
-//                m_vecTextureTilset[m_pBattleMapData->getCurseur().getIndexTexture()]->bind();
-
-//                // TODO : 0.04 a été trouvé de manière empirique, il va falloire refaire une passe sur la hauteur des tiles !!!
-//                _calculCurseurVerticesBuffer(l_fLeftCornerTileX,
-//                                             l_fLeftCornerTileY,
-//                                             m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getHeightTile()
-//                                            );
-
-//                // Set vertices and color with the respective data for each elements
-//                m_shaderProgram.setAttributeArray(m_positionAttrShader, m_tabCurseurVertexBuffer/*m_vecCharacterVertexBuffer.constData()*/);
-//                int l_iNbCoordTexture = 0;// useless in this case, but allow to get the size of the coord texture by output argument
-//                m_shaderProgram.setAttributeArray(m_colorAttrShader, m_pBattleMapData->getCurseur().getCoordTexture(l_iNbCoordTexture)/*.constData()*/);
-
-//                glDrawArrays(GL_QUADS, 0, SIZE_VB);
             }
 
             // RENDER / DRAW PATH FINDING LAYER
@@ -292,25 +251,6 @@ void BattleMapRender::renderBattleMap()
             if(m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_maskPresence.tile)// Presence Tuile
             {
                 _renderTileLayer(l_iTileCounter, l_fLeftCornerTileX, l_fLeftCornerTileY);
-//                // Binding the right tileSet texture to render the tile
-//                m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getIndexTexture()]->bind();
-
-//                // Calcul the new coordinates of each vertices
-//                _calculTileVerticesBuffer(l_fLeftCornerTileX,
-//                                         l_fLeftCornerTileY,
-//                                         m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getNbSquareUp(),
-//                                         m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getNbSquareDown()
-//                                         );
-
-//                // TODO : changer les vecteurs de données avec les données correspondant aux tiles, personnage, element du decor, etc...
-//                //        il faut notamment mettre à jour m_vecVertexBuffer
-//                // Set vertices and color with the respective data for each elements
-//                m_shaderProgram.setAttributeArray(m_positionAttrShader, m_vecTileVertexBuffer.constData());
-//                m_shaderProgram.setAttributeArray(m_colorAttrShader, m_pBattleMapData->getVecTileArea()[l_iTileCounter].m_tile.getCoordTexture().constData());
-
-//                // Dessine les Vertices en les associants sous forme de Quad non relié les uns aux autres
-//                //glDrawArrays(GL_TRIANGLE_FAN, 0, m_vecVertexBuffer.size());
-//                glDrawArrays(GL_QUADS, 0, m_vecTileVertexBuffer.size());
             }
 
             // Increment the tile counter for the next
@@ -365,16 +305,15 @@ void BattleMapRender::_calculTileVerticesBuffer(float i_fPositionBaseX, float i_
     m_vecTileVertexBuffer << l_vecLeftUpTileVertex;
 }
 
-//TODO : Le personnage est rendu derriere les tuiles sur lesquelles il devraient être...
-// donc dès que la première tuile est rencontrée on fait le rendu !
 void BattleMapRender::_calculCharacterVerticesBuffer(float i_fLeftCornerTileX, float i_fLeftCornerTileY,
                                                     int i_iCharacterSizeSide, float i_fHeightTile)
 {
     m_vecCharacterVertexBuffer.clear();
 
-    //pb : les y et les x a revoir !!!
+    float offsetHeightSprite = 0.03f;// Avoid that character's sprite is too small
+
     QVector3D l_vecLeftDownCharacterVertex (i_fLeftCornerTileX - ((i_iCharacterSizeSide-1)*m_pBattleMapData->getWidthTile()/2),
-                                            i_fLeftCornerTileY - i_fHeightTile,
+                                            (i_fLeftCornerTileY - i_fHeightTile),
                                             0.0f);
 
     QVector3D l_vecRightDownCharacterVertex (l_vecLeftDownCharacterVertex.x() + (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
@@ -382,7 +321,7 @@ void BattleMapRender::_calculCharacterVerticesBuffer(float i_fLeftCornerTileX, f
                                              0.0f);
 
     QVector3D l_vecRightUpCharacterVertex (l_vecRightDownCharacterVertex.x(),
-                                           i_fLeftCornerTileY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
+                                           (i_fLeftCornerTileY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile())-offsetHeightSprite),
                                            0.0f);
 
     QVector3D l_vecLeftUpCharacterVertex (l_vecLeftDownCharacterVertex.x(),
@@ -421,7 +360,6 @@ void BattleMapRender::_processSpriteAnimation()
     }
 }
 
-// TEST : POC
 void BattleMapRender::_renderTileLayer(int numTile, float leftCornerTileX, float leftCornerTileY)
 {
     // Binding the right tileSet texture to render the tile
@@ -464,7 +402,7 @@ void BattleMapRender::_renderCharacterLayer(int numTile, float leftCornerTileX, 
         _calculCharacterVerticesBuffer(leftCornerTileX,
                                       leftCornerTileY,
                                       m_pBattleMapData->getVecTileArea()[numTile].m_pCharacter->getSizeSide(),
-                                      0
+                                      m_pBattleMapData->getVecTileArea()[numTile].m_tile.getElevationTile() + m_pBattleMapData->getHeightTile()/2.0f
                                       );
 
         // Set vertices and color with the respective data for each elements
@@ -483,7 +421,7 @@ void BattleMapRender::_renderCurseurLayer(int numTile, float leftCornerTileX, fl
     // TODO : 0.04 a été trouvé de manière empirique, il va falloire refaire une passe sur la hauteur des tiles !!!
     _calculCurseurVerticesBuffer(leftCornerTileX,
                                  leftCornerTileY,
-                                 m_pBattleMapData->getVecTileArea()[numTile].m_tile.getHeightTile()
+                                 m_pBattleMapData->getVecTileArea()[numTile].m_tile.getElevationTile()
                                 );
 
     // Set vertices and color with the respective data for each elements
@@ -501,7 +439,7 @@ void BattleMapRender::_renderPathFindingLayer(int numTile, float leftCornerTileX
 
     _calculPathFindingVerticesBuffer(leftCornerTileX,
                                  leftCornerTileY,
-                                 m_pBattleMapData->getVecTileArea()[numTile].m_tile.getHeightTile()
+                                 m_pBattleMapData->getVecTileArea()[numTile].m_tile.getElevationTile()
                                 );
 
     // Set vertices and color with the respective data for each elements

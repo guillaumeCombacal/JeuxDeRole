@@ -51,41 +51,21 @@ INCLUDEPATH +=  $$PWD/Controllers/MainController\
 
 SOURCES +=\
     JeuDeRole.cpp \
-    Views/HeroWidget/statsWidget.cpp \
     Views/MainWindowWidget/mainWidget.cpp \
     Views/MainWindowWidget/mainWindow.cpp \
-    Views/HeroWidget/heroWidget.cpp \
     Views/QuestWidget/questWidget.cpp \
     Views/WorldMapWidget/worldMapWidget.cpp \
     Views/MainWindowWidget/ongletWidget.cpp \
-    Views/HeroWidget/bagPackWidget.cpp \
-    Views/HeroWidget/effectWidget.cpp \
-    Views/HeroWidget/equipmentWidget.cpp \
-    Views/HeroWidget/featureHeroWidget.cpp \
-    Views/HeroWidget/questObjectWidget.cpp \
-    Views/HeroWidget/skillsWidget.cpp \
     Controllers/BattleController/battleController.cpp \
-    Controllers/HeroController/heroController.cpp \
     Controllers/MainController/mainWindowController.cpp \
     Controllers/QuestController/questController.cpp \
     Controllers/WorldMapController/worldMapController.cpp \
     Controllers/Parser/parserXml.cpp \
-    Views/HeroWidgetEdit/bagPackWidgetEdit.cpp \
-    Views/HeroWidgetEdit/effectWidgetEdit.cpp \
-    Views/HeroWidgetEdit/equipmentWidgetEdit.cpp \
-    Views/HeroWidgetEdit/featureHeroWidgetEdit.cpp \
-    Views/HeroWidgetEdit/heroWidgetEdit.cpp \
-    Views/HeroWidgetEdit/questObjectWidgetEdit.cpp \
-    Views/HeroWidgetEdit/skillsWidgetEdit.cpp \
-    Views/HeroWidgetEdit/statsWidgetEdit.cpp \
-    Views/HeroWidget/loadEditHeroWidget.cpp \
-    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.cpp \
     Controllers/Logger/loggerfile.cpp \
     Views/BattleWidget/battleWidget.cpp \
     Controllers/Communication/interfaceQML.cpp \
     OpenGL/FrameBufferRenderer_OpenGL.cpp \
     OpenGL/FrameBufferObject_OpenGL.cpp \
-    Model/Hero.cpp \
     OpenGL/BattleMapRender.cpp \
     Model/BattleMapData.cpp \
     OpenGL/OpenGlRenderSingleton.cpp \
@@ -93,51 +73,32 @@ SOURCES +=\
     Model/Character.cpp \
     Model/AnimationSprite.cpp \
     Model/Curseur.cpp \
-    Model/PathFinding.cpp
+    Model/PathFinding.cpp \
+    Data/sharedDataHero.cpp
 
 
 
 
 HEADERS  += \
-    Views/HeroWidget/statsWidget.h \
     Views/MainWindowWidget/mainWidget.h \
     Views/MainWindowWidget/mainWindow.h \
     Views/BattleWidget/battleWidget.h \
-    Views/HeroWidget/heroWidget.h \
     Views/QuestWidget/questWidget.h \
     Views/WorldMapWidget/worldMapWidget.h \
     Views/MainWindowWidget/ongletWidget.h \
-    Views/HeroWidget/bagPackWidget.h \
-    Views/HeroWidget/effectWidget.h \
-    Views/HeroWidget/equipmentWidget.h \
-    Views/HeroWidget/featureHeroWidget.h \
-    Views/HeroWidget/questObjectWidget.h \
-    Views/HeroWidget/skillsWidget.h \
     Controllers/MainController\
     Controllers/BattleController/battleController.h \
-    Controllers/HeroController/heroController.h \
     Controllers/MainController/mainWindowController.h \
     Controllers/QuestController/questController.h \
     Controllers/WorldMapController/worldMapController.h \
     Controllers/Parser/parserXml.h \
     Data/sharedDataXmlField.h \
     Data/sharedDataHero.h \
-    Views/HeroWidgetEdit/bagPackWidgetEdit.h \
-    Views/HeroWidgetEdit/effectWidgetEdit.h \
-    Views/HeroWidgetEdit/equipmentWidgetEdit.h \
-    Views/HeroWidgetEdit/featureHeroWidgetEdit.h \
-    Views/HeroWidgetEdit/heroWidgetEdit.h \
-    Views/HeroWidgetEdit/questObjectWidgetEdit.h \
-    Views/HeroWidgetEdit/skillsWidgetEdit.h \
-    Views/HeroWidgetEdit/statsWidgetEdit.h \
-    Views/HeroWidget/loadEditHeroWidget.h \
-    Views/HeroWidgetEdit/cancelSaveHeroWidgetEdit.h \
     Controllers/Logger/ilogger.h \
     Controllers/Logger/loggerfile.h \
     Controllers/Communication/interfaceQML.h \
     OpenGL/FrameBufferRenderer_OpenGL.h \
     OpenGL/FrameBufferObject_OpenGL.h \
-    Model/Hero.h \
     OpenGL/BattleMapRender.h \
     Model/BattleMapData.h \
     Model/Character.h \

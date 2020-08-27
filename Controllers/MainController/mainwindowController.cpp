@@ -3,7 +3,7 @@
 #include "FrameBufferObject_OpenGL.h"
 #include "BattleMapRender.h"
 #include "OpenGlRenderSingleton.h"
-#include "interfaceQML.h"
+#include "BattleMapData.h"
 
 #include <QDebug>
 #include <QDesktopWidget>
@@ -11,15 +11,15 @@
 #include <QWidget>
 #include <QQuickView>
 #include <QQmlContext>
+#include <QJsonDocument>
 
 MainWindowController::MainWindowController(QApplication* app):
     m_desktopWidget(NULL),
     m_mainWindow (NULL),
     m_viewQML(NULL),
+    m_pInterfaceComQML(NULL),
     m_pApp(app)
 {
-    m_pInterfaceComQML = new InterfaceQML(this);
-
     // Example Logger
     //LoggerFile::write(Q_FUNC_INFO, "yoloTest");// logger;
 
@@ -71,9 +71,10 @@ MainWindowController::MainWindowController(QApplication* app):
     // Init the QML view
     m_viewQML = new QQuickView();
     m_mainWindow = QWidget::createWindowContainer(m_viewQML);
+    m_pInterfaceComQML = new InterfaceQML(this, m_viewQML);
 
-
-
+    // Init Handle Data Class for OpenGL
+    m_pBattleMapData = new BattleMapData(m_pInterfaceComQML);
 
     //m_mainWindow->setMinimumSize(width / 2, height / 2);
     //m_mainWindow->setMaximumSize(width, height);
@@ -83,15 +84,20 @@ MainWindowController::MainWindowController(QApplication* app):
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
 
     // Initialisation des données - à partir du fichier de sauvegarde
-    //m_battleMapData.loadDataBattleMap();
-    _loadGameData();
+    if(!_loadGameData())
+    {
+        qDebug()<<"Error : Game Data don't loaded !";
+    }
+
 
     // Initialisation de la classe FrameBufferObject_OpenGL
-    OpenGlRenderSingleton::getInstance()->setBattleMapData(&m_battleMapData);
+    OpenGlRenderSingleton::getInstance()->setBattleMapData(m_pBattleMapData);
 
     #ifdef QT_DEBUG
+        m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
         m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
     #else// Release Mode
+        m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath());
         m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath());
     #endif
 
@@ -104,22 +110,8 @@ MainWindowController::MainWindowController(QApplication* app):
     // Signal to quit application
     QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), this, SLOT(onQuitQMLApplication()));
 
-    //m_viewQML->showFullScreen();
-
-    // Useless ???
-    //m_pLayoutWorldMapWidget->addWidget(container);
-
-    //anchor.setProperty("color", QVariant::fromValue(Qt::red));
-
-    // Useless
-    //this->setLayout(m_pLayoutWorldMapWidget);
-
-
-
     // Show the view on full screen
     m_mainWindow->showFullScreen();
-
-
 }
 
 MainWindowController::~MainWindowController()
@@ -171,6 +163,11 @@ MainWindowController::~MainWindowController()
         m_mainWindow = NULL;
     }
 
+    if(m_pInterfaceComQML != NULL)
+    {
+        delete m_pInterfaceComQML;
+        m_pInterfaceComQML = NULL;
+    }
 
 }
 
@@ -196,13 +193,13 @@ void MainWindowController::_saveGameData()
         qWarning("Couldn't open save file.");
     }
     QJsonObject gameObject;
-    m_battleMapData.saveDataBattleMap(gameObject);
+    m_pBattleMapData->saveDataBattleMap(gameObject);
 
     QJsonDocument saveDoc(gameObject);
     saveFile.write(saveDoc.toJson());
 }
 
-void MainWindowController::_loadGameData()
+bool MainWindowController::_loadGameData()
 {
     // Load data by reading the file
 //    QFile loadFile( QStringLiteral("save.json"));
@@ -218,7 +215,15 @@ void MainWindowController::_loadGameData()
 
 
     // Load data by generation
-    m_battleMapData.generateMapData();
+    if(m_pBattleMapData != NULL)
+    {
+        m_pBattleMapData->generateMapData();
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void MainWindowController::onSwitchOnglet(int idWidget)
@@ -254,7 +259,17 @@ void MainWindowController::onSwitchHeroView()
 
 void MainWindowController::eventKeyBoard(int key)
 {
-    m_battleMapData.eventKeyBoard((KeyValue)key);
+    m_pBattleMapData->eventKeyBoard((KeyValue)key);
+}
+
+void MainWindowController::fightRequest()
+{
+    m_pBattleMapData->fightRequest();
+}
+
+void MainWindowController::orientationRequest()
+{
+    m_pBattleMapData->orientationRequest();
 }
 
 void MainWindowController::changeView(ViewType typeView)

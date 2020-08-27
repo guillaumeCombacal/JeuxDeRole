@@ -11,18 +11,30 @@
 #include "Tile.h"
 #include "Character.h"
 #include "Curseur.h"
+
 #include "interfaceQML.h"
 
 class PathFinding;
 
 struct MaskPresence
 {
-    unsigned int tile : 1;// 1 bit
+    unsigned int tile : 1;// TODO : pour améliorer coder les champs sur 1 bit
     unsigned int character : 1;
     unsigned int object : 1;
     unsigned int cursor : 1;
     unsigned int pathFinding : 1;
 };
+
+namespace EnumBattleMapData
+{
+    enum StateBattleMap
+    {
+        DEFAULT=0,
+        MOVING,
+        FIGHTING,
+        ORIENTING
+    };
+}
 
 
 // Struct that contains each elements which could be on a tile area like:
@@ -47,6 +59,9 @@ private:
     QVector<QString> m_vecFilenameTileset;
     std::map<QString, int> m_mapFilenameTilsetToIndex;
 
+    //[attack orientation][defend orientation]
+    float m_tabAttackOrientationCoeff[EnumCharacter::Orientation::END_ORIENTATION][EnumCharacter::Orientation::END_ORIENTATION];
+
     // Add the filename texture if it does not exist,
     // and anyway return the index to find the filename texture in m_vecFilenameTileset
     int _addFilenameTexture(QString i_strFilenameTexture);
@@ -61,10 +76,22 @@ private:
     void _clearPathFinding();
     void _changeIndexCursor(int i_newIndex);
     void _moveCharacter(int i_newTileIndex);
+    void _fight(Character* pFighterAttack, Character* pFighterDefense);
+    EnumCharacter::Orientation _attackOrientation(Character* pFighterAttack, Character* pFighterDefense);
 
     // Data Container exposed with getter
+    //used for depth render (3D)
+    //4   5   6
+    //  3   2
+    //    1
     QVector<TileArea> m_vecTileArea;
-    QVector<TileArea*> m_vecTileAreaPathFinding;// easier to use for path finding
+
+    // easier to use for path finding
+    QVector<TileArea*> m_vecTileAreaPathFinding;
+    //3   X   X
+    //  2   X
+    //    1
+
     QVector<Character*> m_vecCharacter;
     QVector<AnimationSprite*> m_vecAnimationSprite;
     // TODO : Futur container
@@ -78,12 +105,18 @@ private:
     float m_fHeightTile;
 
     PathFinding* m_pPathFinding;
-
     Character* m_pCurrentSelectedCharacter;
+    InterfaceQML* m_pInterfaceQml;
+
+    QString m_urlRepoProject;
+
+    EnumBattleMapData::StateBattleMap m_stateBattleMap;
 
 public:
-     BattleMapData();
-    virtual ~BattleMapData();
+     BattleMapData(InterfaceQML* i_pInterfaceQml);
+     virtual ~BattleMapData();
+
+     inline void setProjectRepoUrl(QString url){m_urlRepoProject=url;}
 
      // Generate Data from code
      void generateMapData();
@@ -93,6 +126,8 @@ public:
      void saveDataBattleMap(QJsonObject &json)const;
 
      void eventKeyBoard(KeyValue i_eKey);
+     void fightRequest();
+     void orientationRequest();
 
      inline const PathFinding* getPathFinding()const{return m_pPathFinding;}
 

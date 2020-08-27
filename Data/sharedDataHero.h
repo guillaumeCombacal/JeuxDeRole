@@ -3,29 +3,73 @@
 
 #include<QString>
 #include<map>
+#include<QVariantMap>
+#include<QObject>
+
+enum Job
+{
+    SOLDIER=0,
+    BLACK_WIZARD,
+    WHITE_WIZARD,
+    FIGHTER,
+    NINJA,
+    JOB_MAX
+};
+
+enum Race
+{
+    HUMAN=0,
+    BANGAA,
+    VIERA,
+    NU_MOU,
+    MOG,
+    RACE_MAX
+};
+
+enum Sex
+{
+    MALE=0,
+    FEMALE,
+    SEX_MAX
+};
 
 struct Stats
 {
-    int m_PV;
-    int m_PA;
-    int m_PM;
-    int m_Force;
-    int m_Dexterite;
-    int m_Intelligence;
-    int m_Protection;
-    int m_Armure;
+
+public:
+    unsigned int m_PV;
+    unsigned int m_PV_max;
+    unsigned int m_PA;
+    unsigned int m_PA_max;
+    unsigned int m_PM;
+    unsigned int m_Force;
+    unsigned int m_Dexterite;
+    unsigned int m_Intelligence;
+    unsigned int m_Protection;
+    unsigned int m_Armure;
 };
 
-struct Feature
+struct Features
 {
-    int m_Lvl;
-    int m_Xp;
+    Stats m_sStats;
+    unsigned int m_Lvl;
+    unsigned int m_Xp;
     QString m_Name;
-    QString m_Job;
-    QString m_Race;
-    QString m_Sexe;
-    QString m_FilenameImgFace;
+    //QString m_Job;
+    Job     m_eJob;
+    //QString m_Race;
+    Race    m_eRace;
+    //QString m_Sexe;
+    Sex     m_eSex;
+    //QString m_FilenameImgFace;
+    QString m_UrlImg;
+
 };
+
+namespace ComCppQml
+{
+    QVariantMap featuresToQVariantMap(const Features &features);
+}
 
 struct Equipment
 {
@@ -65,6 +109,72 @@ struct QuestObject
 {
     //std::vector<QString> m_vQuestObject;
     std::map<QString, int> m_mapQuestObject;
+};
+
+
+static const QString tabUrlMenuCharacterImg[JOB_MAX][RACE_MAX][SEX_MAX] =
+{
+    {//SOLDIER
+
+        {//HUMAN
+            {"/Ressources/qmlRessources/BattleMap/Soldier_200.png"},
+            {"/Ressources/qmlRessources/"}
+        },
+
+        {//BANGAA
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+    },
+    {//BLACK_WIZARD
+
+        {//HUMAN
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//VIERA
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//NU_MOU
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//MOG
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+    },
+    {//WHITE_WIZARD
+
+        {//HUMAN
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//VIERA
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//NU_MOU
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        }
+    },
+    {//FIGHTER
+
+        {//HUMAN
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//BANGAA
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+        {//MOG
+            {"/Ressources/qmlRessources/"},
+            {"/Ressources/qmlRessources/"}
+        },
+    },
 };
 
 

@@ -6,9 +6,8 @@
 #include "ongletWidget.h"
 #include "worldMapController.h"
 #include "battleController.h"
-#include "heroController.h"
 #include "questController.h"
-#include "BattleMapData.h"
+#include "interfaceQML.h"
 
 #include<QObject>
 
@@ -18,6 +17,7 @@ class QWidget;
 class QQuickView;
 class QApplication;
 class InterfaceQML;
+class BattleMapData;
 
 class MainWindowController : public QObject
 {
@@ -30,7 +30,6 @@ private:
 
     WorldMapController *m_pWorldMapController;
     BattleController *m_pBattleController;
-    HeroController *m_pHeroController;
     QuestController *m_pQuestController;
 
     // ************ QML ***********
@@ -40,11 +39,11 @@ private:
 
     QApplication* m_pApp;
 
-    BattleMapData m_battleMapData;
+    BattleMapData* m_pBattleMapData;
     InterfaceQML*  m_pInterfaceComQML;
 
     void _saveGameData();
-    void _loadGameData();
+    bool _loadGameData();
 
 public:
     MainWindowController(QApplication* app);
@@ -52,6 +51,8 @@ public:
 
     void eventKeyBoard(int key);
     void changeView(ViewType typeView);
+    void fightRequest();
+    void orientationRequest();
 
 public slots:
     void onSwitchOnglet(int idWidget);

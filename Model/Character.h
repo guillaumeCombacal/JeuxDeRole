@@ -6,26 +6,72 @@
 #include <QVector>
 
 #include"AnimationSprite.h"
+#include"sharedDataHero.h"
 
 #define NB_COORD_TEXTURE 4
 
-enum StatesCharacter
+namespace EnumCharacter
 {
-    STATE_WALK_1 = 0,
-    STATE_WALK_2,
-    END_STATE
-};
+    enum SpriteStatesCharacter
+    {
+        STATE_STAND_FRONT=0,
+        STATE_STAND_BACK,
+        STATE_WALK_FRONT_1,
+        STATE_WALK_FRONT_2,
+        STATE_WALK_BACK_1,
+        STATE_WALK_BACK_2,
+        STATE_HURT_FRONT,
+        STATE_HURT_BACK,
+        STATE_FIGHT_FRONT_1,
+        STATE_FIGHT_FRONT_2,
+        STATE_FIGHT_BACK_1,
+        STATE_FIGHT_BACK_2,
+        STATE_MAGIC_FIGHT_FRONT_1,
+        STATE_MAGIC_FIGHT_FRONT_2,
+        STATE_MAGIC_FIGHT_BACK_1,
+        STATE_MAGIC_FIGHT_BACK_2,
+        STATE_DEAD_FRONT,
+        STATE_DEAD_BACK,
+        STATE_FRAME_TRANSITION,
+        END_STATE
+    };
 
-class Character : public AnimationSprite
+    enum ActionStatesCharacter
+    {
+        WALKING=0,
+        ATTACKING,
+        DEFENDING,
+        DEAD,
+        END_ACTION
+    };
+
+    enum Orientation
+    {
+        NORTH=0,
+        SOUTH,
+        EAST,
+        WEST,
+        END_ORIENTATION
+    };
+}
+
+
+class Character : public AnimationSprite/*, public QObject*/ //--> a revoir
 {
+
+//    Q_OBJECT
 
 private:
 
+    Stats m_sStats;
+    Features m_sFeatures;
+
     int m_moveSteps;
 
-    float m_orientation;// rad ?
+    EnumCharacter::Orientation m_orientation;
     QString m_strImgTilesheetFilePath;
     QVector2D m_tabCoordTexture[NB_COORD_TEXTURE];
+    EnumCharacter::SpriteStatesCharacter m_frameTransitionTab[EnumCharacter::ActionStatesCharacter::END_ACTION][EnumCharacter::Orientation::END_ORIENTATION];
 
     // A character can be bigger than one unit square texture
     // The size of the character in number of tiles
@@ -38,7 +84,6 @@ private:
     int m_iIndexTexture;
 
     // Contains tile index on which character is present
-    //QVector<int> m_vecIndexTileArea;
     QVector<int> m_vecIndexTileAreaPathFinding;
 
     // A big character (3*3) have to be draw only
@@ -47,13 +92,27 @@ private:
     bool m_bIsReadyToRender;
 
     // State
-    int m_states[END_STATE];
+    int m_states[EnumCharacter::END_STATE];
+
+    EnumCharacter::ActionStatesCharacter m_currentActionState;
 
     void _initTotalCountRender();
 
 public:
      Character();
      virtual ~Character();
+
+     //inline Stats& getStats(){return m_sStats;}
+     //inline void setStats(Stats i_stats){m_sStats = i_stats;}// Generate data from code
+
+     void attacking(int indexDefendingCharacter, int nbTileSide);
+     void takingDamage(int nbDamage);
+
+     inline const EnumCharacter::Orientation& getOrientation(){return m_orientation;}
+     void setOrientation(EnumCharacter::Orientation orientation);
+
+     inline const Features& getFeatures(){return m_sFeatures;}
+     inline void setFeatures(Features i_features){m_sFeatures = i_features;}// Generate data from code
 
      inline const bool& getIsReadyToRender(){return m_bIsReadyToRender;}
 

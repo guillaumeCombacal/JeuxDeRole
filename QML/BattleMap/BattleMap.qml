@@ -4,9 +4,11 @@ import QtQuick.Window 2.2
 
 import FrameBufferObject_OpenGL 1.0
 
-//import "QML"
+// Pour Le composant GridLayout
+import QtQuick.Layouts 1.1
 
-//import classAnchor 1.0 // Pemet d'importer la déclaration de la classe Anchor pour créer une référence dans le QML
+// Component QLabel
+import QtQuick.Controls 1.4
 
 Rectangle
 {
@@ -15,8 +17,8 @@ Rectangle
     width : parent.width
     //color : "red"
     visible: true
-
     focus : true
+
     Keys.onPressed:
     {
         switch (event.key)
@@ -45,53 +47,282 @@ Rectangle
 
     }
 
-
     Rectangle
     {
-        id: timeline
-        width: 2*(parent.width/4)
-        height: parent.height/10
-        x: parent.width/4
-        y: parent.height - parent.height/10
-        color: "red"
-        z : 1
-
-        MouseArea
-        {
-            id:mouseAreaTimeline
-            width: parent.width
-            height: parent.height
-            anchors.fill: parent
-            hoverEnabled: true // Allow to cath event callback onEntered & onExited
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            onPressed:
-            {
-                console.log("Click MouseArea");
-            }
-        }
-    }
-
-    Rectangle
-    {
-        id: heroTimelineMenu
+        id: tileMenu
         width: parent.width/4
         height: parent.width/6
         x: 0
         y: parent.height - parent.width/6
-        color: "blue"
+        color: "transparent"
         z : 1
+        visible : false
 
-        MouseArea
+        Connections
         {
-            id:mouseAreaheroTimelineMenu
-            width: parent.width
-            height: parent.height
-            anchors.fill: parent
-            hoverEnabled: true // Allow to cath event callback onEntered & onExited
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
-            onPressed:
+            target: interfaceComQML
+            onCursorOnCharacter:
             {
-                console.log("Click heroTimelineMenu");
+                tileMenu.visible = interfaceComQML.isCursorOnCharacter;
+            }
+            onFeaturesCharacterChanged:
+            {
+                //Load the character face inside the menu
+                tileImgMenu.changeImg(interfaceComQML.featuresCharacter["UrlImg"]);
+                tileStatsMenu.changeStats(interfaceComQML.featuresCharacter["Name"],
+                                          interfaceComQML.featuresCharacter["PV"], interfaceComQML.featuresCharacter["MaxPV"],
+                                          interfaceComQML.featuresCharacter["PA"], interfaceComQML.featuresCharacter["MaxPA"],
+                                          interfaceComQML.featuresCharacter["PM"],
+                                          interfaceComQML.featuresCharacter["Xp"]);
+            }
+        }
+
+        Rectangle
+        {
+            id: tileImgMenu
+            width: parent.width/2
+            height: parent.height/2
+            x: 0
+            y: 0
+            color: "transparent"
+            z : 1
+
+            function changeImg(urlImg)
+            {
+                imgTileImgMenu.source = "file:///" + ressourcesDirPath +  urlImg;
+            }
+
+            Image
+            {
+                id: imgTileImgMenu
+
+                width: parent.width
+                height: parent.height
+            }
+        }
+
+        Rectangle
+        {
+            id: tileStatsMenu
+            width: parent.width/2
+            height: parent.height/2
+            x: 0
+            y: parent.height/2
+            color: "orange"
+            z : 1
+
+            function changeStats(name, pv, maxPv, pa, maxPa, pm, xp)
+            {
+                labelNameCharacter.text = name;
+                labelPVCharacter.pv = pv;
+                labelPVCharacter.maxPv = maxPv;
+                labelPACharacter.pa = pa;
+                labelPACharacter.maxPa = maxPa;
+                labelPMCharacter.pm = pm;
+                labelXPCharacter.xp = xp;
+            }
+
+            Label
+            {
+                id: labelNameCharacter
+                text: "Name"
+                font.pixelSize: 22
+                color: "black"
+            }
+
+
+            Label
+            {
+                id: labelPVCharacter
+                text: "PV : "+ pv + " / " + maxPv
+                font.pixelSize: 11
+                color: "black"
+                property string pv: ""
+                property string maxPv: ""
+                y: labelNameCharacter.height
+            }
+//            ProgressBar
+//            {
+//                id: progressBarPV
+//                width: parent.width/3
+//                height: parent.height/20
+//                x: labelPVCharacter.x + labelPVCharacter.width
+//                y: labelPVCharacter.y + height/2
+//            }
+
+
+            Label
+            {
+                id: labelPACharacter
+                text: "PA : " + pa + " / " + maxPa
+                font.pixelSize: 11
+                color: "black"
+                property string pa: ""
+                property string maxPa: ""
+                y: labelPVCharacter.height + labelNameCharacter.height
+            }
+//            ProgressBar
+//            {
+//                id: progressBarPA
+//                width: parent.width/3
+//                height: parent.height/20
+//                x: labelPACharacter.x + labelPACharacter.width
+//                y: labelPACharacter.y + height/2
+//            }
+
+
+            Label
+            {
+                id: labelPMCharacter
+                text: "PM : " + pm
+                font.pixelSize: 11
+                color: "black"
+                property string pm: ""
+                y: labelPVCharacter.height + labelNameCharacter.height + labelPACharacter.height
+            }
+
+            Label
+            {
+                id: labelXPCharacter
+                text: "XP : " + xp
+                font.pixelSize: 11
+                color: "black"
+                property string xp: ""
+                y: labelPVCharacter.height + labelNameCharacter.height + labelPACharacter.height + labelPMCharacter.height
+            }
+        }
+
+        Rectangle
+        {
+            id: tileActionMenu
+            width: parent.width/2
+            height: parent.height/2
+            x: parent.width/2
+            y: 0
+            color: "blue"
+            z : 1
+
+            GridLayout
+            {
+                id: gridActionMenu
+                anchors.fill: parent
+                rows: 2
+                columns: 2
+
+                Rectangle
+                {
+                    id:btnMove
+
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 1
+                    Layout.rowSpan: 1
+                    Layout.row: 0
+                    Layout.column: 0
+                    color: "green"
+
+                    //urlImage: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/WorldMap/Marker/MarkerQuest.png"
+
+//                    onMarkerBtnSelected:
+//                    {
+//                        markerBoard.onMarkerSelected(idMarker, urlImage);
+//                    }
+                }
+
+                Rectangle
+                {
+                    id:btnFight
+
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 1
+                    Layout.rowSpan: 1
+                    Layout.row: 0
+                    Layout.column: 1
+                    color: "white"
+
+                    Label
+                    {
+                        id: labelBtnFight
+                        text: "Fight"
+                        font.pixelSize: 22
+                        color: "black"
+                    }
+
+                    MouseArea
+                    {
+                        id:mouseAreaFight
+                        width: parent.width
+                        height: parent.height
+                        anchors.fill: parent
+                        hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onPressed:
+                        {
+                            interfaceComQML.fightRequest();
+                        }
+                    }
+                }
+
+                Rectangle
+                {
+                    id:btnOrientation
+
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
+                    Layout.columnSpan: 1
+                    Layout.rowSpan: 1
+                    Layout.row: 1
+                    Layout.column: 0
+                    color: "grey"
+
+                    Label
+                    {
+                        id: labelBtnOrientation
+                        text: "Orientation"
+                        font.pixelSize: 22
+                        color: "black"
+                    }
+
+                    MouseArea
+                    {
+                        id:mouseAreaOrientation
+                        width: parent.width
+                        height: parent.height
+                        anchors.fill: parent
+                        hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton
+                        onPressed:
+                        {
+                            interfaceComQML.orientationRequest();
+                        }
+                    }
+                }
+           }
+        }
+
+        Rectangle
+        {
+            id: tileListActionMenu
+            width: parent.width/2
+            height: parent.height/2
+            x: parent.width/2
+            y: parent.height/2
+            color: "black"
+            z : 1
+
+            MouseArea
+            {
+                id:mouseAreaTileMenu
+                width: parent.width
+                height: parent.height
+                anchors.fill: parent
+                hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onPressed:
+                {
+                    console.log("Click tileListActionMenu");
+                }
             }
         }
     }

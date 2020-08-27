@@ -9,13 +9,6 @@
 
 #define NB_COORD_TEXTURE 4
 
-//enum StatesCharacter
-//{
-//    STATE_WALK_1 = 0,
-//    STATE_WALK_2,
-//    END_STATE
-//};
-
 class PathFinding
 {
 

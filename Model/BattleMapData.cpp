@@ -7,9 +7,15 @@
 
 #include "PathFinding.h"
 
-BattleMapData::BattleMapData():
+static const float coeffOrientationBonus = 1.25f;
+static const float coeffOrientationNormal = 1;
+static const float coeffOrientationMalus = 0.75f;
+
+BattleMapData::BattleMapData(InterfaceQML* i_pInterfaceQml):
     m_nbTileTotal(0),
-    m_pCurrentSelectedCharacter(NULL)
+    m_pCurrentSelectedCharacter(NULL),
+    m_pInterfaceQml(i_pInterfaceQml),
+    m_stateBattleMap(EnumBattleMapData::StateBattleMap::DEFAULT)
 {
     m_mapFilenameTilsetToIndex.clear();
     m_vecFilenameTileset.clear();
@@ -18,6 +24,30 @@ BattleMapData::BattleMapData():
     m_vecAnimationSprite.clear();
 
     m_pPathFinding = new PathFinding(0, 0, 0);
+
+    // the coeff is attributed according to the attack orientation (attacker position vs defender position)
+    // and the defender orientation
+    // Example
+    // . . A . .  ^N
+    // . . D . .  |
+    // A attack D from above so attack come from North to D
+    // If D orientation is North he is front of the attack => coeff = 1
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::NORTH][EnumCharacter::Orientation::NORTH] = 0.75;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::NORTH][EnumCharacter::Orientation::SOUTH] = 1.25;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::NORTH][EnumCharacter::Orientation::EAST] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::NORTH][EnumCharacter::Orientation::WEST] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::SOUTH][EnumCharacter::Orientation::NORTH] = 1.25;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::SOUTH][EnumCharacter::Orientation::SOUTH] = 0.75;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::SOUTH][EnumCharacter::Orientation::EAST] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::SOUTH][EnumCharacter::Orientation::WEST] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::EAST][EnumCharacter::Orientation::NORTH] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::EAST][EnumCharacter::Orientation::SOUTH] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::EAST][EnumCharacter::Orientation::EAST] = 0.75;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::EAST][EnumCharacter::Orientation::WEST] = 1.25;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::WEST][EnumCharacter::Orientation::NORTH] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::WEST][EnumCharacter::Orientation::SOUTH] = 1;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::WEST][EnumCharacter::Orientation::EAST] = 1.25;
+    m_tabAttackOrientationCoeff[EnumCharacter::Orientation::WEST][EnumCharacter::Orientation::WEST] = 0.75;
 }
 
 BattleMapData::~BattleMapData()
@@ -42,8 +72,8 @@ void BattleMapData::generateMapData()
         m_nbTileSide = 10;
         m_nbTileTotal = m_nbTileSide * m_nbTileSide;
 
-        m_fWidthTile = 0.3f;
-        m_fHeightTile = m_fWidthTile/2.0f;
+        m_fWidthTile = 0.15f;
+        m_fHeightTile = m_fWidthTile/2.0f;//0.075
 
         int l_iIndexTexture = -1;
 
@@ -82,7 +112,30 @@ void BattleMapData::generateMapData()
             l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{i});
             l_pCharacter->setMoveSteps(4);
 
-            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/SpriteAnimation128x64Right.png"));
+            Stats l_stats;
+            l_stats.m_Armure = 4;
+            l_stats.m_Dexterite = 10;
+            l_stats.m_Force = 7;
+            l_stats.m_Intelligence = 10;
+            l_stats.m_PA = 10;
+            l_stats.m_PA_max = 30;
+            l_stats.m_PM = 10;
+            l_stats.m_Protection = 10;
+            l_stats.m_PV = 20;
+            l_stats.m_PV_max = 100;
+
+            Features l_features;
+            l_features.m_sStats = l_stats;
+            l_features.m_eJob = SOLDIER;
+            l_features.m_eRace = HUMAN;
+            l_features.m_eSex = MALE;
+            l_features.m_Lvl = i;
+            l_features.m_Name = "Yaku";
+            l_features.m_Xp = 10;
+            l_features.m_UrlImg = tabUrlMenuCharacterImg[SOLDIER][HUMAN][MALE];
+            l_pCharacter->setFeatures(l_features);
+
+            l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilesetCharacter/tilsetLuso160x160.png"));
             QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
             l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
             l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
@@ -199,8 +252,8 @@ void BattleMapData::generateMapData()
             l_tileArea.m_maskPresence.cursor = 0;
             l_tileArea.m_maskPresence.pathFinding = 0;
 
-            // TODO : clarifier la hauteur tuile et faire une différence entre la hauteur du bord et la hauteur du diamant !!!
-            l_tileArea.m_tile.setHeightTile(0.04f);
+             //TODO : clarifier la hauteur tuile et faire une différence entre la hauteur du bord et la hauteur du diamant !!!
+            l_tileArea.m_tile.setElevationTile(0.02f);
 
             l_tileArea.m_tile.setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilsetIsometric/testTileSet.png"));
 
@@ -392,6 +445,7 @@ void BattleMapData::_associateTileAreaObject()
 }
 
 // TODO : il faudra mettre des conditions suivant l'état courant
+// TODO : Voir si on ne peut pas améliorer l'algo
 void BattleMapData::eventKeyBoard(KeyValue i_eKey)
 {
     int l_iNewIndex = m_curseur.getIndexTileAreaPathFinding();
@@ -401,44 +455,149 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
         case ENTER :
             if(m_pPathFinding->getIsActivated() &&
                m_pPathFinding->isIndexInPathFinding(m_curseur.getIndexTileAreaPathFinding()) &&
-               m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 0)
+               m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 0 &&
+               m_stateBattleMap == EnumBattleMapData::StateBattleMap::MOVING)
             {
                 _moveCharacter(m_curseur.getIndexTileAreaPathFinding());
+                m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
             }
-            else if(m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1)
+            else if(m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1 &&
+                    !m_pPathFinding->getIsActivated() &&
+                    m_stateBattleMap == EnumBattleMapData::StateBattleMap::DEFAULT)
             {
                 _clearPathFinding();
                 m_pCurrentSelectedCharacter = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter;
                 _pathFinding(m_curseur.getIndexTileAreaPathFinding(), 3);
+                m_stateBattleMap = EnumBattleMapData::StateBattleMap::MOVING;
+            }
+            else if(m_pPathFinding->getIsActivated() &&
+                    m_pPathFinding->isIndexInPathFinding(m_curseur.getIndexTileAreaPathFinding()) &&
+                    m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1 &&
+                    m_stateBattleMap == EnumBattleMapData::StateBattleMap::FIGHTING)
+            {
+                _fight(m_pCurrentSelectedCharacter, m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter);
+                m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
             }
             else
             {
                 _clearPathFinding();
+                m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
             }
             break;
         case BACK_SPACE :
             qDebug()<<"InterfaceQML::eventFromQML()--> BACK_SPACE";
             break;
         case LEFT :
-        l_iNewIndex++;
-        _changeIndexCursor(l_iNewIndex);
+            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            {
+                m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::WEST);
+            }
+            else
+            {
+                l_iNewIndex++;
+                _changeIndexCursor(l_iNewIndex);
+            }
             break;
         case RIGHT :
-        l_iNewIndex--;
-        _changeIndexCursor(l_iNewIndex);
+            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            {
+                m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::EAST);
+            }
+            else
+            {
+                l_iNewIndex--;
+                _changeIndexCursor(l_iNewIndex);
+            }
             break;
         case UP :
-        l_iNewIndex += m_nbTileSide;
-        _changeIndexCursor(l_iNewIndex);
+            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            {
+                m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::NORTH);
+            }
+            else
+            {
+                l_iNewIndex += m_nbTileSide;
+                _changeIndexCursor(l_iNewIndex);
+            }
             break;
         case DOWN :
-        l_iNewIndex -= m_nbTileSide;
-        _changeIndexCursor(l_iNewIndex);
+            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            {
+                m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::SOUTH);
+            }
+            else
+            {
+                l_iNewIndex -= m_nbTileSide;
+                _changeIndexCursor(l_iNewIndex);
+            }
             break;
         default:
         break;
     }
+}
 
+void BattleMapData::fightRequest()
+{
+    _clearPathFinding();
+    m_pCurrentSelectedCharacter = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter;
+    _pathFinding(m_curseur.getIndexTileAreaPathFinding(), 1);
+    m_stateBattleMap = EnumBattleMapData::StateBattleMap::FIGHTING;
+}
+
+void BattleMapData::orientationRequest()
+{
+    m_pCurrentSelectedCharacter = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter;
+    m_stateBattleMap = EnumBattleMapData::StateBattleMap::ORIENTING;
+}
+
+void BattleMapData::_fight(Character* pFighterAttack, Character* pFighterDefense)
+{
+    EnumCharacter::Orientation attackOrientation = _attackOrientation(pFighterAttack, pFighterDefense);
+
+    float attackOrientationCoeff = m_tabAttackOrientationCoeff[attackOrientation][pFighterDefense->getOrientation()];
+
+    // Change Character State
+    pFighterAttack->attacking(pFighterDefense->getVecIndexTileAreaPathFinding()[0], m_nbTileSide);
+
+    // Dommage
+    int l_totalDommage = ((pFighterAttack->getFeatures().m_sStats.m_Force /*+ equipment + bonus capacité*/)
+                           * attackOrientationCoeff /* * efficacité type * facteur criticité*/)
+                          - pFighterDefense->getFeatures().m_sStats.m_Armure;
+    pFighterDefense->takingDamage(l_totalDommage);
+
+    _clearPathFinding();
+
+    m_pInterfaceQml->setFeaturesCharacter(pFighterDefense->getFeatures());
+}
+
+// Find attack orientation relative to the defender position
+EnumCharacter::Orientation BattleMapData::_attackOrientation(Character* pFighterAttack, Character* pFighterDefense)
+{
+    //TODO : ATTENTION voir comment cela se comporte avec des character qui font plusieurs cases
+    //de plus cela ne couvre pas les cas d attack sur plusieurs cases (voir algo de pathfinding pour attack ?)
+
+    int result = pFighterAttack->getVecIndexTileAreaPathFinding()[0] - pFighterDefense->getVecIndexTileAreaPathFinding()[0];
+    if(1 == result)
+    {
+        return EnumCharacter::Orientation::WEST;
+    }
+    else if(-1 == result)
+    {
+        return EnumCharacter::Orientation::EAST;
+    }
+    else if(m_nbTileSide == result)
+    {
+        return EnumCharacter::Orientation::NORTH;
+    }
+    else if(-m_nbTileSide == result)
+    {
+        return EnumCharacter::Orientation::SOUTH;
+    }
+    else
+    {
+        qDebug()<<"ERROR attacking orientation";
+        return EnumCharacter::Orientation::END_ORIENTATION;
+    }
 }
 
 // Check if index is inside the map's bounds and set the new index
@@ -449,6 +608,16 @@ void BattleMapData::_changeIndexCursor(int i_newIndex)
         m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.cursor = 0;
         m_vecTileAreaPathFinding[i_newIndex]->m_maskPresence.cursor = 1;
         m_curseur.setIndexTileAreaPathFinding(i_newIndex);
+
+        if(m_vecTileAreaPathFinding[i_newIndex]->m_maskPresence.character == 1)
+        {
+            m_pInterfaceQml->setIsCursorOnCharacter(true);
+            m_pInterfaceQml->setFeaturesCharacter(m_vecTileAreaPathFinding[i_newIndex]->m_pCharacter->getFeatures());
+        }
+        else
+        {
+            m_pInterfaceQml->setIsCursorOnCharacter(false);
+        }
     }
     else
     {

@@ -13,8 +13,8 @@ private:
     QString m_strImgTilesheetFilePath;
     QVector<QVector2D> m_coordTexture;
 
-    // height of the tile
-    float m_fHeight;
+    // height / elevation of the tile
+    float m_fElevation;
 
     // At the begining it's 0 then after loading all the required texture (tilsheet) to draw the map in BattleRender,
     // it takes the value of its own texture value.
@@ -38,8 +38,8 @@ public:
      // Fonction temporaire avant chargement du fichier
      inline void addCoord(QVector2D i_vec){m_coordTexture<<i_vec;}
 
-     inline const float& getHeightTile()const{return m_fHeight;}
-     inline void setHeightTile(float i_fHeight){m_fHeight = i_fHeight;}
+     inline const float& getElevationTile()const{return m_fElevation;}
+     inline void setElevationTile(float i_fElevation){m_fElevation = i_fElevation;}
 
      inline const int& getNbSquareUp()const{return m_iNbSquareUp;}
      inline const int& getNbSquareDown()const{return m_iNbSquareDown;}
