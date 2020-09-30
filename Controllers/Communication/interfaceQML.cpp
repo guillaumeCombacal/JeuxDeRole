@@ -48,5 +48,14 @@ void InterfaceQML::orientationRequest()
     }
 }
 
+void InterfaceQML::selectCharacterToAddInBattle(QString nameCharacter)
+{
+    qDebug()<<"NAME : "<<nameCharacter;
+    if(m_pMainWindowController != NULL)
+    {
+        m_pMainWindowController->selectCharacterToAddInBattle(nameCharacter);
+    }
+}
+
 
 

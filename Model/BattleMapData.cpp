@@ -67,7 +67,7 @@ BattleMapData::~BattleMapData()
 void BattleMapData::generateMapData()
 {
     // -------------------  Générateur de tuile sans lecture de fichier ---------------------------------
-    // Cette fonction est une simulation du chargement de fichier
+    // Cette fonction est une simulation du chargement de fichier JSON
 
         m_nbTileSide = 10;
         m_nbTileTotal = m_nbTileSide * m_nbTileSide;
@@ -85,6 +85,10 @@ void BattleMapData::generateMapData()
             m_pPathFinding->setIndexTexture(l_iIndexTexture);
         }
         l_iIndexTexture = -1;
+
+        // List de character pouvant etre chargés dans la battlemap
+        QStringList list = {"Soldier", "Ritz", "blackMage"};
+        m_pInterfaceQml->setListCharacterToAddInBattleMap(list);
 
         // --- CURSEUR INITIALISATION ---
         m_curseur.setImgFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/curseur.png"));
@@ -444,8 +448,7 @@ void BattleMapData::_associateTileAreaObject()
     }
 }
 
-// TODO : il faudra mettre des conditions suivant l'état courant
-// TODO : Voir si on ne peut pas améliorer l'algo
+// TODO : Voir si on ne peut pas améliorer l'algo (création de classe de State avec une StateMachine ?)
 void BattleMapData::eventKeyBoard(KeyValue i_eKey)
 {
     int l_iNewIndex = m_curseur.getIndexTileAreaPathFinding();
@@ -478,6 +481,10 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
                 _fight(m_pCurrentSelectedCharacter, m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter);
                 m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
             }
+            else if(m_stateBattleMap == EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER)
+            {
+                m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
+            }
             else
             {
                 _clearPathFinding();
@@ -488,9 +495,13 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             qDebug()<<"InterfaceQML::eventFromQML()--> BACK_SPACE";
             break;
         case LEFT :
-            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            if(EnumBattleMapData::StateBattleMap::ORIENTING == m_stateBattleMap)
             {
                 m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::WEST);
+            }
+            else if(EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER == m_stateBattleMap)
+            {
+                _changeIndexSelectedCharacterToAdd(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding(), 1);
             }
             else
             {
@@ -499,9 +510,13 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             }
             break;
         case RIGHT :
-            if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
+            if(EnumBattleMapData::StateBattleMap::ORIENTING == m_stateBattleMap)
             {
                 m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::EAST);
+            }
+            else if(EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER == m_stateBattleMap)
+            {
+                _changeIndexSelectedCharacterToAdd(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding(), -1);
             }
             else
             {
@@ -514,6 +529,10 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             {
                 m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::NORTH);
             }
+            else if(EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER == m_stateBattleMap)
+            {
+                _changeIndexSelectedCharacterToAdd(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding(), m_nbTileSide);
+            }
             else
             {
                 l_iNewIndex += m_nbTileSide;
@@ -524,6 +543,10 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             if(EnumBattleMapData::StateBattleMap::ORIENTING== m_stateBattleMap)
             {
                 m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::SOUTH);
+            }
+            else if(EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER == m_stateBattleMap)
+            {
+                _changeIndexSelectedCharacterToAdd(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding(), -m_nbTileSide);
             }
             else
             {
@@ -548,6 +571,72 @@ void BattleMapData::orientationRequest()
 {
     m_pCurrentSelectedCharacter = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter;
     m_stateBattleMap = EnumBattleMapData::StateBattleMap::ORIENTING;
+}
+
+void BattleMapData::selectCharacterToAddInBattle(QString nameCharacter)
+{
+    m_stateBattleMap = EnumBattleMapData::StateBattleMap::ADDING_NEW_CHARACTER;
+
+    // TODO : bouchonné à changer plus tard /////////////////////////
+    Character* l_pCharacter = new Character();
+
+    l_pCharacter->setSizeSide(1);
+    l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{30});
+    l_pCharacter->setMoveSteps(4);
+
+    Stats l_stats;
+    l_stats.m_Armure = 4;
+    l_stats.m_Dexterite = 10;
+    l_stats.m_Force = 7;
+    l_stats.m_Intelligence = 10;
+    l_stats.m_PA = 10;
+    l_stats.m_PA_max = 30;
+    l_stats.m_PM = 10;
+    l_stats.m_Protection = 10;
+    l_stats.m_PV = 20;
+    l_stats.m_PV_max = 100;
+
+    Features l_features;
+    l_features.m_sStats = l_stats;
+    l_features.m_eJob = SOLDIER;
+    l_features.m_eRace = HUMAN;
+    l_features.m_eSex = MALE;
+    l_features.m_Lvl = 10;
+    l_features.m_Name = "Rooky";
+    l_features.m_Xp = 10;
+    l_features.m_UrlImg = tabUrlMenuCharacterImg[SOLDIER][HUMAN][MALE];
+    l_pCharacter->setFeatures(l_features);
+
+    l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilesetCharacter/tilsetLuso160x160.png"));
+    QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
+    l_tabCoordCharacter[0] = QVector2D(0.0f,1.0f);
+    l_tabCoordCharacter[1] = QVector2D(0.5f,1.0f);
+    l_tabCoordCharacter[2] = QVector2D(0.5f,0.0f);
+    l_tabCoordCharacter[3] = QVector2D(0.0f,0.0f);
+    l_pCharacter->setCoordTexture(l_tabCoordCharacter);
+
+    int l_iIndexTexture = _addFilenameTexture(l_pCharacter->getImgTilesheetFilePath());
+    if( l_iIndexTexture != -1)
+    {
+        l_pCharacter->setIndexTexture(l_iIndexTexture);
+    }
+    else
+    {
+
+    }
+    l_iIndexTexture = -1;
+    m_vecCharacter << l_pCharacter;
+    m_vecAnimationSprite << l_pCharacter;
+
+    //TODO presence character à l'initialisation
+    for(int i=0; i < l_pCharacter->getVecIndexTileAreaPathFinding().length(); i++)
+    {
+        //m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = m_pCurrentSelectedCharacter;
+        //m_vecTileAreaPathFinding[l_pCharacter->getVecIndexTileAreaPathFinding()[0]]->m_maskPresence.character = 1;
+    }
+
+    m_pCurrentSelectedCharacter = l_pCharacter;
+    ////////////////////////////////////////////////////////////////
 }
 
 void BattleMapData::_fight(Character* pFighterAttack, Character* pFighterDefense)
@@ -597,6 +686,24 @@ EnumCharacter::Orientation BattleMapData::_attackOrientation(Character* pFighter
     {
         qDebug()<<"ERROR attacking orientation";
         return EnumCharacter::Orientation::END_ORIENTATION;
+    }
+}
+
+void BattleMapData::_changeIndexSelectedCharacterToAdd(QVector<int> initialPosition, int step, int nbIteration/*=1*/)
+{
+    // Limit battleMap
+    if((initialPosition[0] + step*nbIteration) >= 0 && (initialPosition[0] + step*nbIteration) < m_nbTileSide*m_nbTileSide)
+    {
+        // If a character is already on the new position it test for the next one until a free position is found
+        if(m_vecTileAreaPathFinding[initialPosition[0] + step*nbIteration]->m_maskPresence.character == 1)
+        {
+            _changeIndexSelectedCharacterToAdd(initialPosition, step, nbIteration+1);
+            return;
+        }
+        else
+        {
+            _moveCharacter(initialPosition[0] + step * nbIteration);
+        }
     }
 }
 

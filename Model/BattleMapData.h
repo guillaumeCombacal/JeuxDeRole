@@ -32,7 +32,8 @@ namespace EnumBattleMapData
         DEFAULT=0,
         MOVING,
         FIGHTING,
-        ORIENTING
+        ORIENTING,
+        ADDING_NEW_CHARACTER
     };
 }
 
@@ -75,6 +76,7 @@ private:
     void _pathFinding(int indexTileCursor, int depthLevel);
     void _clearPathFinding();
     void _changeIndexCursor(int i_newIndex);
+    void _changeIndexSelectedCharacterToAdd(QVector<int> initialPosition, int step, int nbIteration=1);
     void _moveCharacter(int i_newTileIndex);
     void _fight(Character* pFighterAttack, Character* pFighterDefense);
     EnumCharacter::Orientation _attackOrientation(Character* pFighterAttack, Character* pFighterDefense);
@@ -128,6 +130,7 @@ public:
      void eventKeyBoard(KeyValue i_eKey);
      void fightRequest();
      void orientationRequest();
+     void selectCharacterToAddInBattle(QString nameCharacter);
 
      inline const PathFinding* getPathFinding()const{return m_pPathFinding;}
 

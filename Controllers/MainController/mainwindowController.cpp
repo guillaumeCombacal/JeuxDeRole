@@ -23,29 +23,6 @@ MainWindowController::MainWindowController(QApplication* app):
     // Example Logger
     //LoggerFile::write(Q_FUNC_INFO, "yoloTest");// logger;
 
-    // Lancement de l'application
-    /*m_pWorldMapController = new WorldMapController();
-    m_pBattleController = new BattleController();
-    m_pHeroController = new HeroController();
-    m_pQuestController = new QuestController();
-
-    m_pOngletWidget = new OngletWidget();
-
-    QObject::connect(m_pOngletWidget, SIGNAL(sendSwitchWidget(int)), this, SLOT(onSwitchOnglet(int)));
-    QObject::connect(m_pHeroController, SIGNAL(sendSwitchHeroEditView()), this, SLOT(onSwitchHeroEditView()));
-    QObject::connect(m_pHeroController, SIGNAL(sendSwitchHeroView()), this, SLOT(onSwitchHeroView()));
-
-    m_pMainWidget = new MainWidget(m_pOngletWidget, m_pWorldMapController->getWorldMapWidget(),
-                                                    m_pBattleController->getBattleWidget(),
-                                                    m_pHeroController->getHeroWidget(),
-                                                    m_pHeroController->getHeroWidgetEdit(),
-                                                    m_pQuestController->getQuestWidget());
-
-    m_pMainWindow = new MainWindow(m_pMainWidget);
-
-    m_pMainWindow->show();
-    */
-
 
     // ************************** LANCEMENT DE LA VUE QML ************************************
 
@@ -57,58 +34,64 @@ MainWindowController::MainWindowController(QApplication* app):
     // Create the Main Window containing all the QML app
     m_mainWindow = new QWidget();
 
-    // Init the Main Window Size
-    //m_mainWindow->setFixedWidth(100);
-    //m_mainWindow->setFixedHeight(100);
-
-    // Useless ???
-    //m_layoutMainWindow = new QVBoxLayout();
-
-    // Interaction QML
-    //Anchor anchor;
-    //qmlRegisterType<Anchor>("classAnchor", 1, 0, "Anchor");
-
     // Init the QML view
     m_viewQML = new QQuickView();
-    m_mainWindow = QWidget::createWindowContainer(m_viewQML);
-    m_pInterfaceComQML = new InterfaceQML(this, m_viewQML);
+    if(NULL != m_viewQML)
+    {
+        m_pInterfaceComQML = new InterfaceQML(this, m_viewQML);
+        m_mainWindow = QWidget::createWindowContainer(m_viewQML);
+    }
+    else
+    {
+        qDebug()<<"ERROR : VIEW QML not initialised !!!";
+    }
 
     // Init Handle Data Class for OpenGL
-    m_pBattleMapData = new BattleMapData(m_pInterfaceComQML);
-
-    //m_mainWindow->setMinimumSize(width / 2, height / 2);
-    //m_mainWindow->setMaximumSize(width, height);
+    if(NULL != m_pInterfaceComQML)
+    {
+       m_pBattleMapData = new BattleMapData(m_pInterfaceComQML);
+    }
+    else
+    {
+        qDebug()<<"ERROR : Interface COM QML not initialised !!!";
+    }
 
     // Integration composant OpenGL
-    // TODO Implementer une communication avec le QML pour savoir quoi générer dans le rendu
     qmlRegisterType<FrameBufferObject_OpenGL>("FrameBufferObject_OpenGL", 1, 0, "OpenGLView");
+
+    // Initialisation de la classe FrameBufferObject_OpenGL
+    if(NULL != m_pBattleMapData)
+    {
+        OpenGlRenderSingleton::getInstance()->setBattleMapData(m_pBattleMapData);
+
+        #ifdef QT_DEBUG
+            m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
+            m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
+        #else// Release Mode
+            m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath());
+            m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath());
+        #endif
+
+        // Binding Communication Interface QML<->C++
+        m_viewQML->rootContext()->setContextProperty("interfaceComQML", m_pInterfaceComQML);
+
+        // Signal to quit application
+        QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), this, SLOT(onQuitQMLApplication()));
+
+        // Loading the Main Parent QML Component
+        // This have to be done in last after all rootContext() and setContextProperty()
+        m_viewQML->setSource(QUrl("qrc:/QML/MainWindow.qml"));
+    }
+    else
+    {
+        qDebug()<<"ERROR : Battle Map Data not initialised !!!";
+    }
 
     // Initialisation des données - à partir du fichier de sauvegarde
     if(!_loadGameData())
     {
-        qDebug()<<"Error : Game Data don't loaded !";
+        qDebug()<<"ERROR : Game Data don't loaded !";
     }
-
-
-    // Initialisation de la classe FrameBufferObject_OpenGL
-    OpenGlRenderSingleton::getInstance()->setBattleMapData(m_pBattleMapData);
-
-    #ifdef QT_DEBUG
-        m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
-        m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath() + "/../../JeuDeRole");
-    #else// Release Mode
-        m_pBattleMapData->setProjectRepoUrl(QGuiApplication::applicationDirPath());
-        m_viewQML->rootContext()->setContextProperty("ressourcesDirPath", QGuiApplication::applicationDirPath());
-    #endif
-
-    // Loading the Main Parent QML Component
-    m_viewQML->setSource(QUrl("qrc:/QML/MainWindow.qml"));
-
-    // Binding Communication Interface QML<->C++
-    m_viewQML->rootContext()->setContextProperty("interfaceComQML", m_pInterfaceComQML);
-
-    // Signal to quit application
-    QObject::connect((QObject*)m_viewQML->rootContext()->engine(), SIGNAL(quit()), this, SLOT(onQuitQMLApplication()));
 
     // Show the view on full screen
     m_mainWindow->showFullScreen();
@@ -116,36 +99,6 @@ MainWindowController::MainWindowController(QApplication* app):
 
 MainWindowController::~MainWindowController()
 {
-    /*if(m_pWorldMapController != NULL)
-    {
-        delete m_pWorldMapController;
-    }
-
-    if(m_pBattleController != NULL)
-    {
-        delete m_pBattleController;
-    }
-
-    if(m_pHeroController != NULL)
-    {
-        delete m_pHeroController;
-    }
-
-    if(m_pQuestController != NULL)
-    {
-        delete m_pQuestController;
-    }
-
-    if(m_pMainWidget != NULL)
-    {
-        delete m_pMainWidget;
-    }
-
-    if(m_pMainWindow != NULL)
-    {
-        delete m_pMainWindow;
-    }*/
-
     // *********** QML ************
     if(m_desktopWidget != NULL)
     {
@@ -292,5 +245,13 @@ void MainWindowController::changeView(ViewType typeView)
     }
 
     OpenGlRenderSingleton::getInstance()->setBattleMapRendering(l_bIsBattleMapRendering);
+}
+
+void MainWindowController::selectCharacterToAddInBattle(QString nameCharacter)
+{
+    if(m_pBattleMapData != NULL)
+    {
+        m_pBattleMapData->selectCharacterToAddInBattle(nameCharacter);
+    }
 }
 

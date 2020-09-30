@@ -15,7 +15,6 @@ Rectangle
     id: battleMapCanvas
     height: parent.height
     width : parent.width
-    //color : "red"
     visible: true
     focus : true
 
@@ -47,6 +46,157 @@ Rectangle
 
     }
 
+    Connections
+    {
+        target: interfaceComQML
+        onCursorOnCharacter:
+        {
+            tileMenu.visible = interfaceComQML.isCursorOnCharacter;
+        }
+        onFeaturesCharacterChanged:
+        {
+            //Load the character face inside the menu
+            tileImgMenu.changeImg(interfaceComQML.featuresCharacter["UrlImg"]);
+            tileStatsMenu.changeStats(interfaceComQML.featuresCharacter["Name"],
+                                      interfaceComQML.featuresCharacter["PV"], interfaceComQML.featuresCharacter["MaxPV"],
+                                      interfaceComQML.featuresCharacter["PA"], interfaceComQML.featuresCharacter["MaxPA"],
+                                      interfaceComQML.featuresCharacter["PM"],
+                                      interfaceComQML.featuresCharacter["Xp"]);
+        }
+
+        onListCharacterToAddInBattleMapChanged:
+        {
+            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[0], "color":"orange"})
+            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[1], "color":"orange"})
+            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[2], "color":"orange"})
+        }
+    }
+
+    Rectangle
+    {
+        id: addCharacter
+        width: parent.width/16
+        height: parent.height/10
+        x: parent.width - width
+        y: parent.height - height
+        color: "black"
+        z: 1
+
+        MouseArea
+        {
+            width: parent.width
+            height: parent.height
+            anchors.fill: parent
+
+            onPressed:
+            {
+                if(addCharacterMenu.visible === false)
+                {
+                    // Setting become visible
+                    addCharacterMenu.visible = true;
+                }
+            }
+        }
+    }
+
+    Rectangle
+    {
+        id: addCharacterMenu
+        width: parent.width/10
+        height: parent.height/2
+        x: parent.width - width
+        y: parent.height - height
+        color: "red"
+        z: 1
+        visible: false
+
+        MouseArea
+        {
+            id:mouseListView
+            width: parent.width
+            height: parent.height
+            anchors.fill: parent
+            hoverEnabled: true // Allow to cath event callback onEntered & onExited
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+            onClicked:
+            {
+                addCharacterMenu.visible = false;
+            }
+        }
+
+        Component
+        {
+            id: delegateComponentListCharacter
+
+            Rectangle
+            {
+                id: characterElement
+
+                width: parent.width
+                height: addCharacterMenu.height / 6
+                color: "white"
+
+                Text
+                {
+                    id: characterNameTxt
+                    property string characterName : characterNameData
+                    text: characterNameData
+                }
+
+                MouseArea
+                {
+                    id:mouseSelectCharacter
+                    width: parent.width
+                    height: parent.height
+                    anchors.fill: parent
+                    hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                    onPressed:
+                    {
+                        interfaceComQML.selectCharacterToAddInBattle(characterNameData);
+                    }
+
+                    onEntered:
+                    {
+                        characterElement.color = "palegoldenrod"
+                    }
+                    onExited:
+                    {
+                        characterElement.color = "white"
+                    }
+                }
+
+            }
+        }
+
+        ListModel
+        {
+          id: listModelCharacter
+        }
+
+        Rectangle{
+            id: containerListView
+            width: parent.width
+            height: parent.height - 40
+            y: 40
+            clip: true
+            color: "black"
+
+            ListView
+            {
+                width: parent.width
+                height: parent.height
+                model: listModelCharacter
+                delegate: delegateComponentListCharacter
+            }
+        }
+
+
+
+    }
+
     Rectangle
     {
         id: tileMenu
@@ -55,27 +205,8 @@ Rectangle
         x: 0
         y: parent.height - parent.width/6
         color: "transparent"
-        z : 1
         visible : false
-
-        Connections
-        {
-            target: interfaceComQML
-            onCursorOnCharacter:
-            {
-                tileMenu.visible = interfaceComQML.isCursorOnCharacter;
-            }
-            onFeaturesCharacterChanged:
-            {
-                //Load the character face inside the menu
-                tileImgMenu.changeImg(interfaceComQML.featuresCharacter["UrlImg"]);
-                tileStatsMenu.changeStats(interfaceComQML.featuresCharacter["Name"],
-                                          interfaceComQML.featuresCharacter["PV"], interfaceComQML.featuresCharacter["MaxPV"],
-                                          interfaceComQML.featuresCharacter["PA"], interfaceComQML.featuresCharacter["MaxPA"],
-                                          interfaceComQML.featuresCharacter["PM"],
-                                          interfaceComQML.featuresCharacter["Xp"]);
-            }
-        }
+        z : 1
 
         Rectangle
         {
@@ -85,7 +216,6 @@ Rectangle
             x: 0
             y: 0
             color: "transparent"
-            z : 1
 
             function changeImg(urlImg)
             {

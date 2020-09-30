@@ -117,7 +117,7 @@ static const QString tabUrlMenuCharacterImg[JOB_MAX][RACE_MAX][SEX_MAX] =
     {//SOLDIER
 
         {//HUMAN
-            {"/Ressources/qmlRessources/BattleMap/Soldier_200.png"},
+            {"/Ressources/qmlRessources/BattleMap/Soldier.png"},
             {"/Ressources/qmlRessources/"}
         },
 

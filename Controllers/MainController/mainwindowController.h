@@ -53,6 +53,7 @@ public:
     void changeView(ViewType typeView);
     void fightRequest();
     void orientationRequest();
+    void selectCharacterToAddInBattle(QString nameCharacter);
 
 public slots:
     void onSwitchOnglet(int idWidget);
