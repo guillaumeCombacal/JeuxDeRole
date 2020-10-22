@@ -66,7 +66,10 @@ public:
     Q_INVOKABLE void changeViewType(QJSValue keyValue);
     Q_INVOKABLE void fightRequest();
     Q_INVOKABLE void orientationRequest();
-    Q_INVOKABLE void selectCharacterToAddInBattle(QString nameCharacter);
+    Q_INVOKABLE void selectCharacterToAddInBattle(QVariantMap data);
+
+    Q_INVOKABLE void enterAddingCharacterState();
+    Q_INVOKABLE void finishAddingCharacterState();
 
  signals:
     void cursorOnCharacter();

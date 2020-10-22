@@ -247,11 +247,28 @@ void MainWindowController::changeView(ViewType typeView)
     OpenGlRenderSingleton::getInstance()->setBattleMapRendering(l_bIsBattleMapRendering);
 }
 
-void MainWindowController::selectCharacterToAddInBattle(QString nameCharacter)
+void MainWindowController::selectCharacterToAddInBattle(QString name, QString job, QString nature, int lvl)
 {
     if(m_pBattleMapData != NULL)
     {
-        m_pBattleMapData->selectCharacterToAddInBattle(nameCharacter);
+        m_pBattleMapData->selectCharacterToAddInBattle(name, job, nature, lvl);
     }
 }
+
+void MainWindowController::enterAddingCharacterState()
+{
+    if(m_pBattleMapData != NULL)
+    {
+        m_pBattleMapData->enterAddingCharacterState();
+    }
+}
+
+void MainWindowController::finishAddingCharacterState()
+{
+    if(m_pBattleMapData != NULL)
+    {
+        m_pBattleMapData->finishAddingCharacterState();
+    }
+}
+
 

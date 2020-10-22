@@ -48,12 +48,32 @@ void InterfaceQML::orientationRequest()
     }
 }
 
-void InterfaceQML::selectCharacterToAddInBattle(QString nameCharacter)
+
+void InterfaceQML::selectCharacterToAddInBattle(QVariantMap data)
 {
-    qDebug()<<"NAME : "<<nameCharacter;
     if(m_pMainWindowController != NULL)
     {
-        m_pMainWindowController->selectCharacterToAddInBattle(nameCharacter);
+        m_pMainWindowController->selectCharacterToAddInBattle(data.value("name").toString(),
+                                                              data.value("job").toString(),
+                                                              data.value("nature").toString(),
+                                                              data.value("lvl").toInt()
+                                                              );
+    }
+}
+
+void InterfaceQML::enterAddingCharacterState()
+{
+    if(m_pMainWindowController != NULL)
+    {
+        m_pMainWindowController->enterAddingCharacterState();
+    }
+}
+
+void InterfaceQML::finishAddingCharacterState()
+{
+    if(m_pMainWindowController != NULL)
+    {
+        m_pMainWindowController->finishAddingCharacterState();
     }
 }
 

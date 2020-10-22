@@ -16,14 +16,14 @@ enum Job
     JOB_MAX
 };
 
-enum Race
+enum Nature
 {
     HUMAN=0,
     BANGAA,
     VIERA,
     NU_MOU,
     MOG,
-    RACE_MAX
+    NATURE_MAX
 };
 
 enum Sex
@@ -55,13 +55,9 @@ struct Features
     unsigned int m_Lvl;
     unsigned int m_Xp;
     QString m_Name;
-    //QString m_Job;
     Job     m_eJob;
-    //QString m_Race;
-    Race    m_eRace;
-    //QString m_Sexe;
+    Nature  m_eNature;
     Sex     m_eSex;
-    //QString m_FilenameImgFace;
     QString m_UrlImg;
 
 };
@@ -112,7 +108,7 @@ struct QuestObject
 };
 
 
-static const QString tabUrlMenuCharacterImg[JOB_MAX][RACE_MAX][SEX_MAX] =
+static const QString tabUrlMenuCharacterImg[JOB_MAX][NATURE_MAX][SEX_MAX] =
 {
     {//SOLDIER
 

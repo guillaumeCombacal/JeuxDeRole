@@ -16,7 +16,7 @@ namespace ComCppQml
         statsMap.insert("PV", QString::number(features.m_sStats.m_PV));
         statsMap.insert("MaxPV", QString::number(features.m_sStats.m_PV_max));
         statsMap.insert("Job", features.m_eJob);
-        statsMap.insert("Race", features.m_eRace);
+        statsMap.insert("Race", features.m_eNature);
         statsMap.insert("Sex", features.m_eSex);
         statsMap.insert("Lvl", features.m_Lvl);
         statsMap.insert("Name", features.m_Name);

@@ -130,7 +130,9 @@ public:
      void eventKeyBoard(KeyValue i_eKey);
      void fightRequest();
      void orientationRequest();
-     void selectCharacterToAddInBattle(QString nameCharacter);
+     void selectCharacterToAddInBattle(QString name, QString job, QString nature, int lvl);
+     void enterAddingCharacterState();
+     void finishAddingCharacterState();
 
      inline const PathFinding* getPathFinding()const{return m_pPathFinding;}
 

@@ -66,9 +66,12 @@ Rectangle
 
         onListCharacterToAddInBattleMapChanged:
         {
-            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[0], "color":"orange"})
-            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[1], "color":"orange"})
-            listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[2], "color":"orange"})
+            console.log("SIZE : interfaceComQML.characterToAddInBattleMap " + interfaceComQML.characterToAddInBattleMap.length);
+
+            for(var i=0; i<interfaceComQML.characterToAddInBattleMap.length; i++)
+            {
+                listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[i], "color":"orange"})
+            }
         }
     }
 
@@ -94,6 +97,7 @@ Rectangle
                 {
                     // Setting become visible
                     addCharacterMenu.visible = true;
+                    interfaceComQML.enterAddingCharacterState();
                 }
             }
         }
@@ -122,6 +126,7 @@ Rectangle
             onClicked:
             {
                 addCharacterMenu.visible = false;
+                interfaceComQML.finishAddingCharacterState();
             }
         }
 
@@ -137,11 +142,28 @@ Rectangle
                 height: addCharacterMenu.height / 6
                 color: "white"
 
-                Text
+                Image
                 {
-                    id: characterNameTxt
-                    property string characterName : characterNameData
-                    text: characterNameData
+                    id: imgCharacterFace
+
+                    height: parent.height
+                    width: parent.width/2
+                    source: "file:///" + ressourcesDirPath + "/Ressources/qmlRessources/BattleMap/" + characterNameData + ".png"
+                }
+
+                Item
+                {
+                    id: textContainer
+                    height: parent.height
+                    width: parent.width/2
+                    x: parent.width/2
+
+                    Text
+                    {
+                        id: characterNameTxt
+                        property string characterName : characterNameData
+                        text: characterNameData
+                    }
                 }
 
                 MouseArea
@@ -155,7 +177,10 @@ Rectangle
 
                     onPressed:
                     {
-                        interfaceComQML.selectCharacterToAddInBattle(characterNameData);
+                        addCharacterFeaturesMenu.visible = true;
+                        addCharacterFeaturesMenu.jobName = characterNameTxt.characterName
+                        imgCharacterFeature.source = imgCharacterFace.source
+
                     }
 
                     onEntered:
@@ -192,8 +217,166 @@ Rectangle
                 delegate: delegateComponentListCharacter
             }
         }
+    }
 
+    Rectangle
+    {
+        id: addCharacterFeaturesMenu
+        width: parent.width/3
+        height: parent.height/2
+        x: parent.width - width - addCharacterMenu.width
+        y: parent.height - height
+        color: "green"
+        z: 1
+        visible: false
+        property string jobName: "Job"
+        property string natureName: "Nature"
 
+        Image
+        {
+            id: imgCharacterFeature
+            width: parent.width/2
+            height: parent.height/2
+            source: ""
+        }
+
+        Rectangle
+        {
+            id: cancelCharacterBtn
+            width: parent.width/3
+            height: parent.height/10
+            color: "white"
+            x: parent.width - 2*width
+            y: parent.height - height
+
+            Text
+            {
+                id: cancelTxt
+                text: "CANCEL"
+            }
+
+            MouseArea
+            {
+                id:cancelCharacterArea
+                width: parent.width
+                height: parent.height
+                anchors.fill: parent
+                hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onPressed:
+                {
+                    addCharacterFeaturesMenu.visible = false;
+                    nameInput.text = "";
+                    battleMapCanvas.focus=true;
+                }
+            }
+        }
+
+        Rectangle
+        {
+            id: validCharacterBtn
+            width: parent.width/3
+            height: parent.height/10
+            color: "white"
+            x: parent.width - width
+            y: parent.height - height
+
+            Text
+            {
+                id: validTxt
+                text: "ADD CHARACTER"
+            }
+
+            MouseArea
+            {
+                id:validCharacterArea
+                width: parent.width
+                height: parent.height
+                anchors.fill: parent
+                hoverEnabled: true // Allow to cath event callback onEntered & onExited
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onPressed:
+                {
+                    var dataMap = {job: addCharacterFeaturesMenu.jobName, nature: addCharacterFeaturesMenu.natureName, name: nameInput.text, lvl: lvlInput.text};
+                    interfaceComQML.selectCharacterToAddInBattle(dataMap);
+                    nameInput.text = "";
+                    battleMapCanvas.focus=true;
+                    addCharacterFeaturesMenu.visible = false;
+                }
+            }
+        }
+
+        Rectangle
+        {
+            id: name
+            width: parent.width/3
+            height: 50
+            x: parent.width/2 + parent.width/4 - width/2
+
+            Label
+            {
+                id: nameLabel
+                text: "NAME"
+                width: parent.width
+                height: parent.height/2
+                color: "grey"
+            }
+
+            TextInput
+            {
+                id: nameInput
+                width: parent.width
+                height: parent.height/2
+                y: parent.height/2
+                color: "orange"
+            }
+        }
+
+        Rectangle
+        {
+            id: lvl
+            width: parent.width/3
+            height: 50
+            x: parent.width/2 + parent.width/4 - width/2
+            y: height + 20
+
+            Label
+            {
+                id: lvlLabel
+                text: "LVL"
+                width: parent.width
+                height: parent.height/2
+            }
+
+            TextInput
+            {
+                id: lvlInput
+                width: parent.width
+                height: parent.height/2
+                y: parent.height/2
+                color: "orange"
+            }
+        }
+
+        Label
+        {
+            id: jobLabel
+            text: addCharacterFeaturesMenu.jobName
+            width: parent.width/4
+            height: 25
+            x: 10
+            y: parent.height/2 + 20
+        }
+
+        Label
+        {
+            id: natureLabel
+            text: addCharacterFeaturesMenu.natureName
+            width: parent.width/4
+            height: 25
+            x: jobLabel.width + 20
+            y: parent.height/2 + 20
+        }
 
     }
 
