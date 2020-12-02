@@ -113,16 +113,8 @@ bool Character::isReadyToRender()
         qDebug()<<"Character has no size !!!";
         return false;
     }
-    //TODO : correction size side
 
-
-    // Handle the case with m_iSizeSide = 1
-    if(m_iCountRender >= (m_iSizeSide*m_iSizeSide))
-    {
-       m_iCountRender = 0;
-    }
-
-    if(m_iCountRender == 0)
+    if(0 == m_iCountRender)
     {
         m_iCountRender++;
         return true;
@@ -209,6 +201,9 @@ void Character::updateCoordSprite(int i_stateFrame)
     // 13=STATE_MAGIC_FIGHT_FRONT_1,  14=STATE_MAGIC_FIGHT_FRONT_2,
     // 15=STATE_MAGIC_FIGHT_BACK_1,  16=STATE_MAGIC_FIGHT_BACK_2, 17=STATE_DEAD_FRONT,
     // 18=STATE_DEAD_BACK
+
+    // debug
+    //i_stateFrame = 12;
 
     // Find the coord of the frame inside the tileset -- Coord is the left-top corner
     // STATES            INDEX

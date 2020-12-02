@@ -54,6 +54,8 @@ BattleMapRender::BattleMapRender(BattleMapData* i_pBattleMapData):
     m_timerSpriteAnimation = new QTimer();
     QObject::connect(m_timerSpriteAnimation, &QTimer::timeout, this, &BattleMapRender::_processSpriteAnimation);
     m_timerSpriteAnimation->start(FREQUENCE_TIMER_SPRITE_ANIMATION);
+
+    QObject::connect(m_pBattleMapData, &BattleMapData::addIndexTexture, this, &BattleMapRender::_addTexture);
 }
 
 BattleMapRender::~BattleMapRender()
@@ -134,6 +136,11 @@ void BattleMapRender::_initShader()
     m_shaderProgram.setUniformValue("texture", 0);
 }
 
+void BattleMapRender::_addTexture(int indexFilename)
+{
+    m_vecTextureTilset << new QOpenGLTexture(QImage(m_pBattleMapData->getVecFilenameTileset()[indexFilename]));
+}
+
 
 // TODO : enlever tous les appel de fonction inutiles (glDepthMask)
 // draw all the object inside the battle map
@@ -180,8 +187,8 @@ void BattleMapRender::renderBattleMap()
     int l_iTileCounter = 0;
     float l_fLeftCornerTileX = 0.0f;
     float l_fLeftCornerTileY = 0.0f;
-    // Alpha value activated for transparence
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    // Alpha value activated for transparence & avoid interpolation white pixel
+    glBlendFuncSeparate(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
     glEnable(GL_BLEND);
 
     // Active the shader texture rendering
@@ -205,6 +212,12 @@ void BattleMapRender::renderBattleMap()
             // CALCUL TILE POSITION X/Y COMMUN FOR ALL OBJECT
             // NOTE : it begin by the lower tile, which is the last one to draw above the others
             // Indeed, Opengl draw in FILO (first in last out)
+
+            //        *9 <-- last added for rendering but first drawn
+            //    *       *
+            //*       *       *
+            //    *2      *3
+            //        *1 <-- first added for rendering but last drawn
 
             // Position Y
             l_fLeftCornerTileY = m_fLeftBaseCornerVertex.y() - ((m_pBattleMapData->getHeightTile()/2)*itRow);
@@ -310,10 +323,10 @@ void BattleMapRender::_calculCharacterVerticesBuffer(float i_fLeftCornerTileX, f
 {
     m_vecCharacterVertexBuffer.clear();
 
-    float offsetHeightSprite = 0.03f;// Avoid that character's sprite is too small
+    //float offsetHeightSprite = 0.03f;// Avoid that character's sprite is too small
 
     QVector3D l_vecLeftDownCharacterVertex (i_fLeftCornerTileX - ((i_iCharacterSizeSide-1)*m_pBattleMapData->getWidthTile()/2),
-                                            (i_fLeftCornerTileY - i_fHeightTile),
+                                            (i_fLeftCornerTileY - (i_fHeightTile/2 * i_iCharacterSizeSide)),
                                             0.0f);
 
     QVector3D l_vecRightDownCharacterVertex (l_vecLeftDownCharacterVertex.x() + (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile()),
@@ -321,7 +334,7 @@ void BattleMapRender::_calculCharacterVerticesBuffer(float i_fLeftCornerTileX, f
                                              0.0f);
 
     QVector3D l_vecRightUpCharacterVertex (l_vecRightDownCharacterVertex.x(),
-                                           (i_fLeftCornerTileY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile())-offsetHeightSprite),
+                                           (i_fLeftCornerTileY - (i_iCharacterSizeSide * m_pBattleMapData->getWidthTile())/*-offsetHeightSprite*/),
                                            0.0f);
 
     QVector3D l_vecLeftUpCharacterVertex (l_vecLeftDownCharacterVertex.x(),
@@ -386,9 +399,10 @@ void BattleMapRender::_renderTileLayer(int numTile, float leftCornerTileX, float
 void BattleMapRender::_renderCharacterLayer(int numTile, float leftCornerTileX, float leftCornerTileY)
 {
     // if the character take several tile on side, it's necessary to count how many tile are met.
-    // The character have to be drawn when its extrem side tile are met
+    // The character have to be drawn when its lower tile is met
+    // Indeed, the sense for the rendering is FILO (see schemas in renderBattleMap function)
     // ex: if the character is 2 tiles side (one tile here == *) it have to be drawn when
-    //     the tile on the extrem right side or extrem left side is the current tile (depend on the render direction)
+    //     the low tile is met
     //           *
     //       *       *
     //        -->*
@@ -397,6 +411,7 @@ void BattleMapRender::_renderCharacterLayer(int numTile, float leftCornerTileX, 
     {
         // Binding the right tileSet texture to render the tile
         m_vecTextureTilset[m_pBattleMapData->getVecTileArea()[numTile].m_pCharacter->getIndexTexture()]->bind();
+
 
         // Calcul the new coordinates of each vertices
         _calculCharacterVerticesBuffer(leftCornerTileX,

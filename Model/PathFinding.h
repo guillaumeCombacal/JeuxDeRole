@@ -47,8 +47,6 @@ public:
      inline void setDepthPathFinding(int i_depthPathFinding){m_depthPathFinding = i_depthPathFinding; _calculPathFinding();}
      inline QVector<int> getVecIndexPathFinding(){return m_vecIndexPathFinding;}
 
-    // inline const bool& getIsReadyToRender(){return m_bIsReadyToRender;}
-
      // Generate data from code
      //inline void setCoordTexture(QVector2D* i_pCoordTexture){std::memcpy(m_tabCoordTexture, i_pCoordTexture, NB_COORD_TEXTURE*sizeof(QVector2D));}
      inline const QVector2D* getCoordTexture(int& o_iNbElement)const{o_iNbElement = NB_COORD_TEXTURE;return m_tabCoordTexture;}
@@ -61,10 +59,6 @@ public:
 
      inline const QString& getImgTilesheetFilePath()const{return m_strImgTilesheetFilePath;}
      inline void setImgTilesheetFilePath(QString i_strFilePath){m_strImgTilesheetFilePath = i_strFilePath;}// Generate data from code
-
-     //void saveCharacterData(QJsonObject &json)const;
-     //void loadCharacterData(const QJsonObject &json);
-     //bool isReadyToRender();
 };
 
 #endif // PATH_FINDING_H

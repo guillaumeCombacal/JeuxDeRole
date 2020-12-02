@@ -50,6 +50,7 @@ private:
     void _calculPathFindingVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, float i_fHeightTile);
     void _initShader();
     void _processSpriteAnimation();
+    void _addTexture(int indexFilename);
 
     QOpenGLShaderProgram m_shaderProgram;
 

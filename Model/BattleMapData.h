@@ -51,8 +51,10 @@ struct TileArea
     int m_indexVecPathFinding;
 };
 
-class BattleMapData
+class BattleMapData : public QObject
 {
+
+    Q_OBJECT
 
 private:
 
@@ -77,9 +79,10 @@ private:
     void _clearPathFinding();
     void _changeIndexCursor(int i_newIndex);
     void _changeIndexSelectedCharacterToAdd(QVector<int> initialPosition, int step, int nbIteration=1);
-    void _moveCharacter(int i_newTileIndex);
+    void _moveCharacter(int moveOffset);
     void _fight(Character* pFighterAttack, Character* pFighterDefense);
     EnumCharacter::Orientation _attackOrientation(Character* pFighterAttack, Character* pFighterDefense);
+    bool _checkNewPositionToMoveCharacter(int initialPosition, int moveOffset, int step);
 
     // Data Container exposed with getter
     //used for depth render (3D)
@@ -152,6 +155,9 @@ public:
      inline const QVector<QString>& getVecFilenameTileset(){return m_vecFilenameTileset;}
 
      inline const QVector<AnimationSprite*>& getVecAnimationSprite(){return m_vecAnimationSprite;}
+
+signals:
+     void addIndexTexture(int index);
 
 };
 

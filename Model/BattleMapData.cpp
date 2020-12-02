@@ -4,6 +4,7 @@
 
 #include <QJsonArray>
 #include<QKeyEvent>
+#include<QMutex>
 
 #include "PathFinding.h"
 
@@ -157,8 +158,8 @@ void BattleMapData::generateMapData()
 
             }
             l_iIndexTexture = -1;
-            m_vecCharacter << l_pCharacter;
-            m_vecAnimationSprite << l_pCharacter;
+            //m_vecCharacter << l_pCharacter;
+            //m_vecAnimationSprite << l_pCharacter;
         }
 
         // --- GENERATION D'1 PERSONNAGE SUR PLUSIEURS CASE DE LARGE ---
@@ -247,7 +248,7 @@ void BattleMapData::generateMapData()
 
 
         // --- GENERATION DES TUILES ---
-        for(int i = 0; i<m_nbTileTotal; i++)
+        for(int i = 0, j=0; i<m_nbTileTotal; i++)
         {
             TileArea l_tileArea;
             l_tileArea.m_maskPresence.tile = 0;
@@ -261,20 +262,39 @@ void BattleMapData::generateMapData()
 
             l_tileArea.m_tile.setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilsetIsometric/testTileSet.png"));
 
-            if(i%2 == 0)
+            // Index de tuiles
+            if(j==0)
             {
+                // tile 1
                 l_tileArea.m_tile.addCoord(QVector2D(0.0f, 0.25f));
                 l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.25f));
                 l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.0f));
                 l_tileArea.m_tile.addCoord(QVector2D(0.0f, 0.0f));
             }
-            else
+            else if(j==1)
             {
+                // tile 2
                 l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.25f));
                 l_tileArea.m_tile.addCoord(QVector2D(1.0f, 0.25f));
                 l_tileArea.m_tile.addCoord(QVector2D(1.0f, 0.0f));
                 l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.0f));
+            }
+            else if(j==2)
+            {
+                // tile 3
+                l_tileArea.m_tile.addCoord(QVector2D(0.0f, 0.5f));
+                l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.5f));
+                l_tileArea.m_tile.addCoord(QVector2D(0.5f, 0.25f));
+                l_tileArea.m_tile.addCoord(QVector2D(0.0f, 0.25f));
+            }
 
+            if(j==2)
+            {
+                j=0;
+            }
+            else
+            {
+                j++;
             }
 
             l_iIndexTexture = _addFilenameTexture(l_tileArea.m_tile.getImgTilesheetFilePath());
@@ -461,7 +481,8 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
                m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 0 &&
                m_stateBattleMap == EnumBattleMapData::StateBattleMap::MOVING)
             {
-                _moveCharacter(m_curseur.getIndexTileAreaPathFinding());
+                _moveCharacter(m_curseur.getIndexTileAreaPathFinding() - m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[0]);
+                _clearPathFinding();
                 m_stateBattleMap = EnumBattleMapData::StateBattleMap::DEFAULT;
             }
             else if(m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1 &&
@@ -495,7 +516,6 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             qDebug()<<"InterfaceQML::eventFromQML()--> BACK_SPACE";
             break;
         case LEFT :
-            qDebug()<<"m_stateBattleMap : "<<m_stateBattleMap;
             if(EnumBattleMapData::StateBattleMap::ORIENTING == m_stateBattleMap)
             {
                 m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->setOrientation(EnumCharacter::Orientation::WEST);
@@ -591,8 +611,10 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
     //TODO : bouchonné à changer plus tard /////////////////////////
     Character* l_pCharacter = new Character();
 
-    l_pCharacter->setSizeSide(1);
-    l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{30});
+    l_pCharacter->setSizeSide(2);
+    l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{0,1,10,11});
+    //l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{0,1,2,10,11,12,20,21,22});
+    //l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{32});
     l_pCharacter->setMoveSteps(4);
 
     Stats l_stats;
@@ -618,7 +640,7 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
     l_features.m_UrlImg = tabUrlMenuCharacterImg[SOLDIER][HUMAN][MALE];
     l_pCharacter->setFeatures(l_features);
 
-    l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilesetCharacter/tilsetLuso160x160.png"));
+    l_pCharacter->setImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilesetCharacter/tilsetRitz160x160.png"));
 
     // Used just for init, the real coords will be calculated by the character himself with his state
     QVector2D l_tabCoordCharacter[NB_COORD_TEXTURE];
@@ -632,6 +654,7 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
     if( l_iIndexTexture != -1)
     {
         l_pCharacter->setIndexTexture(l_iIndexTexture);
+        emit addIndexTexture(l_iIndexTexture);
     }
     else
     {
@@ -714,20 +737,52 @@ EnumCharacter::Orientation BattleMapData::_attackOrientation(Character* pFighter
 
 void BattleMapData::_changeIndexSelectedCharacterToAdd(QVector<int> initialPosition, int step, int nbIteration/*=1*/)
 {
-    // Limit battleMap
-    if((initialPosition[0] + step*nbIteration) >= 0 && (initialPosition[0] + step*nbIteration) < m_nbTileSide*m_nbTileSide)
+    int nbTileOK = 0;
+    for(int i=0; i<initialPosition.size(); i++)
     {
-        // If a character is already on the new position it test for the next one until a free position is found
-        if(m_vecTileAreaPathFinding[initialPosition[0] + step*nbIteration]->m_maskPresence.character == 1)
+        if(_checkNewPositionToMoveCharacter(initialPosition[i], step*nbIteration, step))
         {
-            _changeIndexSelectedCharacterToAdd(initialPosition, step, nbIteration+1);
-            return;
+            // If a character is already on the new position it test for the next one until a free position is found
+            if(m_vecTileAreaPathFinding[initialPosition[i] + step*nbIteration]->m_maskPresence.character == 1
+                    && (m_vecTileAreaPathFinding[initialPosition[i] + step*nbIteration]->m_pCharacter !=
+                        m_vecTileAreaPathFinding[initialPosition[i]]->m_pCharacter) )
+            {
+                _changeIndexSelectedCharacterToAdd(initialPosition, step, nbIteration+1);
+                return;
+            }
+            else
+            {
+                nbTileOK++;
+            }
         }
         else
         {
-            _moveCharacter(initialPosition[0] + step * nbIteration);
+           qDebug()<<"Out of the limit";
         }
     }
+
+    if(initialPosition.size() == nbTileOK)
+    {
+       _moveCharacter(step*nbIteration);
+    }
+}
+
+
+bool BattleMapData::_checkNewPositionToMoveCharacter(int initialPosition, int shift, int step)
+{
+    int newPosition = initialPosition + shift;
+    bool isInsideMap = (newPosition >= 0 && newPosition < m_nbTileSide*m_nbTileSide);
+
+    // for right and left move the step is 1 or -1
+    bool isRightLeftMoving = (step/m_nbTileSide == 0);
+    bool isRightLeftMovingNewPositionInSameColumn = ( newPosition/m_nbTileSide == initialPosition/m_nbTileSide );
+    bool isUpDownMoving = (step/m_nbTileSide == 1 || step/m_nbTileSide == -1 );
+
+    // check if the right or left move stay inside the border and so, don't change the column index
+    // or if it's up / down moving
+    bool isInsideBorder = ( ( isRightLeftMoving && isRightLeftMovingNewPositionInSameColumn ) || isUpDownMoving );
+
+    return( isInsideMap && isInsideBorder);
 }
 
 // Check if index is inside the map's bounds and set the new index
@@ -754,57 +809,56 @@ void BattleMapData::_changeIndexCursor(int i_newIndex)
     }
 }
 
-void BattleMapData::_moveCharacter(int i_tileIndexSelected)
+void BattleMapData::_moveCharacter(int moveOffset)
 {
-    // Calcul the new position and handle the case where character is several tile size side
-    // Find the closer tile from the selected tile by cursor among the character tiles
-    int l_iLineIndexSelectedTile = i_tileIndexSelected / m_nbTileSide;
-    int l_iColumnIndexSelectedTile = i_tileIndexSelected % m_nbTileSide;
-    int l_iLineIndexTile = -1;
-    int l_iColumnIndexTile = -1;
-    int l_iMinOffsetBetweenTile = 1000;// 1000 is the default value
-    int l_iIndexClosestTile = -1;
-    int l_iOffsetBetweenTile = -1;
-    int l_iOffsetLine = 0;
-    int l_iOffsetColumn = 0;
-    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
-    {
-        l_iLineIndexTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i] / m_nbTileSide;
-        l_iColumnIndexTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i] % m_nbTileSide;
-        l_iOffsetBetweenTile = abs(l_iLineIndexTile-l_iLineIndexSelectedTile) + abs(l_iColumnIndexTile-l_iColumnIndexSelectedTile);
-        if(l_iMinOffsetBetweenTile > l_iOffsetBetweenTile)
-        {
-           l_iMinOffsetBetweenTile = l_iOffsetBetweenTile;
-           l_iOffsetLine = l_iLineIndexSelectedTile - l_iLineIndexTile;
-           l_iOffsetColumn = l_iColumnIndexSelectedTile - l_iColumnIndexTile;
-           l_iIndexClosestTile = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i];
-        }
-    }
+    QMutex mutex;
+    mutex.lock();
 
-    // Calcul the new position
+    // Calcul the new position, reset the old one, and set it to the new one
+    int newIndexPosition = -1;
     QVector<int> l_vecNewPositionCharacter;
+
+    // Reset the old Position before change with the one
+    // It's necessary to have 2 differents loops between the reset of the old position and the new position
+    // Otherwise it will reset new position that you just have added for multi tiles side character
     for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
     {
-       l_vecNewPositionCharacter<< m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]
-                                   + (l_iOffsetLine*m_nbTileSide) + l_iOffsetColumn;
+       m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = NULL;
+       m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_maskPresence.character = 0;
     }
 
-    // Reset the old position
+    // Update the new position
     for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
     {
-        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = NULL;
-        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_maskPresence.character = 0;
+       newIndexPosition = m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i] + moveOffset;
+       if(-1 != newIndexPosition)
+       {
+           // Set the new one for the map
+           m_vecTileAreaPathFinding[newIndexPosition]->m_pCharacter = m_pCurrentSelectedCharacter;
+           m_vecTileAreaPathFinding[newIndexPosition]->m_maskPresence.character = 1;
+
+          l_vecNewPositionCharacter<< newIndexPosition;
+       }
+       else
+       {
+           qDebug()<<"Wrong Position";
+       }
     }
 
-    // Set the new position
-    m_pCurrentSelectedCharacter->setVecIndexTileAreaPathFinding(l_vecNewPositionCharacter);
-    for(int i=0; i<m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size(); i++)
+    // Reset the render counter to avoid bad rendering
+    m_pCurrentSelectedCharacter->setRenderCounter(0);
+
+    // Set the new character position
+    if(m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding().size() == l_vecNewPositionCharacter.size())
     {
-        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = m_pCurrentSelectedCharacter;
-        m_vecTileAreaPathFinding[m_pCurrentSelectedCharacter->getVecIndexTileAreaPathFinding()[i]]->m_maskPresence.character = 1;
+       m_pCurrentSelectedCharacter->setVecIndexTileAreaPathFinding(l_vecNewPositionCharacter);
+    }
+    else
+    {
+        qDebug()<<"Impossible to move the character, wrong vec size";
     }
 
-    _clearPathFinding();
+    mutex.unlock();
 }
 
 void BattleMapData::_initVecTileAreaPathFinding()

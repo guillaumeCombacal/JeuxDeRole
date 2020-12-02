@@ -66,8 +66,6 @@ Rectangle
 
         onListCharacterToAddInBattleMapChanged:
         {
-            console.log("SIZE : interfaceComQML.characterToAddInBattleMap " + interfaceComQML.characterToAddInBattleMap.length);
-
             for(var i=0; i<interfaceComQML.characterToAddInBattleMap.length; i++)
             {
                 listModelCharacter.append({"characterNameData": interfaceComQML.characterToAddInBattleMap[i], "color":"orange"})

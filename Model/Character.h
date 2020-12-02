@@ -135,6 +135,8 @@ public:
      inline const QString& getImgTilesheetFilePath()const{return m_strImgTilesheetFilePath;}
      inline void setImgTilesheetFilePath(QString i_strFilePath){m_strImgTilesheetFilePath = i_strFilePath;}// Generate data from code
 
+     inline void setRenderCounter(int counter){m_iCountRender = counter;}
+
      void saveCharacterData(QJsonObject &json)const;
      void loadCharacterData(const QJsonObject &json);
      bool isReadyToRender();
