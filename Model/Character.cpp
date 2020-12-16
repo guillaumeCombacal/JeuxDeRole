@@ -114,21 +114,30 @@ bool Character::isReadyToRender()
         return false;
     }
 
-    if(0 == m_iCountRender)
+    if(1 < m_iSizeSide)
     {
-        m_iCountRender++;
-        return true;
-    }
-    else if(m_iCountRender == (m_iSizeSide*m_iSizeSide)-1)
-    {
-        m_iCountRender = 0;
-        return false;
+        if(0 == m_iCountRender)
+        {
+            m_iCountRender++;
+            return true;
+        }
+        else if(m_iCountRender == (m_iSizeSide*m_iSizeSide)-1)
+        {
+            m_iCountRender = 0;
+            return false;
+        }
+        else
+        {
+            m_iCountRender++;
+            return false;
+        }
     }
     else
     {
-        m_iCountRender++;
-        return false;
+        return true;
     }
+
+
 }
 
 void Character::_initTotalCountRender()

@@ -21,11 +21,21 @@ private:
     // Contains the tile index in the vecTileAreaPathFinding on which cuseur is present
     int m_iIndexTileAreaPathFinding;
 
+    int m_indexPresenceCursor;
+
     bool m_bIsVisible;
+
+    int m_sizeSide;
 
 public:
      Curseur();
      virtual ~Curseur();
+
+     inline const int& getIndexPresenceCursor()const{return m_indexPresenceCursor;}
+     inline void setIndexPresenceCursor(int indexPresenceCursor){m_indexPresenceCursor = indexPresenceCursor;}
+
+     inline const int& getSizeSide()const{return m_sizeSide;}
+     inline void setSizeSide(int sizeSide){m_sizeSide = sizeSide;}
 
      // Generate data from code
      inline void setCoordTexture(QVector2D* i_pCoordTexture){std::memcpy(m_tabCoordTexture, i_pCoordTexture, NB_COORD_TEXTURE*sizeof(QVector2D));}

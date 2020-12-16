@@ -471,8 +471,6 @@ void BattleMapData::_associateTileAreaObject()
 // TODO : Voir si on ne peut pas améliorer l'algo (création de classe de State avec une StateMachine ?)
 void BattleMapData::eventKeyBoard(KeyValue i_eKey)
 {
-    int l_iNewIndex = m_curseur.getIndexTileAreaPathFinding();
-
     switch (i_eKey)
     {
         case ENTER :
@@ -529,8 +527,7 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             }
             else
             {
-                l_iNewIndex++;
-                _changeIndexCursor(l_iNewIndex);
+                _changeIndexCursor(1);
             }
             break;
         case RIGHT :
@@ -547,8 +544,7 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             }
             else
             {
-                l_iNewIndex--;
-                _changeIndexCursor(l_iNewIndex);
+                _changeIndexCursor(-1);
             }
             break;
         case UP :
@@ -565,8 +561,7 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             }
             else
             {
-                l_iNewIndex += m_nbTileSide;
-                _changeIndexCursor(l_iNewIndex);
+                _changeIndexCursor(m_nbTileSide);
             }
             break;
         case DOWN :
@@ -583,8 +578,7 @@ void BattleMapData::eventKeyBoard(KeyValue i_eKey)
             }
             else
             {
-                l_iNewIndex -= m_nbTileSide;
-                _changeIndexCursor(l_iNewIndex);
+                _changeIndexCursor(-m_nbTileSide);
             }
             break;
         default:
@@ -612,9 +606,7 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
     Character* l_pCharacter = new Character();
 
     l_pCharacter->setSizeSide(2);
-    l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{0,1,10,11});
-    //l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{0,1,2,10,11,12,20,21,22});
-    //l_pCharacter->setVecIndexTileAreaPathFinding(QVector<int>{32});
+    l_pCharacter->setVecIndexTileAreaPathFinding(_identifyInitPositionCharacter(l_pCharacter->getSizeSide()));
     l_pCharacter->setMoveSteps(4);
 
     Stats l_stats;
@@ -664,7 +656,6 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
     m_vecCharacter << l_pCharacter;
     m_vecAnimationSprite << l_pCharacter;
 
-    //TODO presence character à l'initialisation
     for(int i=0; i < l_pCharacter->getVecIndexTileAreaPathFinding().length(); i++)
     {
         m_vecTileAreaPathFinding[l_pCharacter->getVecIndexTileAreaPathFinding()[i]]->m_pCharacter = l_pCharacter;
@@ -673,6 +664,46 @@ void BattleMapData::selectCharacterToAddInBattle(QString name, QString job, QStr
 
     m_pCurrentSelectedCharacter = l_pCharacter;
     ////////////////////////////////////////////////////////////////
+}
+
+// Default position is tile 0 or the closest iteration possible
+// the tested tile in case of several tile character is the low tile, from which the others tiles are tested
+QVector<int> BattleMapData::_identifyInitPositionCharacter(int sizeSide)
+{
+   QVector<int> initPosition;
+   int indexTile = 0;
+   bool isCharacterPresent = true;
+   for(int i=0; i<(m_nbTileSide*m_nbTileSide)-(sizeSide-1) && initPosition.size() != (sizeSide*sizeSide); i++)
+   {
+      indexTile  = i;// the low tile
+      initPosition.clear();
+      if(m_vecTileAreaPathFinding[indexTile]->m_maskPresence.character != 1)
+      {
+          isCharacterPresent=false;
+          for(int j=0; j<sizeSide && !isCharacterPresent; j++)
+          {
+              indexTile = i+(j*m_nbTileSide);
+              if(m_vecTileAreaPathFinding[indexTile]->m_maskPresence.character == 1)
+              {
+                isCharacterPresent = true;
+              }
+
+              for(int k=0; k<sizeSide && !isCharacterPresent; k++)
+              {
+                  indexTile += k;
+                  if(m_vecTileAreaPathFinding[indexTile]->m_maskPresence.character == 1)
+                  {
+                    isCharacterPresent = true;
+                  }
+                  else
+                  {
+                      initPosition.append(indexTile);
+                  }
+              }
+          }
+      }
+   }
+   return initPosition;
 }
 
 void BattleMapData::enterAddingCharacterState()
@@ -786,26 +817,69 @@ bool BattleMapData::_checkNewPositionToMoveCharacter(int initialPosition, int sh
 }
 
 // Check if index is inside the map's bounds and set the new index
-void BattleMapData::_changeIndexCursor(int i_newIndex)
+void BattleMapData::_changeIndexCursor(int step)
 {
-    if(i_newIndex >= 0 && i_newIndex < m_nbTileSide*m_nbTileSide )
+    // Calcul the new index position
+    // if there is a character it go till the next tile without character
+    int nbIteration = 1;
+    if(m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.character == 1 &&
+       (m_curseur.getIndexTileAreaPathFinding()+step >= 0 && m_curseur.getIndexTileAreaPathFinding()+step < m_nbTileSide*m_nbTileSide ) &&
+       m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()+step]->m_maskPresence.character == 1)
     {
-        m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_maskPresence.cursor = 0;
-        m_vecTileAreaPathFinding[i_newIndex]->m_maskPresence.cursor = 1;
-        m_curseur.setIndexTileAreaPathFinding(i_newIndex);
+        nbIteration = m_vecTileAreaPathFinding[m_curseur.getIndexTileAreaPathFinding()]->m_pCharacter->getSizeSide();
+    }
 
-        if(m_vecTileAreaPathFinding[i_newIndex]->m_maskPresence.character == 1)
+    int newIndex = m_curseur.getIndexTileAreaPathFinding() + (step * nbIteration);
+    // check if it's inside the limits
+    if(newIndex >= 0 && newIndex < m_nbTileSide*m_nbTileSide )
+    {
+        int lowIndex = newIndex;
+
+        // Reset the old position cursor
+        m_vecTileAreaPathFinding[m_curseur.getIndexPresenceCursor()]->m_maskPresence.cursor = 0;
+
+        if(m_vecTileAreaPathFinding[newIndex]->m_maskPresence.character == 1)
         {
+            // send character data to qml
             m_pInterfaceQml->setIsCursorOnCharacter(true);
-            m_pInterfaceQml->setFeaturesCharacter(m_vecTileAreaPathFinding[i_newIndex]->m_pCharacter->getFeatures());
+            m_pInterfaceQml->setFeaturesCharacter(m_vecTileAreaPathFinding[newIndex]->m_pCharacter->getFeatures());
+
+            Character* pCharacter = m_vecTileAreaPathFinding[newIndex]->m_pCharacter;
+            if(nullptr != pCharacter)
+            {
+                int sizeCharacter = pCharacter->getSizeSide();
+                m_curseur.setSizeSide(sizeCharacter);
+
+                // If character size is more than 1 the cursor rendering have to be from the first character tile
+                if(1 < sizeCharacter){
+                    for(int i=0; i<pCharacter->getVecIndexTileAreaPathFinding().size(); i++){
+                        if(lowIndex > pCharacter->getVecIndexTileAreaPathFinding()[i])
+                        {
+                           lowIndex = pCharacter->getVecIndexTileAreaPathFinding()[i];
+                        }
+                    }
+                }
+            }
         }
         else
         {
             m_pInterfaceQml->setIsCursorOnCharacter(false);
+            m_curseur.setSizeSide(1);
         }
+
+        // Set new position cursor
+        // In case where characterSize = 1 => lowIndex = newIndex
+        // Otherwise it rendered from the lowest character tile (example below with 2 tile side character)
+        //    *
+        //*       *
+        //    *<--
+        m_vecTileAreaPathFinding[lowIndex]->m_maskPresence.cursor = 1;
+        m_curseur.setIndexTileAreaPathFinding(newIndex);
+        m_curseur.setIndexPresenceCursor(lowIndex);
     }
     else
     {
+        qDebug()<<"Cursor outside of the map";
     }
 }
 

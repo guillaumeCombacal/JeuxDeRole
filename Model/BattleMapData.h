@@ -83,6 +83,7 @@ private:
     void _fight(Character* pFighterAttack, Character* pFighterDefense);
     EnumCharacter::Orientation _attackOrientation(Character* pFighterAttack, Character* pFighterDefense);
     bool _checkNewPositionToMoveCharacter(int initialPosition, int moveOffset, int step);
+    QVector<int> _identifyInitPositionCharacter(int sizeSide);
 
     // Data Container exposed with getter
     //used for depth render (3D)

@@ -32,11 +32,26 @@ BattleMapRender::BattleMapRender(BattleMapData* i_pBattleMapData):
     }
 
 
+    // Point x 0,0 is the middle of the screen
+    //  _______
+    // |       |
+    // |   x   |
+    // |       |
+    //  -------
     // Init the base vertices -> Base Vertices is down tile of the map and the down left corner of the tile
     // If there is an nb Tile impair, it's necessary to had an half of height map
+    // 1--> show the first render tile (for x = tile)
+    // m_fLeftBaseCornerVertex is the O in the second draw
+    //  _____________      ___________
+    // |      x      |    |           |
+    // |   x  x  x   |    |     *     |
+    // |x  x  x  x  x|    | *       * |
+    // |   x  x  x   |    |     *     |
+    // |  1-->x      |    O ----------
+    //  -------------
     m_fLeftBaseCornerVertex = QVector3D(-(m_pBattleMapData->getWidthTile()/2),
-                                    ((m_iNbTileSide/2)*m_pBattleMapData->getHeightTile())+ l_fOddOffset,
-                                    0.0f);
+                                       ((m_iNbTileSide/2)*m_pBattleMapData->getHeightTile())+ l_fOddOffset,
+                                       0.0f);
 
     // Loading all required textures to render the battleMap
     // Note : Le chargement des texture dois être effectué en début d'initialisation
@@ -232,7 +247,7 @@ void BattleMapRender::renderBattleMap()
             else
             {
                 l_fLeftCornerTileX = m_fLeftBaseCornerVertex.x() - ((m_iNbTileSide-1)*m_pBattleMapData->getWidthTile()/2)
-                             + ((itRow-(m_iNbTileSide-1)) * m_pBattleMapData->getWidthTile()/2);
+                                     + ((itRow-(m_iNbTileSide-1)) * m_pBattleMapData->getWidthTile()/2);
             }
             // Adding an offset function of the position of the tile in the row
             l_fLeftCornerTileX += (itTileInRow * m_pBattleMapData->getWidthTile());
@@ -347,11 +362,19 @@ void BattleMapRender::_calculCharacterVerticesBuffer(float i_fLeftCornerTileX, f
     m_vecCharacterVertexBuffer << l_vecLeftUpCharacterVertex;
 }
 
+
+// 3_____2
+// |     |
+// |     |
+// 0-----1
 void BattleMapRender::_calculCurseurVerticesBuffer(float i_fPositionBaseX, float i_fPositionBaseY, float i_fHeightTile)
 {
-    m_tabCurseurVertexBuffer[0] = QVector3D (i_fPositionBaseX, i_fPositionBaseY - i_fHeightTile, 0.0f);
-    m_tabCurseurVertexBuffer[1] = QVector3D (m_tabCurseurVertexBuffer[0].x() + m_pBattleMapData->getWidthTile(), m_tabCurseurVertexBuffer[0].y(), 0.0f);
-    m_tabCurseurVertexBuffer[2] = QVector3D (m_tabCurseurVertexBuffer[1].x(), m_tabCurseurVertexBuffer[1].y() - m_pBattleMapData->getWidthTile(), 0.0f);
+    int sizeSide = m_pBattleMapData->getCurseur().getSizeSide();
+    m_tabCurseurVertexBuffer[0] = QVector3D (i_fPositionBaseX - ((sizeSide-1)*m_pBattleMapData->getWidthTile()/2),
+                                            (i_fPositionBaseY - (i_fHeightTile/2 * sizeSide)),
+                                            0.0f);
+    m_tabCurseurVertexBuffer[1] = QVector3D (m_tabCurseurVertexBuffer[0].x() + (sizeSide*m_pBattleMapData->getWidthTile()), m_tabCurseurVertexBuffer[0].y(), 0.0f);
+    m_tabCurseurVertexBuffer[2] = QVector3D (m_tabCurseurVertexBuffer[1].x(), m_tabCurseurVertexBuffer[1].y() - sizeSide*m_pBattleMapData->getWidthTile(), 0.0f);
     m_tabCurseurVertexBuffer[3] = QVector3D (m_tabCurseurVertexBuffer[0].x(), m_tabCurseurVertexBuffer[2].y(), 0.0f);
 }
 
