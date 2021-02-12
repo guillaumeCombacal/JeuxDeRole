@@ -78,12 +78,14 @@ private:
     void _pathFinding(int indexTileCursor, int depthLevel);
     void _clearPathFinding();
     void _changeIndexCursor(int i_newIndex);
+    void _selectNewPositionCharacter(int step);
     void _changeIndexSelectedCharacterToAdd(QVector<int> initialPosition, int step, int nbIteration=1);
     void _moveCharacter(int moveOffset);
     void _fight(Character* pFighterAttack, Character* pFighterDefense);
     EnumCharacter::Orientation _attackOrientation(Character* pFighterAttack, Character* pFighterDefense);
     bool _checkNewPositionToMoveCharacter(int initialPosition, int moveOffset, int step);
     QVector<int> _identifyInitPositionCharacter(int sizeSide);
+    bool _isCharacterAuthorizedToMove(int moveOffset);
 
     // Data Container exposed with getter
     //used for depth render (3D)

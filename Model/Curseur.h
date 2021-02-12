@@ -27,9 +27,14 @@ private:
 
     int m_sizeSide;
 
+    bool m_isSelectingCharacter;
+
 public:
      Curseur();
      virtual ~Curseur();
+
+     inline const bool getIsSelectingCharacter(){return m_isSelectingCharacter;}
+     inline void setIsSelectingCharacter(bool isSelectingCharacter){m_isSelectingCharacter = isSelectingCharacter;}
 
      inline const int& getIndexPresenceCursor()const{return m_indexPresenceCursor;}
      inline void setIndexPresenceCursor(int indexPresenceCursor){m_indexPresenceCursor = indexPresenceCursor;}

@@ -14,7 +14,8 @@ Curseur::Curseur():
     m_iIndexTexture(0),
     m_strImgFilePath(""),
     m_bIsVisible(false),
-    m_sizeSide(1)
+    m_sizeSide(1),
+    m_isSelectingCharacter(false)
 {
     std::memset(&m_tabCoordTexture, 0, sizeof(QVector2D)*NB_COORD_TEXTURE);
 }

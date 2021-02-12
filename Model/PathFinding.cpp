@@ -2,11 +2,12 @@
 
 #include "QDebug"
 
-PathFinding::PathFinding(int i_indexOrigin, int i_depthPathFinding, int i_nbTileSideMap):
+PathFinding::PathFinding(int i_depthPathFinding, int i_nbTileSideMap):
     m_bIsActivated(false),
-    m_indexOrigin(i_indexOrigin),
     m_depthPathFinding(i_depthPathFinding),
     m_nbTileSideMap(i_nbTileSideMap),
+    m_nbTileSidePathfinding(1),
+    m_characterTileSide(0),
     m_strImgTilesheetFilePath(QString("C:/Users/Yaku/Documents/DeveloppementCode/PROJECT/jeuxDeRole/JeuDeRole/Ressources/ImgTest/tilePathFinding.png"))
 {
     _calculPathFinding();
@@ -26,127 +27,138 @@ void PathFinding::clearVecPathFinding()
     m_vecIndexPathFinding.clear();
 }
 
-bool PathFinding::isIndexInPathFinding(int i_index)
-{
-    for(int i=0; i<m_vecIndexPathFinding.size(); i++)
-    {
-        if(m_vecIndexPathFinding[i] == i_index)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-
 void PathFinding::_calculPathFinding()
 {
     m_vecIndexPathFinding.clear();
 
-    if(m_depthPathFinding>0 && m_nbTileSideMap>0)
+    if(m_characterTileSide > 0 && m_indexesOrigin.size()>0 && m_depthPathFinding > 0 && m_nbTileSideMap > 0 && m_nbTileSidePathfinding >= 1)
     {
-        int l_limitIndexColumnMap_Up;
-        if((m_nbTileSideMap-1) - (m_indexOrigin%m_nbTileSideMap) > m_depthPathFinding)
+        // CALCUL LIMITS PATHFINDING
+
+        // Limits example        
+        // Character tile side = 1 (P) ==> Limit to reach border 1 or 2
+        //               *
+        //          *         *
+        //     2         *          2
+        //*         *         *          *
+        //     *         P          *
+        //          1         1
+        //               *
+        // Character tile side = 2 (P,D,U)
+        // Limits (1) found according to D and U (Downest and uppest index among character's indexes)
+        //               *
+        //          1         1
+        //     *         U          *
+        //*         P         P          *
+        //     *         D          *
+        //          1         1
+        //               *
+
+
+        // In case characterTileSide = 1, indexUpTile = indexDownTile
+        int indexUpTile = -1;
+        int indexDownTile = m_nbTileSideMap * m_nbTileSideMap +1;
+        for(int i=0; i<m_indexesOrigin.size(); i++)
         {
-            l_limitIndexColumnMap_Up = m_indexOrigin+m_depthPathFinding;
-        }
-        else
-        {
-            l_limitIndexColumnMap_Up = m_indexOrigin + ((m_nbTileSideMap-1) - (m_indexOrigin%m_nbTileSideMap));
+            if(indexUpTile < m_indexesOrigin[i])
+            {
+                indexUpTile = m_indexesOrigin[i];
+            }
+
+            if(indexDownTile > m_indexesOrigin[i])
+            {
+                indexDownTile = m_indexesOrigin[i];
+            }
         }
 
-        int l_limitIndexColumnMap_Down;
-        if(m_indexOrigin%m_nbTileSideMap > m_depthPathFinding)
-        {
-            l_limitIndexColumnMap_Down = m_indexOrigin-m_depthPathFinding;
-        }
-        else
-        {
-            l_limitIndexColumnMap_Down = m_indexOrigin - (m_indexOrigin%m_nbTileSideMap);
-        }
+        // Example index map with character (P)
+        //               15
+        //          11        14
+        //     7         P          13
+        //3         P         P          12
+        //     2         P          8
+        //          1         4
+        //               0
 
-        int l_limitIndexLineMap_Down;
-        if(m_indexOrigin/m_nbTileSideMap > m_depthPathFinding)
-        {
-            l_limitIndexLineMap_Down = m_indexOrigin - (m_depthPathFinding*m_nbTileSideMap);
-        }
-        else
-        {
-            l_limitIndexLineMap_Down = m_indexOrigin - ((m_indexOrigin/m_nbTileSideMap)*m_nbTileSideMap);
-        }
-
-        int l_limitIndexLineMap_Up;
-        if((m_nbTileSideMap-1) - (m_indexOrigin/m_nbTileSideMap) > m_depthPathFinding)
-        {
-            l_limitIndexLineMap_Up = m_indexOrigin + (m_depthPathFinding*m_nbTileSideMap);
-        }
-        else
-        {
-            l_limitIndexLineMap_Up = m_indexOrigin + ((((m_nbTileSideMap-1)-(m_indexOrigin/m_nbTileSideMap))) * m_nbTileSideMap);
-        }
 
         m_vecIndexPathFinding.clear();
+        // Tile side character = 1 and depth path finding = 2 (0 and X = points found with pathfinding)
+        //                    *
+        //               *         *
+        //          0         X          0
+        //     *         0         0          *
+        //*         X         P         X          *
+        //     *         0         0          *
+        //          0         X          0
+        //               *         *
+        //                    *
+        //
+        // Tile side character = 2 and depth path finding = 2 (0 and X = points found with pathfinding)
+        //                    *
+        //               0         X
+        //          0         0          0
+        //     *         0         P          0
+        //*         X         P         P          X
+        //     *         0         P          0
+        //          0         0          0
+        //               0         X
+        //                    *
 
+
+        QVector<int> currentSeedIndexes;
+        QVector<int> nextSeedIndex;
+        bool isChangeColumnUp = false;// when row iteration it's impossible to change column (no teleportation ;)
+        bool isChangeColumnDown = false;
         for(int i=0; i<m_depthPathFinding; i++)
         {
-            // Add tile in cross extremities (*)
-            //    *
-            //    *
-            //* * * * *
-            //    *
-            //    *
-            if(l_limitIndexColumnMap_Up >= m_indexOrigin+(i+1))
-            {
-                m_vecIndexPathFinding<<m_indexOrigin + (i+1);
-            }
-            if(l_limitIndexColumnMap_Down <= m_indexOrigin-(i+1))
-            {
-                m_vecIndexPathFinding<<m_indexOrigin - (i+1);
-            }
-            if(l_limitIndexLineMap_Up >= m_indexOrigin + ((i+1)*m_nbTileSideMap))
-            {
-                m_vecIndexPathFinding<<m_indexOrigin + ((i+1)*m_nbTileSideMap);
-            }
-            if(l_limitIndexLineMap_Down <= m_indexOrigin - ((i+1)*m_nbTileSideMap))
-            {
-                m_vecIndexPathFinding<<m_indexOrigin - ((i+1)*m_nbTileSideMap);
-            }
+            // Add tile as seed progression
+            //                    *
+            //               2         2
+            //          2         1          1
+            //     *         1         P          1
+            //*         2         P         P          2
+            //     *         1         P          1
+            //          2         1          1
+            //               2         2
+            //                    *
 
-            // Tiles which dont belong to the cross.
-            // Begin with the extrem tiles and get closer to to the origin tile (0)
-            //        *
-            //      0 * 0
-            //    0 0 * 0 0
-            //  0 0 0 * 0 0 0
-            //* * * * * * * * *
-            //  0 0 0 * 0 0 0
-            //    0 0 * 0 0
-            //      0 * 0
-            //        *
-            if(i >= 1)
+            // First turn start from character
+            if(i == 0){
+                nextSeedIndex = m_indexesOrigin;
+            }
+            currentSeedIndexes = nextSeedIndex;
+            nextSeedIndex.clear();
+
+            for(int j=0; j<currentSeedIndexes.size(); j++)
             {
-                for(int j=0; j<i; j++)
+                // Row
+                isChangeColumnUp = (currentSeedIndexes[j] / m_nbTileSideMap) != ((currentSeedIndexes[j]+1) / m_nbTileSideMap);
+                if(!m_vecIndexPathFinding.contains(currentSeedIndexes[j]+1) && !isChangeColumnUp &&
+                   m_nbTileSideMap*m_nbTileSideMap > currentSeedIndexes[j]+1 )
                 {
-                    if(m_indexOrigin + (j+1) <= l_limitIndexColumnMap_Up
-                       && m_indexOrigin + ((i-j)*m_nbTileSideMap) <= l_limitIndexLineMap_Up)
-                    {
-                        m_vecIndexPathFinding << m_indexOrigin + ((i-j)*m_nbTileSideMap) + (j+1);
-                    }
-                    if(m_indexOrigin - (j+1) >= l_limitIndexColumnMap_Down
-                       && m_indexOrigin + ((i-j)*m_nbTileSideMap) <= l_limitIndexLineMap_Up)
-                    {
-                        m_vecIndexPathFinding << m_indexOrigin + ((i-j)*m_nbTileSideMap) - (j+1);
-                    }
-                    if(m_indexOrigin + (j+1) <= l_limitIndexColumnMap_Up
-                       && m_indexOrigin - ((i-j)*m_nbTileSideMap) >= l_limitIndexLineMap_Down)
-                    {
-                        m_vecIndexPathFinding << m_indexOrigin - ((i-j)*m_nbTileSideMap) + (j+1);
-                    }
-                    if(m_indexOrigin - (j+1) >= l_limitIndexColumnMap_Down
-                       && m_indexOrigin - ((i-j)*m_nbTileSideMap) >= l_limitIndexLineMap_Down)
-                    {
-                        m_vecIndexPathFinding << m_indexOrigin - ((i-j)*m_nbTileSideMap) - (j+1);
-                    }
+                   nextSeedIndex << currentSeedIndexes[j]+1;
+                   m_vecIndexPathFinding << currentSeedIndexes[j]+1;
+                }
+                isChangeColumnDown = (currentSeedIndexes[j] / m_nbTileSideMap) != ((currentSeedIndexes[j]-1) / m_nbTileSideMap);
+                if(!m_vecIndexPathFinding.contains(currentSeedIndexes[j]-1) && !isChangeColumnDown &&
+                   0 <= currentSeedIndexes[j]-1 )
+                {
+                   nextSeedIndex << currentSeedIndexes[j]-1;
+                   m_vecIndexPathFinding << currentSeedIndexes[j]-1;
+                }
+
+                // Column
+                if(!m_vecIndexPathFinding.contains(currentSeedIndexes[j]+m_nbTileSideMap) &&
+                   m_nbTileSideMap*m_nbTileSideMap > currentSeedIndexes[j]+m_nbTileSideMap)
+                {
+                   nextSeedIndex << currentSeedIndexes[j]+m_nbTileSideMap;
+                   m_vecIndexPathFinding << currentSeedIndexes[j]+m_nbTileSideMap;
+                }
+                if(!m_vecIndexPathFinding.contains(currentSeedIndexes[j]-m_nbTileSideMap) &&
+                   0 < currentSeedIndexes[j]-m_nbTileSideMap)
+                {
+                   nextSeedIndex << currentSeedIndexes[j]-m_nbTileSideMap;
+                   m_vecIndexPathFinding << currentSeedIndexes[j]-m_nbTileSideMap;
                 }
             }
         }
